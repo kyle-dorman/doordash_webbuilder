@@ -9,6 +9,7 @@ A Python workspace for building white-label restaurant websites from a restauran
 | [`webbuilder-agent`](packages/agent/) | Generate a restaurant's site from its feed using Inspect AI and OpenAI models. |
 | [`webbuilder-mock-backend`](packages/mock-backend/) | Handle the simulated DoorDash ordering flow. |
 | [`webbuilder-site-server`](packages/site-server/) | Serve generated restaurant sites. |
+| [`webbuilder-shopper`](packages/shopper/) | Run and grade shopper stories against a generated site and its mock checkout. |
 
 ## Local setup
 
@@ -72,13 +73,35 @@ Cart edits stay in the current browser tab until submission. The mock prices eac
 
 To preview another restaurant, change the store ID and output directory. The landing page features up to three photographed dishes, selected by matching restaurant tags to dish names, sections and descriptions. Feed order breaks ties and supplies pictured dishes when matches run out. The browser loads photos from the CDN URLs in the feed. **Hours & location** shows the address, phone and weekly hours.
 
+## Run all five Thai Peacock shopper stories
+
+From the repository root, with the sample feed at `~/data/webbuilder/restaurants_feed.json`, run
+
+```sh
+make stories
+```
+
+This installs Playwright’s headless Chromium on first use, generates `build/thai-peacock`, and runs each story in a fresh browser session with its own local site and mock checkout. The command prints one result per story and exits successfully when all five pass. The generated site stays in place for the next runner. [Task 006 results](docs/tasks/006-scripted-browser-tests.md#verification)
+
+### Run the computer-use shopper on that build
+
+With the Task 006 build present and `OPENAI_API_KEY` in `.env`, run
+
+```sh
+uv run --locked --package webbuilder-shopper --env-file .env run-computer-shopper \
+  --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json \
+  --model gpt-5.4-2026-03-05
+```
+
+Each story gets up to three attempts. The command prints the result of each attempt and the path to its run directory under `logs/computer-shopper/`. The Task 007 record includes the live baseline and explains the step budget, grading, and evidence. [Task 007](docs/tasks/007-computer-use-shopper.md)
+
 ## Development
 
 Run these commands from the workspace root.
 
 - `make fix` applies Ruff's automatic lint fixes, sorts imports, and formats Python code.
 - `make check` checks formatting and lint, runs strict mypy across the packages and tests, and runs pytest. Use `make type` or `make test` to run either step on its own.
-- `uv build --all-packages` builds the three distributions.
+- `uv build --all-packages` builds the workspace distributions.
 
 Install the recommended VS Code extensions to use Ruff formatting and import sorting on save. The workspace uses Python 3.12 style and a 100-character line limit.
 

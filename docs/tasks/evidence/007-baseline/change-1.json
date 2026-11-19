@@ -1,0 +1,294 @@
+[
+  {
+    "event": "request",
+    "text": "Add one Thai Lime Tea and one 16 oz rice to the cart. Show me my cart."
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0005bf3fe1863632006aff6495f4d487d0857cd04bc0966fd8",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 1,
+    "action": {
+      "type": "screenshot"
+    }
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0005bf3fe1863632006aff6498120487d0aba7aea375768a01",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1001,
+      "y": 34
+    }
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0005bf3fe1863632006aff649a02b487d0b81c3bbc66b95a36",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 3,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 120,
+      "y": 751
+    }
+  },
+  {
+    "event": "response",
+    "step": 4,
+    "id": "resp_0005bf3fe1863632006aff649c541487d0975a516e575e9910",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 793,
+      "y": 445
+    }
+  },
+  {
+    "event": "response",
+    "step": 5,
+    "id": "resp_0005bf3fe1863632006aff649e220c87d096dd5886748a9ac9",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 101,
+      "y": 467
+    }
+  },
+  {
+    "event": "response",
+    "step": 6,
+    "id": "resp_0005bf3fe1863632006aff64a0cbc087d0b1cd8fb59d156de7",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 6,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 770,
+      "y": 198
+    }
+  },
+  {
+    "event": "response",
+    "step": 7,
+    "id": "resp_0005bf3fe1863632006aff64a2a69087d0b34ec807f7517aed",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 7,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 136,
+      "y": 78
+    }
+  },
+  {
+    "event": "response",
+    "step": 8,
+    "id": "resp_0005bf3fe1863632006aff64a4ac0487d0805c6db9745aeeb5",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 162,
+      "y": 75
+    }
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "action": {
+      "type": "wait"
+    }
+  },
+  {
+    "event": "response",
+    "step": 9,
+    "id": "resp_0005bf3fe1863632006aff64a7a78887d08e88c90702f41564",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "action": {
+      "scroll_x": 0,
+      "scroll_y": -633,
+      "type": "scroll",
+      "x": 1251,
+      "y": 878
+    }
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "action": {
+      "scroll_x": 0,
+      "scroll_y": -558,
+      "type": "scroll",
+      "x": 1248,
+      "y": 82
+    }
+  },
+  {
+    "event": "response",
+    "step": 10,
+    "id": "resp_0005bf3fe1863632006aff64abc74087d09021a47c69c6f2f1",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 10,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 223,
+      "y": 45
+    }
+  },
+  {
+    "event": "action",
+    "step": 10,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 110,
+      "y": 77
+    }
+  },
+  {
+    "event": "action",
+    "step": 10,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 166,
+      "y": 77
+    }
+  },
+  {
+    "event": "response",
+    "step": 11,
+    "id": "resp_0005bf3fe1863632006aff64b5a50087d0b921d1a12e49961f",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "answer",
+    "step": 11,
+    "text": "Your cart is showing:\n- Thai Lime Tea — $4.50\n- Rice (16oz.) — $2.50\n\nSubtotal: $7.00"
+  },
+  {
+    "event": "request",
+    "text": "Change the quantity to two teas, remove the rice, and place the order."
+  },
+  {
+    "event": "response",
+    "step": 12,
+    "id": "resp_0005bf3fe1863632006aff64b81b0887d085c84d101e339165",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 12,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 941,
+      "y": 320
+    }
+  },
+  {
+    "event": "action",
+    "step": 12,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1068,
+      "y": 434
+    }
+  },
+  {
+    "event": "action",
+    "step": 12,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1028,
+      "y": 565
+    }
+  },
+  {
+    "event": "response",
+    "step": 13,
+    "id": "resp_0005bf3fe1863632006aff64bac33487d09e59726490be758c",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 13,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1026,
+      "y": 466
+    }
+  },
+  {
+    "event": "response",
+    "step": 14,
+    "id": "resp_0005bf3fe1863632006aff64bcc86887d0ac3e2a81a6d0d7a4",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "answer",
+    "step": 14,
+    "text": "Order placed."
+  }
+]

@@ -1,0 +1,279 @@
+[
+  {
+    "event": "request",
+    "text": "Order two servings of vegan crispy spring rolls and one 16 oz rice."
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0d6e31a1db0222c9006aff6320dc8087d0885e7e98412d2874",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 1,
+    "action": {
+      "type": "screenshot"
+    }
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0d6e31a1db0222c9006aff6322d78c87d096f15cdc876000d9",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 166,
+      "y": 367
+    }
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0d6e31a1db0222c9006aff6324cc9487d0b4229235a298e0c4",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 3,
+    "action": {
+      "scroll_x": 0,
+      "scroll_y": 564,
+      "type": "scroll",
+      "x": 1219,
+      "y": 875
+    }
+  },
+  {
+    "event": "response",
+    "step": 4,
+    "id": "resp_0d6e31a1db0222c9006aff6327f39887d0a969bb3b90605555",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 860,
+      "y": 596
+    }
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 862,
+      "y": 595
+    }
+  },
+  {
+    "event": "response",
+    "step": 5,
+    "id": "resp_0d6e31a1db0222c9006aff632b058c87d0ba59066a098e2715",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 101,
+      "y": 463
+    }
+  },
+  {
+    "event": "response",
+    "step": 6,
+    "id": "resp_0d6e31a1db0222c9006aff632d39e887d081722861bad33f33",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 6,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 811,
+      "y": 198
+    }
+  },
+  {
+    "event": "response",
+    "step": 7,
+    "id": "resp_0d6e31a1db0222c9006aff632f34f887d0a2f8004f7c13c99f",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 7,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 163,
+      "y": 77
+    }
+  },
+  {
+    "event": "response",
+    "step": 8,
+    "id": "resp_0d6e31a1db0222c9006aff633234f887d08117da701c5c614a",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 155,
+      "y": 71
+    }
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 161,
+      "y": 73
+    }
+  },
+  {
+    "event": "response",
+    "step": 9,
+    "id": "resp_0d6e31a1db0222c9006aff6335978487d090b425a98ae51b9e",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 220,
+      "y": 76
+    }
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "action": {
+      "type": "wait"
+    }
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 126,
+      "y": 76
+    }
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "action": {
+      "type": "wait"
+    }
+  },
+  {
+    "event": "response",
+    "step": 10,
+    "id": "resp_0d6e31a1db0222c9006aff633a9ed487d0b24835d83c389edf",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 10,
+    "action": {
+      "scroll_x": 0,
+      "scroll_y": -663,
+      "type": "scroll",
+      "x": 1228,
+      "y": 88
+    }
+  },
+  {
+    "event": "response",
+    "step": 11,
+    "id": "resp_0d6e31a1db0222c9006aff633dc5c487d0bbf8bfa99ecfa7a2",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 11,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 150,
+      "y": 44
+    }
+  },
+  {
+    "event": "action",
+    "step": 11,
+    "action": {
+      "type": "wait"
+    }
+  },
+  {
+    "event": "response",
+    "step": 12,
+    "id": "resp_0d6e31a1db0222c9006aff634147c887d0ab95608cdb333a9b",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 12,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1028,
+      "y": 564
+    }
+  },
+  {
+    "event": "action",
+    "step": 12,
+    "action": {
+      "type": "wait"
+    }
+  },
+  {
+    "event": "response",
+    "step": 13,
+    "id": "resp_0d6e31a1db0222c9006aff6344ab9c87d0bf10e468909941fd",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "answer",
+    "step": 13,
+    "text": "Order placed."
+  }
+]

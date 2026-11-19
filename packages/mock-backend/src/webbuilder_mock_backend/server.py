@@ -81,9 +81,14 @@ def confirm_order(order: object, catalog: Catalog) -> dict[str, object]:
 
 
 class OrderServer(ThreadingHTTPServer):
-    def __init__(self, address: tuple[str, int], catalog: Catalog) -> None:
+    def __init__(
+        self,
+        address: tuple[str, int],
+        catalog: Catalog,
+        handler: type["OrderHandler"] | None = None,
+    ) -> None:
         self.catalog = catalog
-        super().__init__(address, OrderHandler)
+        super().__init__(address, handler or OrderHandler)
 
 
 class OrderHandler(BaseHTTPRequestHandler):

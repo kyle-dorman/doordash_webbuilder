@@ -18,7 +18,7 @@
       </fieldset>
       <div data-confirmation hidden>
         <ul class="cart-lines" data-confirmed-lines aria-label="Confirmed items"></ul>
-        <div class="cart-subtotal"><span>Total</span><strong data-confirmed-total></strong></div>
+        <div class="cart-subtotal"><span id="order-total-label">Total</span><strong><output aria-labelledby="order-total-label" data-confirmed-total></output></strong></div>
       </div>
       <template id="cart-line-template">
         <li class="cart-line">
@@ -28,7 +28,7 @@
           </div>
           <div class="cart-quantity">
             <button type="button" data-cart-action="decrease">−</button>
-            <span data-cart-quantity></span>
+            <output aria-label="Quantity" data-cart-quantity></output>
             <button type="button" data-cart-action="increase">+</button>
           </div>
           <strong class="cart-line-total" data-cart-line-total></strong>
@@ -41,7 +41,7 @@
             <h2 class="cart-line-name" data-confirmed-name></h2>
             <span class="cart-unit-price" data-confirmed-quantity></span>
           </div>
-          <strong class="cart-line-total" data-confirmed-line-total></strong>
+          <strong class="cart-line-total"><output aria-label="Line total" data-confirmed-line-total></output></strong>
         </li>
       </template>
       <p class="visually-hidden" role="status" data-cart-status></p>

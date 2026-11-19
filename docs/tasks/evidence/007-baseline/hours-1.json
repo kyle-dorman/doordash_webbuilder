@@ -1,0 +1,49 @@
+[
+  {
+    "event": "request",
+    "text": "When does Thai Peacock open and close on Tuesday and Friday?"
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0fa4157e57e11525006aff6453da8487d0b037f2114afde3b7",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 1,
+    "action": {
+      "type": "screenshot"
+    }
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0fa4157e57e11525006aff64566db087d0abc3f42e34296a37",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1115,
+      "y": 34
+    }
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0fa4157e57e11525006aff6458337487d0813dc5a2226d27a7",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "answer",
+    "step": 3,
+    "text": "Tuesday: 11:30 AM – 9:15 PM  \nFriday: 11:00 AM – 9:45 PM"
+  }
+]

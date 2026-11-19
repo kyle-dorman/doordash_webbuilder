@@ -35,7 +35,7 @@
               <div class="item-copy">
                 <div class="item-heading">
                   <h3>{{ item.name }}</h3>
-                  <span class="price">{{ item.display_price }}</span>
+                  <data class="price" value="{{ item.price_cents }}">{{ item.display_price }}</data>
                 </div>
                 {% if item.description %}
                 <p class="description">{{ item.description }}</p>

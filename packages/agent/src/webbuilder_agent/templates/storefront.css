@@ -151,7 +151,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 400; }
   grid-area: quantity; display: inline-flex; align-items: center; justify-self: start;
   border: 1px solid #9daea0; border-radius: 24px; color: var(--teal); font-variant-numeric: tabular-nums;
 }
-.cart-quantity span { min-width: 1.8em; text-align: center; font-size: 14px; }
+.cart-quantity output { min-width: 1.8em; text-align: center; font-size: 14px; }
 .cart-quantity button { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; font-size: 18px; }
 .cart-line-total { grid-area: total; justify-self: end; color: var(--teal); font-variant-numeric: tabular-nums; }
 .cart-remove {

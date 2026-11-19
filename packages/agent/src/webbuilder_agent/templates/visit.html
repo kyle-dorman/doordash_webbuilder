@@ -18,8 +18,8 @@
         <h2 id="hours-heading">Posted hours</h2>
         <dl>
           {% for record in store.hours %}
-          <div class="hours-row">
-            <dt>{{ record.day }}</dt>
+          <div class="hours-row" role="group" aria-labelledby="hours-day-{{ loop.index }}">
+            <dt id="hours-day-{{ loop.index }}">{{ record.day }}</dt>
             <dd>{% for start, end in record.intervals %}<span><time datetime="{{ start }}">{{ start | clock }}</time> – <time datetime="{{ end }}">{{ end | clock }}</time></span>{% else %}Closed{% endfor %}</dd>
           </div>
           {% endfor %}

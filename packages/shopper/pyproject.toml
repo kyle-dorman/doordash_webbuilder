@@ -1,0 +1,25 @@
+[project]
+name = "webbuilder-shopper"
+version = "0.1.0"
+description = "Run and grade shopper stories against a generated restaurant storefront"
+requires-python = ">=3.12"
+dependencies = [
+    "openai>=3.55.1",
+    "playwright",
+    "webbuilder-agent",
+    "webbuilder-mock-backend",
+    "webbuilder-site-server",
+]
+
+[project.scripts]
+run-shopper-stories = "webbuilder_shopper.runner:main"
+run-computer-shopper = "webbuilder_shopper.computer_runner:main"
+
+[tool.uv.sources]
+webbuilder-agent = { workspace = true }
+webbuilder-mock-backend = { workspace = true }
+webbuilder-site-server = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.12,<0.13"]
+build-backend = "uv_build"

@@ -1,0 +1,199 @@
+[
+  {
+    "event": "request",
+    "text": "Add one Thai Lime Tea and one 16 oz rice to the cart. Show me my cart."
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_04f5440afb43594d006aff6347e0a887d0b5eb0b2a6112ba12",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 1,
+    "action": {
+      "type": "screenshot"
+    }
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_04f5440afb43594d006aff634a344c87d091143136b77e8ab7",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1200,
+      "y": 470
+    }
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_04f5440afb43594d006aff634c0ca887d0821f25f426b87dfb",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 3,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 118,
+      "y": 749
+    }
+  },
+  {
+    "event": "response",
+    "step": 4,
+    "id": "resp_04f5440afb43594d006aff634e7b9887d0bc4f95d364a85c99",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 788,
+      "y": 447
+    }
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 101,
+      "y": 466
+    }
+  },
+  {
+    "event": "response",
+    "step": 5,
+    "id": "resp_04f5440afb43594d006aff63551acc87d087de5715551445c4",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 790,
+      "y": 198
+    }
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 140,
+      "y": 79
+    }
+  },
+  {
+    "event": "response",
+    "step": 6,
+    "id": "resp_04f5440afb43594d006aff635ae10c87d08e8b9106b15c49d7",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 6,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 139,
+      "y": 76
+    }
+  },
+  {
+    "event": "action",
+    "step": 6,
+    "action": {
+      "type": "wait"
+    }
+  },
+  {
+    "event": "response",
+    "step": 7,
+    "id": "resp_04f5440afb43594d006aff635d45dc87d081d3b4a0ee761e6d",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 7,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 154,
+      "y": 78
+    }
+  },
+  {
+    "event": "response",
+    "step": 8,
+    "id": "resp_04f5440afb43594d006aff635fc5dc87d0bb427151906a65a9",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "action": {
+      "keys": [
+        "HOME"
+      ],
+      "type": "keypress"
+    }
+  },
+  {
+    "event": "response",
+    "step": 9,
+    "id": "resp_04f5440afb43594d006aff6362fa9887d0a5c964aafa172366",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 134,
+      "y": 258
+    }
+  },
+  {
+    "event": "response",
+    "step": 10,
+    "id": "resp_04f5440afb43594d006aff6365274487d08222f43e25de82b1",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "answer",
+    "step": 10,
+    "text": "Your cart is shown with:\n- Thai Lime Tea — $4.50\n- Rice (16oz.) — $2.50\n\nSubtotal: $7.00"
+  },
+  {
+    "event": "request",
+    "text": "Change the quantity to two teas, remove the rice, and place the order."
+  }
+]

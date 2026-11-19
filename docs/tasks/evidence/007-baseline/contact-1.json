@@ -1,0 +1,49 @@
+[
+  {
+    "event": "request",
+    "text": "What’s the full address and phone number?"
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0f3765d7a3d92686006aff644d15a487d097bf23ae3a1a6588",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 1,
+    "action": {
+      "type": "screenshot"
+    }
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0f3765d7a3d92686006aff644f4ac087d0b61d898cdf9210e7",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1094,
+      "y": 33
+    }
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0f3765d7a3d92686006aff6451873487d099f36d13a7f359c6",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed"
+  },
+  {
+    "event": "answer",
+    "step": 3,
+    "text": "Thai Peacock  \n219 Southwest 9th Avenue  \nPortland, OR 97205  \n(503) 719-7273"
+  }
+]

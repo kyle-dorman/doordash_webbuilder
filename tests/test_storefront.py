@@ -7,8 +7,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from webbuilder_agent.feed import Section, featured_items, load_store
-from webbuilder_agent.storefront import generate
+from webbuilder_static.feed import Section, featured_items, load_store
+from webbuilder_static.storefront import generate
 
 HEADER_URL = "https://cdn.doordash.com/media/store/header/test.jpg"
 COVER_URL = "https://cdn.doordash.com/media/restaurant/cover/rice%20spice.png"

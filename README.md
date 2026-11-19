@@ -6,7 +6,7 @@ A Python workspace for building white-label restaurant websites from a restauran
 
 | Package | Intended responsibility |
 | --- | --- |
-| [`webbuilder-agent`](packages/agent/) | Generate a restaurant's site from its feed using Inspect AI and OpenAI models. |
+| [`webbuilder-static`](packages/static/) | Generate the deterministic reference storefront from a restaurant feed. |
 | [`webbuilder-mock-backend`](packages/mock-backend/) | Handle the simulated DoorDash ordering flow. |
 | [`webbuilder-site-server`](packages/site-server/) | Serve generated restaurant sites. |
 | [`webbuilder-shopper`](packages/shopper/) | Run and grade shopper stories against a generated site and its mock checkout. |
@@ -17,10 +17,9 @@ From the repository root, run the following with [uv](https://docs.astral.sh/uv/
 
 ```sh
 uv sync --locked --all-packages
-uv run --locked --package webbuilder-agent inspect --version
 ```
 
-The initial agent stack uses [Inspect AI's OpenAI provider](https://inspect.aisi.org.uk/providers.html#openai). Set `OPENAI_API_KEY` in your environment for live model calls. The shopper package includes the OpenAI Agents SDK.
+The computer-use shopper uses the OpenAI Agents SDK. Set `OPENAI_API_KEY` in your environment for live model calls.
 
 ## Example feed
 
@@ -34,9 +33,9 @@ Generate both storefronts from the same feed. These commands run from the reposi
 
 ```sh
 feed=~/data/webbuilder/restaurants_feed.json
-uv run --locked --package webbuilder-agent generate-storefront \
+uv run --locked --package webbuilder-static generate-storefront \
   --feed "$feed" --store-id 265151 --output build/thai-peacock
-uv run --locked --package webbuilder-agent generate-storefront \
+uv run --locked --package webbuilder-static generate-storefront \
   --feed "$feed" --store-id 26303866 --output build/one-stop-roti
 ```
 

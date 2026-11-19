@@ -7,7 +7,7 @@ dependencies = [
     "openai>=3.55.1",
     "openai-agents>=0.25.0",
     "playwright",
-    "webbuilder-agent",
+    "webbuilder-static",
     "webbuilder-mock-backend",
     "webbuilder-site-server",
 ]
@@ -17,7 +17,7 @@ run-shopper-stories = "webbuilder_shopper.scripted.runner:main"
 run-computer-shopper = "webbuilder_shopper.computer_use.runner:main"
 
 [tool.uv.sources]
-webbuilder-agent = { workspace = true }
+webbuilder-static = { workspace = true }
 webbuilder-mock-backend = { workspace = true }
 webbuilder-site-server = { workspace = true }
 

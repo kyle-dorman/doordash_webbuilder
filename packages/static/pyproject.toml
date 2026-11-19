@@ -1,0 +1,15 @@
+[project]
+name = "webbuilder-static"
+version = "0.1.0"
+description = "Deterministic reference restaurant storefront generator"
+requires-python = ">=3.12"
+dependencies = [
+    "jinja2>=3.1.6",
+]
+
+[project.scripts]
+generate-storefront = "webbuilder_static.storefront:main"
+
+[build-system]
+requires = ["uv_build>=0.12.12,<0.13"]
+build-backend = "uv_build"

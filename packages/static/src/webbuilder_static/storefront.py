@@ -27,7 +27,7 @@ def generate(feed: Path, store_id: str, output: Path) -> Path:
     output = output.expanduser()
 
     templates = Environment(
-        loader=PackageLoader("webbuilder_agent", "templates"),
+        loader=PackageLoader("webbuilder_static", "templates"),
         autoescape=True,
         undefined=StrictUndefined,
         trim_blocks=True,
@@ -51,7 +51,7 @@ def generate(feed: Path, store_id: str, output: Path) -> Path:
     pages = ("review.html", "menu.html", "visit.html", "index.html")
     assets = output / "assets"
     assets.mkdir(parents=True, exist_ok=True)
-    resources = files("webbuilder_agent").joinpath("templates")
+    resources = files("webbuilder_static").joinpath("templates")
     with TemporaryDirectory(dir=output) as staging:
         stage = Path(staging)
         for page in pages:

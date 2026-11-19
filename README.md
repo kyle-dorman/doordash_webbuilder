@@ -29,10 +29,12 @@ Start with [Task 001 — Explore the restaurant feed and choose MVP test cases](
 
 ## Development
 
-Add dependencies to the package that uses them, for example with `uv add --package webbuilder-site-server <dependency>`. Ruff and pytest are shared development tools.
+Run these commands from the workspace root.
 
-```sh
-uv run --locked ruff check .
-uv run --locked ruff format --check .
-uv build --all-packages
-```
+- `make fix` applies Ruff's automatic lint fixes, sorts imports, and formats Python code.
+- `make check` checks formatting and lint, runs strict mypy across the packages and tests, and runs pytest. Use `make type` or `make test` to run either step on its own.
+- `uv build --all-packages` builds the three distributions.
+
+Install the recommended VS Code extensions to use Ruff formatting and import sorting on save. The workspace uses Python 3.12 style and a 100-character line limit.
+
+Add dependencies to the package that uses them, for example with `uv add --package webbuilder-site-server <dependency>`.

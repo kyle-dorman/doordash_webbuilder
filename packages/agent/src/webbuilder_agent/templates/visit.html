@@ -1,0 +1,29 @@
+{% extends "storefront.html" %}
+{% block title %}Hours &amp; location | {{ store.name }}{% endblock %}
+{% block content %}
+    <div class="page-banner">
+      <div class="wrap"><h1>Hours &amp; location</h1></div>
+    </div>
+    <div class="wrap visit-grid">
+      <section class="contact" aria-labelledby="contact-name">
+        <h2 id="contact-name">{{ store.name }}</h2>
+        <address>{{ store.street }}<br>{{ store.city }}, {{ store.state }} {{ store.zip_code }}</address>
+        {% if store.phone %}
+        <a class="visit-phone" href="tel:{{ store.phone }}">{{ store.phone | phone }}</a>
+        {% endif %}
+        {% set visit_photo = store.header_image if peacock else store.cover_image or store.header_image %}
+        {% if visit_photo %}<img class="visit-photo" src="{{ visit_photo }}" alt="{{ store.name }}">{% endif %}
+      </section>
+      <section class="hours" aria-labelledby="hours-heading">
+        <h2 id="hours-heading">Posted hours</h2>
+        <dl>
+          {% for record in store.hours %}
+          <div class="hours-row">
+            <dt>{{ record.day }}</dt>
+            <dd>{% for start, end in record.intervals %}<span><time datetime="{{ start }}">{{ start | clock }}</time> – <time datetime="{{ end }}">{{ end | clock }}</time></span>{% else %}Closed{% endfor %}</dd>
+          </div>
+          {% endfor %}
+        </dl>
+      </section>
+    </div>
+{% endblock %}

@@ -1,6 +1,8 @@
 # Task 002 — Generate and review the Thai Peacock storefront
 
-**Status** · Ready
+**Status** · Closed on 2026-11-19 after owner review.
+
+**Outcome** · Verified the landing page, all 13 menu sections and 18 entries, and the hours and location page directly in Chrome. Open `build/thai-peacock/index.html` for the reviewed storefront. [Regeneration command](../../README.md#preview-thai-peacock)
 
 Build the first desktop storefront for Thai Peacock (`265151`). A reviewer should be able to open the generated HTML directly in a browser, browse the menu, and point out what to change.
 
@@ -8,6 +10,7 @@ Build the first desktop storefront for Thai Peacock (`265151`). A reviewer shoul
 
 - Add a generator in `webbuilder-agent` that takes the feed path, store ID, and output directory. Document one command that reads `~/data/webbuilder/restaurants_feed.json` for store `265151` and writes an `index.html` with any local assets it uses.
 - Use the selected store’s name, cuisine, and supplied imagery to give the page its identity. Show the address, phone number, and posted hours, preserving each day’s supplied intervals.
+- Put the restaurant introduction and up to three tag-matched, photographed dishes on the landing page. Link each featured dish to its full menu entry. Both **Menu** and **Order now** open the menu page. Group the phone, address and posted hours on **Hours & location**.
 - Provide section navigation and render every supplied section and item in feed order. Show names, listed prices, descriptions, and photos where available. Keep choice instructions in the menu copy. Retain the store ID, item IDs, currency, and prices in cents in the generated output for the browser cart in Task 004.
 
 ## Review and completion

@@ -27,6 +27,20 @@ The local sample lives at `~/data/webbuilder/restaurants_feed.json`. Each entry 
 
 The feed profile records the store comparisons and example orders. The feature roadmap sets the scope for the desktop MVP tasks. [Feed profile](docs/restaurant-feed-profile.md) · [Feature roadmap](docs/website-feature-roadmap.md)
 
+## Preview Thai Peacock
+
+From the repository root, generate the storefront for store `265151`.
+
+```sh
+uv run --locked --package webbuilder-agent generate-storefront \
+  --feed ~/data/webbuilder/restaurants_feed.json \
+  --store-id 265151 --output build/thai-peacock
+```
+
+Open `build/thai-peacock/index.html` directly in a desktop browser. The landing page features up to three photographed dishes, selected by matching restaurant tags to dish names, sections and descriptions. Feed order breaks ties and supplies pictured dishes when matches run out. The browser loads photos from the CDN URLs in the feed.
+
+**Menu** and **Order now** both open `menu.html`. **Hours & location** opens `visit.html` with the address, phone and weekly hours. To preview another restaurant, change the store ID and output directory.
+
 ## Development
 
 Run these commands from the workspace root.

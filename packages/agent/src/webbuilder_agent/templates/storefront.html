@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ store.name }}{% endblock %}</title>
+  <link rel="stylesheet" href="assets/storefront.css">
+  {% if page == 'menu.html' %}<script src="assets/menu.js" defer></script>{% endif %}
+</head>
+{% set peacock = store.store_id == '265151' %}
+<body data-store-id="{{ store.store_id }}"{% if peacock %} class="peacock"{% endif %}>
+  <header class="masthead" id="top">
+    <div class="wrap masthead-inner">
+      <a class="wordmark" href="index.html">
+        {% if peacock and store.cover_image %}
+        <img class="brand-mark" src="{{ store.cover_image }}" alt="">
+        {% endif %}
+        <span>{{ store.name }}</span>
+      </a>
+      <nav class="main-nav" aria-label="Restaurant">
+        {% for url, label in [('index.html', 'Home'), ('menu.html', 'Menu'), ('visit.html', 'Hours & location')] %}
+        <a href="{{ url }}"{% if page == url %} aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

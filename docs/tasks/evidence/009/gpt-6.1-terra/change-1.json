@@ -1,0 +1,494 @@
+[
+  {
+    "event": "request",
+    "text": "Add one Thai Lime Tea and one 16 oz rice to the cart. Show me my cart."
+  },
+  {
+    "event": "screenshot",
+    "step": 0,
+    "call_id": null,
+    "screenshot": "change-1-frames/5309a2d8af62d5012f0ea4c495bf08d1e8105b84e8158cec4854e1218d868d29.png"
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0fa39f5431833c76006aff6cb03ebc87d0addad67cdc03453d",
+    "request_id": "req_b4f565354fa147a6b0dbfa83e5b591c1",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 2328,
+      "cached_input_tokens": 0,
+      "output_tokens": 15,
+      "reasoning_tokens": 0,
+      "total_tokens": 2343,
+      "cache_write_input_tokens": 2325,
+      "ttl_30m_tokens": 2325,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 2328,
+      "input_tokens_details": {
+        "cache_write_tokens": 2325,
+        "cached_tokens": 0,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 2325
+        }
+      },
+      "output_tokens": 15,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 2343
+    }
+  },
+  {
+    "event": "screenshot",
+    "step": 1,
+    "call_id": "call_rDg9r0EewkMR9mizcCZAjpQC",
+    "screenshot": "change-1-frames/6206bde58bbedc8bf8ef4be1892120e5a2a1915af75b23fac8fcd12b0fc864b3.png"
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0fa39f5431833c76006aff6cb2f5a087d0bc5835d9a84e518b",
+    "request_id": "req_6b39e810cbb64fcdbf48cd4ca5ed0c93",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 3745,
+      "cached_input_tokens": 2325,
+      "output_tokens": 32,
+      "reasoning_tokens": 0,
+      "total_tokens": 3777,
+      "cache_write_input_tokens": 1417,
+      "ttl_30m_tokens": 1417,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 3745,
+      "input_tokens_details": {
+        "cache_write_tokens": 1417,
+        "cached_tokens": 2325,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1417
+        }
+      },
+      "output_tokens": 32,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 3777
+    }
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "call_id": "call_09EdBUlbeo41Y87vErTiRx3f",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1002,
+      "y": 34
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 2,
+    "call_id": "call_09EdBUlbeo41Y87vErTiRx3f",
+    "screenshot": "change-1-frames/e965706eb2fc28496e2c4ee94a3547ea62804149da8e1a2d0b49f25aedc41945.png"
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0fa39f5431833c76006aff6cb5d61087d0b35ce0f55133b4ed",
+    "request_id": "req_b649d6e4d9c44bbab58a4576143c29ec",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 5179,
+      "cached_input_tokens": 3742,
+      "output_tokens": 31,
+      "reasoning_tokens": 0,
+      "total_tokens": 5210,
+      "cache_write_input_tokens": 1434,
+      "ttl_30m_tokens": 1434,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 5179,
+      "input_tokens_details": {
+        "cache_write_tokens": 1434,
+        "cached_tokens": 3742,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1434
+        }
+      },
+      "output_tokens": 31,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 5210
+    }
+  },
+  {
+    "event": "action",
+    "step": 3,
+    "call_id": "call_82S01ET6BpJfurifCPGZ0A4a",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 109,
+      "y": 749
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 3,
+    "call_id": "call_82S01ET6BpJfurifCPGZ0A4a",
+    "screenshot": "change-1-frames/3779faaa9f711bb51c696a5437c902933590f72b212bb6f8f0be8a2d7a95e7cf.png"
+  },
+  {
+    "event": "response",
+    "step": 4,
+    "id": "resp_0fa39f5431833c76006aff6cb8c75c87d08108007b04f14544",
+    "request_id": "req_718ee76b27504dec9dac9ffef938b7ae",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 6612,
+      "cached_input_tokens": 5176,
+      "output_tokens": 47,
+      "reasoning_tokens": 0,
+      "total_tokens": 6659,
+      "cache_write_input_tokens": 1433,
+      "ttl_30m_tokens": 1433,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 6612,
+      "input_tokens_details": {
+        "cache_write_tokens": 1433,
+        "cached_tokens": 5176,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1433
+        }
+      },
+      "output_tokens": 47,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 6659
+    }
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "call_id": "call_IQEqhaUzG7ETL4wfZ3TgwQwj",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 785,
+      "y": 447
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "call_id": "call_IQEqhaUzG7ETL4wfZ3TgwQwj",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 102,
+      "y": 467
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 4,
+    "call_id": "call_IQEqhaUzG7ETL4wfZ3TgwQwj",
+    "screenshot": "change-1-frames/1f45ea54c3d23b12892cc97080c0897a8d59a8dc9fb27385454750b47860b3df.png"
+  },
+  {
+    "event": "response",
+    "step": 5,
+    "id": "resp_0fa39f5431833c76006aff6cbb54d887d08f56abdc6af6f29d",
+    "request_id": "req_932697d767c04e0689d7f4ba245fa581",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 8061,
+      "cached_input_tokens": 6609,
+      "output_tokens": 47,
+      "reasoning_tokens": 0,
+      "total_tokens": 8108,
+      "cache_write_input_tokens": 1449,
+      "ttl_30m_tokens": 1449,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 8061,
+      "input_tokens_details": {
+        "cache_write_tokens": 1449,
+        "cached_tokens": 6609,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1449
+        }
+      },
+      "output_tokens": 47,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 8108
+    }
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "call_id": "call_QSANs4VKY2Usk3I2aBfbdlKL",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 781,
+      "y": 198
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "call_id": "call_QSANs4VKY2Usk3I2aBfbdlKL",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 150,
+      "y": 46
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 5,
+    "call_id": "call_QSANs4VKY2Usk3I2aBfbdlKL",
+    "screenshot": "change-1-frames/4a17a95bbb1fe6dd57783062ab1649cbc583a94fd98b6d147a1f1e97993e259c.png"
+  },
+  {
+    "event": "response",
+    "step": 6,
+    "id": "resp_0fa39f5431833c76006aff6cbe86fc87d0962f4353b30eebda",
+    "request_id": "req_f73bbe80317d4c7e8e2e17c9670a7194",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 9510,
+      "cached_input_tokens": 8058,
+      "output_tokens": 20,
+      "reasoning_tokens": 0,
+      "total_tokens": 9530,
+      "cache_write_input_tokens": 1449,
+      "ttl_30m_tokens": 1449,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 9510,
+      "input_tokens_details": {
+        "cache_write_tokens": 1449,
+        "cached_tokens": 8058,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1449
+        }
+      },
+      "output_tokens": 20,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 9530
+    }
+  },
+  {
+    "event": "answer",
+    "step": 6,
+    "text": "Your cart is displayed with one Thai Lime Tea and one 16 oz rice."
+  },
+  {
+    "event": "request",
+    "text": "Change the quantity to two teas, remove the rice, and place the order."
+  },
+  {
+    "event": "response",
+    "step": 7,
+    "id": "resp_0fa39f5431833c76006aff6cc0a4b087d0a69c88932677258e",
+    "request_id": "req_f43372d79ea24ea8be10a7e6962cd187",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 9552,
+      "cached_input_tokens": 9507,
+      "output_tokens": 65,
+      "reasoning_tokens": 0,
+      "total_tokens": 9617,
+      "cache_write_input_tokens": 42,
+      "ttl_30m_tokens": 42,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 9552,
+      "input_tokens_details": {
+        "cache_write_tokens": 42,
+        "cached_tokens": 9507,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 42
+        }
+      },
+      "output_tokens": 65,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 9617
+    }
+  },
+  {
+    "event": "action",
+    "step": 7,
+    "call_id": "call_gvj0KMPOhSrGXfTA2S4VQKHt",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 939,
+      "y": 321
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 7,
+    "call_id": "call_gvj0KMPOhSrGXfTA2S4VQKHt",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1064,
+      "y": 435
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 7,
+    "call_id": "call_gvj0KMPOhSrGXfTA2S4VQKHt",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1026,
+      "y": 565
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 7,
+    "call_id": "call_gvj0KMPOhSrGXfTA2S4VQKHt",
+    "screenshot": "change-1-frames/679ab03f24975ad8d45387278fab18a48943981b782f2aef6f3a4cb5a9fe0786.png"
+  },
+  {
+    "event": "response",
+    "step": 8,
+    "id": "resp_0fa39f5431833c76006aff6cc364ac87d09387f08713d47439",
+    "request_id": "req_8cf0cbcafdc34e4db2c1c7db0a116a27",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 11019,
+      "cached_input_tokens": 9549,
+      "output_tokens": 32,
+      "reasoning_tokens": 0,
+      "total_tokens": 11051,
+      "cache_write_input_tokens": 1467,
+      "ttl_30m_tokens": 1467,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 11019,
+      "input_tokens_details": {
+        "cache_write_tokens": 1467,
+        "cached_tokens": 9549,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1467
+        }
+      },
+      "output_tokens": 32,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 11051
+    }
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "call_id": "call_5axaCGHEIZR4Mmutf14gkfNf",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1037,
+      "y": 467
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 8,
+    "call_id": "call_5axaCGHEIZR4Mmutf14gkfNf",
+    "screenshot": "change-1-frames/b1f3a67e85ad66854f48dc68bbc34a859e60fb3bc008dc22c98868f9d090445f.png"
+  },
+  {
+    "event": "response",
+    "step": 9,
+    "id": "resp_0fa39f5431833c76006aff6cc5fb8c87d0b5017be0d2da3033",
+    "request_id": "req_f3095c52f9054885aa158ae81b75f4c5",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 12453,
+      "cached_input_tokens": 11016,
+      "output_tokens": 25,
+      "reasoning_tokens": 0,
+      "total_tokens": 12478,
+      "cache_write_input_tokens": 1434,
+      "ttl_30m_tokens": 1434,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 12453,
+      "input_tokens_details": {
+        "cache_write_tokens": 1434,
+        "cached_tokens": 11016,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1434
+        }
+      },
+      "output_tokens": 25,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 12478
+    }
+  },
+  {
+    "event": "answer",
+    "step": 9,
+    "text": "Simulated order confirmed: two Thai Lime Teas for $9.00. The rice was removed."
+  }
+]

@@ -1,0 +1,143 @@
+[
+  {
+    "event": "request",
+    "text": "When does Thai Peacock open and close on Tuesday and Friday?"
+  },
+  {
+    "event": "screenshot",
+    "step": 0,
+    "call_id": null,
+    "screenshot": "hours-1-frames/5309a2d8af62d5012f0ea4c495bf08d1e8105b84e8158cec4854e1218d868d29.png"
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0fecb684e6e1bbb9006aff6c8961a487d0b902066c1f7f4974",
+    "request_id": "req_6fdf7d2d92ac4797a47b54f5caf32fbf",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 2320,
+      "cached_input_tokens": 0,
+      "output_tokens": 19,
+      "reasoning_tokens": 0,
+      "total_tokens": 2339,
+      "cache_write_input_tokens": 2317,
+      "ttl_30m_tokens": 2317,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 2320,
+      "input_tokens_details": {
+        "cache_write_tokens": 2317,
+        "cached_tokens": 0,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 2317
+        }
+      },
+      "output_tokens": 19,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 2339
+    }
+  },
+  {
+    "event": "screenshot",
+    "step": 1,
+    "call_id": "call_32ZDvOinV41eSgLTUkSDn0az",
+    "screenshot": "hours-1-frames/2ef0b00a6af823cf13bdf90ae4c767d8339a0dcb4ad07b7f34934ed34510737a.png"
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0fecb684e6e1bbb9006aff6c8c206c87d0a1f92d7f6777e23e",
+    "request_id": "req_d62e9c04114348b9b1bde4c9ec1635fd",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 3741,
+      "cached_input_tokens": 2317,
+      "output_tokens": 32,
+      "reasoning_tokens": 0,
+      "total_tokens": 3773,
+      "cache_write_input_tokens": 1421,
+      "ttl_30m_tokens": 1421,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 3741,
+      "input_tokens_details": {
+        "cache_write_tokens": 1421,
+        "cached_tokens": 2317,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1421
+        }
+      },
+      "output_tokens": 32,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 3773
+    }
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "call_id": "call_cKEtS1P4UkkySsVXk3IrCTtw",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1096,
+      "y": 34
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 2,
+    "call_id": "call_cKEtS1P4UkkySsVXk3IrCTtw",
+    "screenshot": "hours-1-frames/b8e139c3b1ecf8633d1f2eb9bc4b185de9c20f7433f568c03a110863cdd31443.png"
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0fecb684e6e1bbb9006aff6c8ed98c87d0a3a2e029db9c76e8",
+    "request_id": "req_e2122a3ebeca46ae9b2cba42177fa4e4",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 5175,
+      "cached_input_tokens": 3738,
+      "output_tokens": 33,
+      "reasoning_tokens": 0,
+      "total_tokens": 5208,
+      "cache_write_input_tokens": 1434,
+      "ttl_30m_tokens": 1434,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 5175,
+      "input_tokens_details": {
+        "cache_write_tokens": 1434,
+        "cached_tokens": 3738,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1434
+        }
+      },
+      "output_tokens": 33,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 5208
+    }
+  },
+  {
+    "event": "answer",
+    "step": 3,
+    "text": "- **Tuesday:** 11:30 AM–9:15 PM\n- **Friday:** 11:00 AM–9:45 PM"
+  }
+]

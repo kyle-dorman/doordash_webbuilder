@@ -22,6 +22,7 @@ from webbuilder_shopper.computer_runner import (
     run_suite,
 )
 from webbuilder_shopper.grading import RICE, ROLLS, STORE_ID, TEA
+from webbuilder_shopper.shopper_usage import MODEL
 
 
 @pytest.fixture(scope="module")
@@ -162,14 +163,34 @@ def test_pass_at_three_isolates_retries_and_keeps_all_failures(
     review.write_text(review.read_text().replace("Your cart is empty.", "No items added yet."))
     counts: Counter[str] = Counter()
 
+    class MeteredSession(DeterministicSession):
+        def run(self, page: Page, request: str) -> str:
+            answer = super().run(page, request)
+            self.history.append(
+                {
+                    "event": "response",
+                    "usage": {
+                        "input_tokens": 1000,
+                        "cached_input_tokens": 0,
+                        "output_tokens": 100,
+                        "reasoning_tokens": 0,
+                        "total_tokens": 1100,
+                    },
+                }
+            )
+            return answer
+
     def fresh(model: str, limit: int, history: History) -> DeterministicSession:
-        assert (model, limit) == ("test-shopper", 32)
-        return DeterministicSession(counts, history)
+        assert (model, limit) == (MODEL, 32)
+        return MeteredSession(counts, history)
 
     evidence = tmp_path / "evidence"
-    report = run_suite(browser, directory, catalog, "test-shopper", 32, evidence, fresh)
+    report = run_suite(browser, directory, catalog, MODEL, 32, evidence, fresh)
     assert report["status"] == "failed"
     assert report["first_attempt_passes"] == 2 and report["within_three_passes"] == 4
+    # Ten priced turns, including five failed attempts, across four passing stories.
+    assert report["estimated_total_cost_usd"] == 0.04
+    assert report["estimated_cost_per_passing_story_usd"] == 0.01
     attempts = report["attempts"]
     assert [(a["story"], a["attempt"], a["status"]) for a in attempts] == [
         ("contact", 1, "passed"),
@@ -202,9 +223,9 @@ def test_pass_at_three_isolates_retries_and_keeps_all_failures(
         assert requests == expected
         if attempt["status"] == "failed":
             assert attempt["reason"]
-            screenshot = attempt["screenshot"]
-            assert screenshot
-            assert (evidence / screenshot).read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+        screenshot = attempt["screenshot"]
+        assert screenshot
+        assert (evidence / screenshot).read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
     assert json.loads((evidence / "report.json").read_text()) == json.loads(json.dumps(report))
 
 
@@ -279,6 +300,8 @@ def test_service_loss_stops_suite_and_preserves_finished_attempt(
     evidence = tmp_path / "evidence"
     report = run_suite(browser, directory, catalog, "test-shopper", 32, evidence, fresh)
     assert report["status"] == "incomplete"
+    assert report["estimated_total_cost_usd"] is None
+    assert report["estimated_cost_per_passing_story_usd"] is None
     assert report["first_attempt_passes"] == report["within_three_passes"] == 1
     assert [(a["story"], a["attempt"], a["status"]) for a in report["attempts"]] == [
         ("contact", 1, "passed"),

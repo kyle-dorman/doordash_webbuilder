@@ -15,6 +15,7 @@ from openai.types.responses.computer_action import Click, ComputerAction, Keypre
 from playwright.sync_api import Page, sync_playwright
 from webbuilder_shopper.computer_model import VIEWPORT, ModelUnavailable, ShopperFailure
 from webbuilder_shopper.sdk_model import SdkShopperSession
+from webbuilder_shopper.shopper_usage import TERRA, summarize_usage
 
 MODEL = "gpt-5.4-2026-03-05"
 BUTTON = Click(type="click", button="left", x=20, y=20)
@@ -112,6 +113,7 @@ def test_sdk_drives_page_and_continues_under_one_trace_and_budget(
         assert call["max_output_tokens"] == 2048
         assert call.get("prompt_cache_key", omit) is omit
         assert call["reasoning"].model_dump(exclude_none=True) == {"effort": "low"}
+        assert "preserve_raw_usage" not in call
     initial_content = initial["input"][0]["content"]
     assert initial_content[0] == {"type": "input_text", "text": "Add tea."}
     assert initial_content[1]["image_url"].startswith("data:image/png;base64,")
@@ -132,12 +134,63 @@ def test_sdk_drives_page_and_continues_under_one_trace_and_budget(
         == {
             "input_tokens": 40,
             "cached_input_tokens": 10,
+            "cache_write_input_tokens": 0,
             "output_tokens": 8,
             "reasoning_tokens": 3,
             "total_tokens": 48,
         }
         for turn in turns
     )
+
+
+def test_sdk_prices_terra_cache_reads_and_both_write_lifetimes_per_response(
+    responses: AsyncMock, traces: MagicMock
+) -> None:
+    page = MagicMock(spec=Page)
+    page.screenshot.return_value = b"pixels"
+    short = response(1, computer_call(BUTTON))
+    long = response(2, "Ready.")
+    for reply, inputs in ((short, 272_000), (long, 272_001)):
+        reply.model = TERRA
+        assert reply.usage is not None
+        reply.usage.input_tokens = inputs
+        reply.usage.total_tokens = inputs + reply.usage.output_tokens
+        reply.usage.input_tokens_details = type(reply.usage.input_tokens_details).model_validate(
+            {
+                "cached_tokens": 10,
+                "cache_write_tokens": 25,
+                "cache_write_tokens_details": {"ttl_30m_tokens": 20, "ttl_12h_tokens": 5},
+            }
+        )
+    responses.side_effect = [short, long]
+    history: list[dict[str, object]] = []
+    session = SdkShopperSession(TERRA, 32, history)
+    with session.attempt_trace:
+        assert session.run(page, "Show my cart.") == "Ready."
+    first = next(event for event in history if event["event"] == "response")
+    assert short.usage and first["raw_usage"] == short.usage.model_dump(exclude_unset=True)
+    summary = summarize_usage(history, TERRA, turns=2)
+    assert summary["ttl_30m_tokens"] == 40 and summary["ttl_12h_tokens"] == 10
+    # 272,000 is short context. Only the second response gets long-context rates.
+    assert summary["estimated_cost_usd"] == (272_043 + 544_068) / 1_000_000
+    history.append({"event": "response", "usage": None})
+    partial = summarize_usage(history, TERRA, turns=3)
+    assert partial["priced_responses"] == 2 and partial["estimated_cost_usd"] is None
+    assert partial["reported_cost_usd"] == summary["estimated_cost_usd"]
+
+
+def test_terra_requires_cache_write_counts_to_price_a_historical_response() -> None:
+    usage = {
+        "input_tokens": 2500,
+        "cached_input_tokens": 1000,
+        "output_tokens": 20,
+        "reasoning_tokens": 5,
+        "total_tokens": 2520,
+    }
+    history: list[dict[str, object]] = [{"event": "response", "usage": usage}]
+    assert summarize_usage(history, TERRA)["estimated_cost_usd"] is None
+    usage["cache_write_input_tokens"] = 10
+    assert summarize_usage(history, TERRA)["estimated_cost_usd"] is None
 
 
 @pytest.mark.parametrize(

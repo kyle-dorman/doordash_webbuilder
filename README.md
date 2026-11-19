@@ -85,17 +85,16 @@ This installs Playwright’s headless Chromium on first use, generates `build/th
 
 ### Run the computer-use shopper on that build
 
-With the Task 006 build present and `OPENAI_API_KEY` in `.env`, run
+The shopper defaults to `gpt-6.1-terra`. With the Task 006 build present and `OPENAI_API_KEY` in `.env`, this command runs all five stories through the Agents SDK.
 
 ```sh
 uv run --locked --package webbuilder-shopper --env-file .env run-computer-shopper \
-  --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json \
-  --model gpt-5.4-2026-03-05
+  --runner sdk --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json
 ```
 
 Each story gets up to three attempts. The command prints the result of each attempt and the path to its run directory under `logs/computer-shopper/`. The Task 007 record includes the live baseline and explains the step budget, grading, and evidence. [Task 007](docs/tasks/007-computer-use-shopper.md)
 
-Use `--runner sdk --story change` to run the SDK edit pilot, or `--runner native --story change` for its native control. The Task 008 record links the graded carts, receipts, model costs, and SDK trace. [Task 008](docs/tasks/008-agents-sdk-edit-story.md)
+Use `--story change` to run only the edit story. Use `--model` to select another model explicitly. The task records include the commands and evidence for both comparisons. [SDK and native edit pilot](docs/tasks/008-agents-sdk-edit-story.md) · [Five-story model comparison](docs/tasks/009-shopper-model-comparison.md)
 
 ## Development
 

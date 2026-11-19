@@ -144,6 +144,7 @@ class _AttemptHooks(RunHooks[None]):
                 "model": self.session.model,
                 "status": "completed",
                 "usage": token_counts(response.usage),
+                "raw_usage": response.raw_usage,
             }
         )
         # Inspect the whole response before the SDK dispatches any computer action.
@@ -196,6 +197,8 @@ class SdkShopperSession:
                     max_tokens=MAX_OUTPUT_TOKENS,
                     reasoning=Reasoning(effort=REASONING),
                     store=True,
+                    # SDK-local evidence capture. This option does not change the API payload.
+                    preserve_raw_usage=True,
                     # Keep the native request's default caching behavior across the edit handoff.
                     extra_args={"prompt_cache_key": omit},
                 ),

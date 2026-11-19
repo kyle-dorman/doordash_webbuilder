@@ -8,6 +8,7 @@ import sys
 from collections.abc import Callable
 from contextlib import ExitStack
 from datetime import UTC, datetime
+from decimal import Decimal
 from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -37,7 +38,7 @@ from .grading import (
 )
 from .sdk_model import SdkShopperSession
 from .serving import Attempt, serve_attempt
-from .shopper_usage import UsageSummary, summarize_usage
+from .shopper_usage import TERRA, UsageSummary, summarize_usage
 
 ATTEMPT_LIMIT = 3
 DEFAULT_STEP_LIMIT = 32
@@ -97,6 +98,8 @@ class Report(TypedDict):
     step_limit: int
     first_attempt_passes: int
     within_three_passes: int
+    estimated_total_cost_usd: float | None
+    estimated_cost_per_passing_story_usd: float | None
     attempts: list[AttemptResult]
 
 
@@ -128,6 +131,8 @@ def new_report(
         step_limit=step_limit,
         first_attempt_passes=0,
         within_three_passes=0,
+        estimated_total_cost_usd=None,
+        estimated_cost_per_passing_story_usd=None,
         attempts=[],
     )
 
@@ -284,7 +289,7 @@ def run_attempt(
             result["usage"] = summarize_usage(history, model, result["steps"])
             if served is not None:
                 result["submissions"] = served.submissions
-            if screenshot is not None and (story == "change" or result["status"] != "passed"):
+            if screenshot is not None:
                 result["screenshot"] = f"{stem}.png"
                 (evidence / f"{stem}.png").write_bytes(screenshot)
             write_json(evidence / result["action_history"], history)
@@ -347,7 +352,7 @@ def run_suite(
                         number,
                         session_factory,
                     )
-                    report["attempts"].append(attempt)
+                    record_attempt(report, attempt)
                     status = attempt["status"]
                     print(
                         f"{status.upper():10} {title} · attempt {number} · {attempt['steps']} steps"
@@ -359,9 +364,6 @@ def run_suite(
                         report["reason"] = f"{title}, attempt {number}: {attempt['reason']}"
                         write_json(evidence / "report.json", report)
                         return report
-                    if status == "passed":
-                        report["within_three_passes"] += 1
-                        report["first_attempt_passes"] += int(number == 1)
                     write_json(evidence / "report.json", report)
                     if status == "passed":
                         break
@@ -375,13 +377,31 @@ def run_suite(
     return report
 
 
+def record_attempt(report: Report, attempt: AttemptResult) -> None:
+    report["attempts"].append(attempt)
+    if attempt["status"] == "passed":
+        report["within_three_passes"] += 1
+        report["first_attempt_passes"] += int(attempt["attempt"] == 1)
+    # Include retries and failures. An unpriced attempt makes the total unknown.
+    costs = [entry["usage"]["estimated_cost_usd"] for entry in report["attempts"]]
+    total = sum(Decimal(str(cost)) for cost in costs if cost is not None)
+    complete = None not in costs
+    passes = report["within_three_passes"]
+    report["estimated_total_cost_usd"] = float(total) if complete else None
+    report["estimated_cost_per_passing_story_usd"] = (
+        float(total / passes) if complete and passes else None
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--site", type=Path, required=True, help="Existing generated site directory"
     )
     parser.add_argument("--feed", type=Path, required=True, help="JSON feed used for this build")
-    parser.add_argument("--model", required=True, help="OpenAI computer-capable model identifier")
+    parser.add_argument(
+        "--model", default=TERRA, help="OpenAI computer-capable model (default: %(default)s)"
+    )
     parser.add_argument("--runner", choices=("native", "sdk"), default="native")
     parser.add_argument(
         "--story", choices=tuple(STORIES), help="Run just this story (default: all)"
@@ -436,6 +456,12 @@ def main() -> None:
         f" · within three {report['within_three_passes']}/{total}",
         flush=True,
     )
+    spend = report["estimated_total_cost_usd"]
+    per_pass = report["estimated_cost_per_passing_story_usd"]
+    if spend is not None:
+        print(f"Estimated spend across all attempts: ${spend:.6f}", flush=True)
+    if per_pass is not None:
+        print(f"Estimated cost per passing story: ${per_pass:.6f}", flush=True)
     if report["reason"]:
         print(report["reason"], flush=True)
     sys.exit({"passed": 0, "failed": 1, "incomplete": 2}[report["status"]])

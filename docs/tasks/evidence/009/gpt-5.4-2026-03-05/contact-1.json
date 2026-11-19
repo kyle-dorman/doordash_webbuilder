@@ -1,0 +1,143 @@
+[
+  {
+    "event": "request",
+    "text": "What’s the full address and phone number?"
+  },
+  {
+    "event": "screenshot",
+    "step": 0,
+    "call_id": null,
+    "screenshot": "contact-1-frames/5309a2d8af62d5012f0ea4c495bf08d1e8105b84e8158cec4854e1218d868d29.png"
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0611d892d295b8b6006aff6c815d8487d08e9bf7941e7384e7",
+    "request_id": "req_06b3a8ba85614486bba617a3efb092c8",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 2317,
+      "cached_input_tokens": 0,
+      "output_tokens": 35,
+      "reasoning_tokens": 18,
+      "total_tokens": 2352,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 2317,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 35,
+      "output_tokens_details": {
+        "reasoning_tokens": 18
+      },
+      "total_tokens": 2352
+    }
+  },
+  {
+    "event": "screenshot",
+    "step": 1,
+    "call_id": "call_9UVQmqCo69LiOicXoz5nMjId",
+    "screenshot": "contact-1-frames/76d02723c2510b08b1f661eccc3108ebe2a01b20ef06da035d23382eb7ec3522.png"
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0611d892d295b8b6006aff6c8391a087d08e1e9b2990995781",
+    "request_id": "req_1527f94bae174c6b9b7f628c2aa9a60d",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 3754,
+      "cached_input_tokens": 1792,
+      "output_tokens": 32,
+      "reasoning_tokens": 0,
+      "total_tokens": 3786,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 3754,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 1792,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 32,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 3786
+    }
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "call_id": "call_d8nD6PWoUdW9u1pSILHIvznU",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1090,
+      "y": 33
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 2,
+    "call_id": "call_d8nD6PWoUdW9u1pSILHIvznU",
+    "screenshot": "contact-1-frames/ccb692aa26e6d240ccdb78723fe9aba4b87fa26c20c83db20af274885b922569.png"
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0611d892d295b8b6006aff6c8554e487d0b1695b1a2f83c507",
+    "request_id": "req_3c1d0d5462844614bdf760a65baf46e1",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 5188,
+      "cached_input_tokens": 3072,
+      "output_tokens": 33,
+      "reasoning_tokens": 0,
+      "total_tokens": 5221,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 5188,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 3072,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 33,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 5221
+    }
+  },
+  {
+    "event": "answer",
+    "step": 3,
+    "text": "Full address: 219 Southwest 9th Avenue, Portland, OR 97205\n\nPhone number: (503) 719-7273"
+  }
+]

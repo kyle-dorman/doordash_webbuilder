@@ -1,0 +1,699 @@
+[
+  {
+    "event": "request",
+    "text": "Add one Thai Lime Tea and one 16 oz rice to the cart. Show me my cart."
+  },
+  {
+    "event": "screenshot",
+    "step": 0,
+    "call_id": null,
+    "screenshot": "change-1-frames/afeb06dc098c7eaf13f4e3b9eb0a90c03208f6c117cc6b6d26bc15374746dd19.png"
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_09dea85677df6d45006aff6cb3542c87d08fa1f8ecf6f81166",
+    "request_id": "req_7570bf2cb98a44eba0ec49a1b06d69a1",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 2328,
+      "cached_input_tokens": 0,
+      "output_tokens": 30,
+      "reasoning_tokens": 13,
+      "total_tokens": 2358,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 2328,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 30,
+      "output_tokens_details": {
+        "reasoning_tokens": 13
+      },
+      "total_tokens": 2358
+    }
+  },
+  {
+    "event": "screenshot",
+    "step": 1,
+    "call_id": "call_DFJ0BBVuqVV64j8yQTmuPTJS",
+    "screenshot": "change-1-frames/e15851a4a6237301ada879c2aed172d0a3b0fa5ba915de9ed44bdfee263ce376.png"
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_09dea85677df6d45006aff6cb55e8487d0bc07b05f1b628be2",
+    "request_id": "req_a52210ebc66241a3b21293e912f8cbb3",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 3760,
+      "cached_input_tokens": 1792,
+      "output_tokens": 48,
+      "reasoning_tokens": 14,
+      "total_tokens": 3808,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 3760,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 1792,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 48,
+      "output_tokens_details": {
+        "reasoning_tokens": 14
+      },
+      "total_tokens": 3808
+    }
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "call_id": "call_b4acLqzqkelkOYoOkQ0wym1F",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1001,
+      "y": 32
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 2,
+    "call_id": "call_b4acLqzqkelkOYoOkQ0wym1F",
+    "screenshot": "change-1-frames/e965706eb2fc28496e2c4ee94a3547ea62804149da8e1a2d0b49f25aedc41945.png"
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_09dea85677df6d45006aff6cb76d7887d091ba7b65d49c9690",
+    "request_id": "req_57fd3c460e084dd0bf9d7dce9973af92",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 5210,
+      "cached_input_tokens": 3072,
+      "output_tokens": 63,
+      "reasoning_tokens": 30,
+      "total_tokens": 5273,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 5210,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 3072,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 63,
+      "output_tokens_details": {
+        "reasoning_tokens": 30
+      },
+      "total_tokens": 5273
+    }
+  },
+  {
+    "event": "action",
+    "step": 3,
+    "call_id": "call_81539JvNSHGOs0I7uZMiLZOL",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 99,
+      "y": 712
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 3,
+    "call_id": "call_81539JvNSHGOs0I7uZMiLZOL",
+    "screenshot": "change-1-frames/b9bdc44d66bf967f4cbe61b573d54f56c61fa6f3d35d88ef28a189f5aab34efb.png"
+  },
+  {
+    "event": "response",
+    "step": 4,
+    "id": "resp_09dea85677df6d45006aff6cb9827887d096e1efe4e11ee948",
+    "request_id": "req_a9f815b7d8d6419cbeb71c7147c5ea57",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 6675,
+      "cached_input_tokens": 4352,
+      "output_tokens": 42,
+      "reasoning_tokens": 9,
+      "total_tokens": 6717,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 6675,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 4352,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 42,
+      "output_tokens_details": {
+        "reasoning_tokens": 9
+      },
+      "total_tokens": 6717
+    }
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "call_id": "call_5G4PVeMMYgfdywQajHStUBpG",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 773,
+      "y": 527
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 4,
+    "call_id": "call_5G4PVeMMYgfdywQajHStUBpG",
+    "screenshot": "change-1-frames/0a6cb645ff2f03400eee3e7cf22e3294bbba498684187427e65a560254035455.png"
+  },
+  {
+    "event": "response",
+    "step": 5,
+    "id": "resp_09dea85677df6d45006aff6cbb7c7887d0b38d4daabb79eab7",
+    "request_id": "req_faf560872ee44246825f271cfde762dc",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 8119,
+      "cached_input_tokens": 5632,
+      "output_tokens": 44,
+      "reasoning_tokens": 11,
+      "total_tokens": 8163,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 8119,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 5632,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 44,
+      "output_tokens_details": {
+        "reasoning_tokens": 11
+      },
+      "total_tokens": 8163
+    }
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "call_id": "call_RulkNfIPkf7sKJnDEp7sxxij",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 99,
+      "y": 466
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 5,
+    "call_id": "call_RulkNfIPkf7sKJnDEp7sxxij",
+    "screenshot": "change-1-frames/1f45ea54c3d23b12892cc97080c0897a8d59a8dc9fb27385454750b47860b3df.png"
+  },
+  {
+    "event": "response",
+    "step": 6,
+    "id": "resp_09dea85677df6d45006aff6cbd757887d0b07a3f647a4a01a5",
+    "request_id": "req_05b90d72aa6240998df85c5d3db160f0",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 9565,
+      "cached_input_tokens": 6784,
+      "output_tokens": 40,
+      "reasoning_tokens": 7,
+      "total_tokens": 9605,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 9565,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 6784,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 40,
+      "output_tokens_details": {
+        "reasoning_tokens": 7
+      },
+      "total_tokens": 9605
+    }
+  },
+  {
+    "event": "action",
+    "step": 6,
+    "call_id": "call_mKMf0k8zYhreHanXFEsYBhXC",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 773,
+      "y": 197
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 6,
+    "call_id": "call_mKMf0k8zYhreHanXFEsYBhXC",
+    "screenshot": "change-1-frames/7aaf166497fbe2884812ceb2d0faebf00ba2cb7f4d5bc91080c2f17916fea878.png"
+  },
+  {
+    "event": "response",
+    "step": 7,
+    "id": "resp_09dea85677df6d45006aff6cc0e31087d0a9e53113862e084d",
+    "request_id": "req_4e02077d41a443c29dbc9e130582ac65",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 11007,
+      "cached_input_tokens": 9088,
+      "output_tokens": 40,
+      "reasoning_tokens": 7,
+      "total_tokens": 11047,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 11007,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 9088,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 40,
+      "output_tokens_details": {
+        "reasoning_tokens": 7
+      },
+      "total_tokens": 11047
+    }
+  },
+  {
+    "event": "action",
+    "step": 7,
+    "call_id": "call_vJEBTN0jeZJZy5GX1ga4HbHR",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 147,
+      "y": 78
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 7,
+    "call_id": "call_vJEBTN0jeZJZy5GX1ga4HbHR",
+    "screenshot": "change-1-frames/03e9be3706e50723505523d4351d27eb1dd4094bc3b4f6f995d37d2d910f823b.png"
+  },
+  {
+    "event": "response",
+    "step": 8,
+    "id": "resp_09dea85677df6d45006aff6cc319d487d090187880eda08f3c",
+    "request_id": "req_188cd8d273cc45618ee54ad4d8448f1f",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 12449,
+      "cached_input_tokens": 10368,
+      "output_tokens": 54,
+      "reasoning_tokens": 17,
+      "total_tokens": 12503,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 12449,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 10368,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 54,
+      "output_tokens_details": {
+        "reasoning_tokens": 17
+      },
+      "total_tokens": 12503
+    }
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "call_id": "call_XL0vWAvaoAHo66A7KXdqUn8l",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 144,
+      "y": 77
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 8,
+    "call_id": "call_XL0vWAvaoAHo66A7KXdqUn8l",
+    "action": {
+      "type": "wait"
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 8,
+    "call_id": "call_XL0vWAvaoAHo66A7KXdqUn8l",
+    "screenshot": "change-1-frames/03e9be3706e50723505523d4351d27eb1dd4094bc3b4f6f995d37d2d910f823b.png"
+  },
+  {
+    "event": "response",
+    "step": 9,
+    "id": "resp_09dea85677df6d45006aff6cc6231087d0a525158f18191107",
+    "request_id": "req_e0258b65667942d29669093eb5a40ef4",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 13905,
+      "cached_input_tokens": 11648,
+      "output_tokens": 109,
+      "reasoning_tokens": 74,
+      "total_tokens": 14014,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 13905,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 11648,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 109,
+      "output_tokens_details": {
+        "reasoning_tokens": 74
+      },
+      "total_tokens": 14014
+    }
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "call_id": "call_hoPoUtNTHfhhI9vM5V20jZH1",
+    "action": {
+      "keys": [
+        "TAB"
+      ],
+      "type": "keypress"
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 9,
+    "call_id": "call_hoPoUtNTHfhhI9vM5V20jZH1",
+    "action": {
+      "keys": [
+        "ENTER"
+      ],
+      "type": "keypress"
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 9,
+    "call_id": "call_hoPoUtNTHfhhI9vM5V20jZH1",
+    "screenshot": "change-1-frames/4a17a95bbb1fe6dd57783062ab1649cbc583a94fd98b6d147a1f1e97993e259c.png"
+  },
+  {
+    "event": "response",
+    "step": 10,
+    "id": "resp_09dea85677df6d45006aff6cc9788487d086bd92e44e1f423a",
+    "request_id": "req_1830510cbf4a4d20abdc469c9a9844eb",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 15416,
+      "cached_input_tokens": 12928,
+      "output_tokens": 38,
+      "reasoning_tokens": 0,
+      "total_tokens": 15454,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 15416,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 12928,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 38,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 15454
+    }
+  },
+  {
+    "event": "answer",
+    "step": 10,
+    "text": "Your cart is shown with:\n- Thai Lime Tea — $4.50\n- Rice (16oz.) — $2.50\n\nSubtotal: $7.00"
+  },
+  {
+    "event": "request",
+    "text": "Change the quantity to two teas, remove the rice, and place the order."
+  },
+  {
+    "event": "response",
+    "step": 11,
+    "id": "resp_09dea85677df6d45006aff6ccbf4f487d09451c91838390cb7",
+    "request_id": "req_e60ad4b6cc98458880447c2d54e8ee9a",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 15276,
+      "cached_input_tokens": 1792,
+      "output_tokens": 87,
+      "reasoning_tokens": 20,
+      "total_tokens": 15363,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 15276,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 1792,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 87,
+      "output_tokens_details": {
+        "reasoning_tokens": 20
+      },
+      "total_tokens": 15363
+    }
+  },
+  {
+    "event": "action",
+    "step": 11,
+    "call_id": "call_P4WbwzBHNlANQHLPS56fewES",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 939,
+      "y": 319
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 11,
+    "call_id": "call_P4WbwzBHNlANQHLPS56fewES",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1064,
+      "y": 432
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 11,
+    "call_id": "call_P4WbwzBHNlANQHLPS56fewES",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1023,
+      "y": 564
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 11,
+    "call_id": "call_P4WbwzBHNlANQHLPS56fewES",
+    "screenshot": "change-1-frames/679ab03f24975ad8d45387278fab18a48943981b782f2aef6f3a4cb5a9fe0786.png"
+  },
+  {
+    "event": "response",
+    "step": 12,
+    "id": "resp_09dea85677df6d45006aff6cce429087d09ec9a3c62827e831",
+    "request_id": "req_7b21a6b8836240799907dd75e0e9abf4",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 16765,
+      "cached_input_tokens": 14208,
+      "output_tokens": 52,
+      "reasoning_tokens": 18,
+      "total_tokens": 16817,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 16765,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 14208,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 52,
+      "output_tokens_details": {
+        "reasoning_tokens": 18
+      },
+      "total_tokens": 16817
+    }
+  },
+  {
+    "event": "action",
+    "step": 12,
+    "call_id": "call_3ZBbtflQt8aT4zLldvUTIUdr",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1024,
+      "y": 465
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 12,
+    "call_id": "call_3ZBbtflQt8aT4zLldvUTIUdr",
+    "screenshot": "change-1-frames/b1f3a67e85ad66854f48dc68bbc34a859e60fb3bc008dc22c98868f9d090445f.png"
+  },
+  {
+    "event": "response",
+    "step": 13,
+    "id": "resp_09dea85677df6d45006aff6cd0dd5487d0bd0707d9018912ea",
+    "request_id": "req_e62e980bf3434eb2ac196eff36959c59",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 18219,
+      "cached_input_tokens": 16384,
+      "output_tokens": 27,
+      "reasoning_tokens": 0,
+      "total_tokens": 18246,
+      "cache_write_input_tokens": 0,
+      "ttl_30m_tokens": 0,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 18219,
+      "input_tokens_details": {
+        "cache_write_tokens": 0,
+        "cached_tokens": 16384,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 0
+        }
+      },
+      "output_tokens": 27,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 18246
+    }
+  },
+  {
+    "event": "answer",
+    "step": 13,
+    "text": "Order placed. The confirmation is showing for:\n- Thai Lime Tea × 2\n\nTotal: $9.00"
+  }
+]

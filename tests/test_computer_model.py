@@ -84,10 +84,15 @@ def test_native_turns_only_send_screenshots_and_share_one_edit_budget() -> None:
         assert summarize_usage(history, MODEL, session.steps) == {
             "input_tokens": 300,
             "cached_input_tokens": 240,
+            "cache_write_input_tokens": 0,
+            "ttl_30m_tokens": 0,
+            "ttl_12h_tokens": 0,
             "output_tokens": 90,
             "reasoning_tokens": 60,
             "total_tokens": 390,
             "responses_with_usage": 3,
+            "priced_responses": 3,
+            "reported_cost_usd": 0.00156,
             "estimated_cost_usd": 0.00156,
         }
         assert summarize_usage(history, "unknown-model")["estimated_cost_usd"] is None

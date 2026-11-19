@@ -1,0 +1,387 @@
+[
+  {
+    "event": "request",
+    "text": "Order two servings of vegan crispy spring rolls and one 16 oz rice."
+  },
+  {
+    "event": "screenshot",
+    "step": 0,
+    "call_id": null,
+    "screenshot": "place-1-frames/5309a2d8af62d5012f0ea4c495bf08d1e8105b84e8158cec4854e1218d868d29.png"
+  },
+  {
+    "event": "response",
+    "step": 1,
+    "id": "resp_0ed7bc2a333cd4e8006aff6c9ac30887d0bc50cbc8bca10683",
+    "request_id": "req_6b99049cecc74960bd01e5d9b663b398",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 2323,
+      "cached_input_tokens": 0,
+      "output_tokens": 15,
+      "reasoning_tokens": 0,
+      "total_tokens": 2338,
+      "cache_write_input_tokens": 2320,
+      "ttl_30m_tokens": 2320,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 2323,
+      "input_tokens_details": {
+        "cache_write_tokens": 2320,
+        "cached_tokens": 0,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 2320
+        }
+      },
+      "output_tokens": 15,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 2338
+    }
+  },
+  {
+    "event": "screenshot",
+    "step": 1,
+    "call_id": "call_CORYOHNj5jysZ3EIHwl3JwZb",
+    "screenshot": "place-1-frames/c248074fc0708a81725898e440638fceccc2cba7a070030523af5bdd31f4a306.png"
+  },
+  {
+    "event": "response",
+    "step": 2,
+    "id": "resp_0ed7bc2a333cd4e8006aff6c9d5d2887d0909a014cec8f3b3f",
+    "request_id": "req_940d1cd96f864677abca4843e65a0893",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 3740,
+      "cached_input_tokens": 2320,
+      "output_tokens": 31,
+      "reasoning_tokens": 0,
+      "total_tokens": 3771,
+      "cache_write_input_tokens": 1417,
+      "ttl_30m_tokens": 1417,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 3740,
+      "input_tokens_details": {
+        "cache_write_tokens": 1417,
+        "cached_tokens": 2320,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1417
+        }
+      },
+      "output_tokens": 31,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 3771
+    }
+  },
+  {
+    "event": "action",
+    "step": 2,
+    "call_id": "call_LwEEIgRA6FecPHbUQj0aZ4sI",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 136,
+      "y": 355
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 2,
+    "call_id": "call_LwEEIgRA6FecPHbUQj0aZ4sI",
+    "screenshot": "place-1-frames/e965706eb2fc28496e2c4ee94a3547ea62804149da8e1a2d0b49f25aedc41945.png"
+  },
+  {
+    "event": "response",
+    "step": 3,
+    "id": "resp_0ed7bc2a333cd4e8006aff6ca046f887d0ab397ab293f6ff0f",
+    "request_id": "req_b67dab233a8f4662a9fed9b3735ee014",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 5173,
+      "cached_input_tokens": 3737,
+      "output_tokens": 31,
+      "reasoning_tokens": 0,
+      "total_tokens": 5204,
+      "cache_write_input_tokens": 1433,
+      "ttl_30m_tokens": 1433,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 5173,
+      "input_tokens_details": {
+        "cache_write_tokens": 1433,
+        "cached_tokens": 3737,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1433
+        }
+      },
+      "output_tokens": 31,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 5204
+    }
+  },
+  {
+    "event": "action",
+    "step": 3,
+    "call_id": "call_9NAjdDicWfMUrGcoF5EVqOTX",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 122,
+      "y": 389
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 3,
+    "call_id": "call_9NAjdDicWfMUrGcoF5EVqOTX",
+    "screenshot": "place-1-frames/e52d9ec7fb3838096d0eabb6531f367a75e70d11ef8128345a6689c4016fe717.png"
+  },
+  {
+    "event": "response",
+    "step": 4,
+    "id": "resp_0ed7bc2a333cd4e8006aff6ca385a487d0805b14947624328b",
+    "request_id": "req_1f03c8d1fecc40ec9af27f427774da00",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 6606,
+      "cached_input_tokens": 5170,
+      "output_tokens": 63,
+      "reasoning_tokens": 0,
+      "total_tokens": 6669,
+      "cache_write_input_tokens": 1433,
+      "ttl_30m_tokens": 1433,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 6606,
+      "input_tokens_details": {
+        "cache_write_tokens": 1433,
+        "cached_tokens": 5170,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1433
+        }
+      },
+      "output_tokens": 63,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 6669
+    }
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "call_id": "call_UbwR4iFBUQfhVZO9nbcgp4br",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 839,
+      "y": 374
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "call_id": "call_UbwR4iFBUQfhVZO9nbcgp4br",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 839,
+      "y": 374
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 4,
+    "call_id": "call_UbwR4iFBUQfhVZO9nbcgp4br",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 101,
+      "y": 467
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 4,
+    "call_id": "call_UbwR4iFBUQfhVZO9nbcgp4br",
+    "screenshot": "place-1-frames/f5ae8ac3337278e188fc10e041373f5bcdd54a6102856ed73fb8126825e2bcac.png"
+  },
+  {
+    "event": "response",
+    "step": 5,
+    "id": "resp_0ed7bc2a333cd4e8006aff6ca76b2087d084a73f99216b07d3",
+    "request_id": "req_2ff6a0eca3f34df9848a3967073184ac",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 8071,
+      "cached_input_tokens": 6603,
+      "output_tokens": 47,
+      "reasoning_tokens": 0,
+      "total_tokens": 8118,
+      "cache_write_input_tokens": 1465,
+      "ttl_30m_tokens": 1465,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 8071,
+      "input_tokens_details": {
+        "cache_write_tokens": 1465,
+        "cached_tokens": 6603,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1465
+        }
+      },
+      "output_tokens": 47,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 8118
+    }
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "call_id": "call_HPHgkM6qE9hdy0upyVOS8LH2",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 782,
+      "y": 200
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "action",
+    "step": 5,
+    "call_id": "call_HPHgkM6qE9hdy0upyVOS8LH2",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 150,
+      "y": 46
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 5,
+    "call_id": "call_HPHgkM6qE9hdy0upyVOS8LH2",
+    "screenshot": "place-1-frames/6805634b468e83cf89764bf0616c170a497066a1cb56291bfb6ee9bbbaaca8cb.png"
+  },
+  {
+    "event": "response",
+    "step": 6,
+    "id": "resp_0ed7bc2a333cd4e8006aff6caa715087d087a908a6c34c07e1",
+    "request_id": "req_327b0dc08f3e448898cc439313fc7dd2",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 9520,
+      "cached_input_tokens": 8068,
+      "output_tokens": 32,
+      "reasoning_tokens": 0,
+      "total_tokens": 9552,
+      "cache_write_input_tokens": 1449,
+      "ttl_30m_tokens": 1449,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 9520,
+      "input_tokens_details": {
+        "cache_write_tokens": 1449,
+        "cached_tokens": 8068,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1449
+        }
+      },
+      "output_tokens": 32,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 9552
+    }
+  },
+  {
+    "event": "action",
+    "step": 6,
+    "call_id": "call_FvGguX17YIiWrnInj0NIw9t7",
+    "action": {
+      "button": "left",
+      "type": "click",
+      "x": 1032,
+      "y": 564
+    },
+    "outcome": "executed"
+  },
+  {
+    "event": "screenshot",
+    "step": 6,
+    "call_id": "call_FvGguX17YIiWrnInj0NIw9t7",
+    "screenshot": "place-1-frames/f47de664d0351c38e764fd8ecfef0b05984cc324d9ba023de1d3bca5b86bdebe.png"
+  },
+  {
+    "event": "response",
+    "step": 7,
+    "id": "resp_0ed7bc2a333cd4e8006aff6cad561487d0b3ce3b0f0a9245f5",
+    "request_id": "req_f38e1183089f46f797cf375b12dd27d3",
+    "model": "gpt-6.1-terra",
+    "status": "completed",
+    "usage": {
+      "input_tokens": 10954,
+      "cached_input_tokens": 9517,
+      "output_tokens": 30,
+      "reasoning_tokens": 0,
+      "total_tokens": 10984,
+      "cache_write_input_tokens": 1434,
+      "ttl_30m_tokens": 1434,
+      "ttl_12h_tokens": 0
+    },
+    "raw_usage": {
+      "input_tokens": 10954,
+      "input_tokens_details": {
+        "cache_write_tokens": 1434,
+        "cached_tokens": 9517,
+        "cache_write_tokens_details": {
+          "ttl_12h_tokens": 0,
+          "ttl_30m_tokens": 1434
+        }
+      },
+      "output_tokens": 30,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 10984
+    }
+  },
+  {
+    "event": "answer",
+    "step": 7,
+    "text": "Simulated order confirmed: two servings of vegan crispy spring rolls and one 16 oz rice. Total: $19.50."
+  }
+]

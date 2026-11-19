@@ -30,7 +30,7 @@ The estimates use the reported tokens from every turn and standard rates of $2.5
 
 ## Repeat the comparison
 
-From the repository root, use the existing build and its source feed, with `OPENAI_API_KEY` in `.env`. Install Chromium once with `make shopper-browser`. Each invocation prints its own fresh evidence directory under `logs/computer-shopper/`. To choose a destination, pass `--evidence` with a new or empty directory for that runner.
+At revision `912adcb`, use the existing build and its source feed, with `OPENAI_API_KEY` in `.env`. Install Chromium once with `make shopper-browser`. Each invocation prints its own fresh evidence directory under `logs/computer-shopper/`. To choose a destination, pass `--evidence` with a new or empty directory for that runner.
 
 ```sh
 for runner in native sdk; do
@@ -44,7 +44,7 @@ done
 - **Build and feed.** Both runners served byte-identical snapshots of the eight files in `build/thai-peacock`, store `265151`. Build SHA-256 is `fa7738a6d3846517f324576391d6187b8795a8355e490926d1ccc2442eefefd9`. The feed SHA-256 is `45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d`. [Native manifest](evidence/008-native/build-files.json) · [SDK manifest](evidence/008-sdk/build-files.json)
 - **Model and browser.** Both used `gpt-5.4-2026-03-05` with the GA `computer` tool, identical shopper instructions, low reasoning effort, and a maximum of 2,048 output tokens per response. Both used OpenAI Python 3.55.1, Playwright 1.65.2, and headless Chromium 159.0.8154.6 with a 1280 × 900 PNG viewport. The SDK runner used `openai-agents` 0.25.0. The reports include the package versions and settings.
 - **Requests and budget.** Each attempt starts at the homepage in a new browser context with an empty cart, a new mock, and a new conversation. The first request is “Add one Thai Lime Tea and one 16 oz rice to the cart. Show me my cart.” After the private grader verifies both quantities in the viewport, checks for zero submissions and saves the cart PNG, it releases “Change the quantity to two teas, remove the rice, and place the order.” Every model response counts as one turn, including final answers and batches of actions.
-- **SDK handoff.** The SDK Runner owns model turns and tool dispatch. At the checkpoint, the harness resumes the same conversation using the last response ID and the remaining turns. The ComputerTool operates on the same restricted page and uses the native action checks. A pending safety check stops the attempt before tool execution. The harness grades the visible receipt and the drained mock record independently of the shopper’s answer. [SDK adapter](../../packages/shopper/src/webbuilder_shopper/sdk_model.py) · [Shared harness](../../packages/shopper/src/webbuilder_shopper/computer_runner.py)
+- **SDK handoff.** The SDK Runner owns model turns and tool dispatch. At the checkpoint, the harness resumes the same conversation using the last response ID and the remaining turns. The ComputerTool operates on the same restricted page and uses the native action checks. A pending safety check stops the attempt before tool execution. The harness grades the visible receipt and the drained mock record independently of the shopper’s answer. [Current SDK adapter](../../packages/shopper/src/webbuilder_shopper/computer_use/shopper.py) · [Current harness](../../packages/shopper/src/webbuilder_shopper/computer_use/runner.py)
 
 ## Verification and recommendation
 

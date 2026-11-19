@@ -81,7 +81,7 @@ From the repository root, with the sample feed at `~/data/webbuilder/restaurants
 make stories
 ```
 
-This installs Playwright’s headless Chromium on first use, generates `build/thai-peacock`, and runs each story in a fresh browser session with its own local site and mock checkout. The command prints one result per story and exits successfully when all five pass. The generated site stays in place for the next runner. [Task 006 results](docs/tasks/006-scripted-browser-tests.md#verification)
+This installs Playwright’s headless Chromium on first use, generates `build/thai-peacock`, and runs each story in a fresh browser session with its own local site and mock checkout. The scripted tester chooses each Playwright action in Python and runs without an API key. The command prints one result per story and exits successfully when all five pass. The generated site stays in place for the next runner. [Task 006 results](docs/tasks/006-scripted-browser-tests.md#verification)
 
 ### Run the computer-use shopper on that build
 
@@ -89,12 +89,14 @@ The shopper defaults to `gpt-6.1-terra`. With the Task 006 build present and `OP
 
 ```sh
 uv run --locked --package webbuilder-shopper --env-file .env run-computer-shopper \
-  --runner sdk --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json
+  --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json
 ```
 
-Each story gets up to three attempts. The command prints the result of each attempt and the path to its run directory under `logs/computer-shopper/`. The Task 007 record includes the live baseline and explains the step budget, grading, and evidence. [Task 007](docs/tasks/007-computer-use-shopper.md)
+The shopper chooses its actions from viewport screenshots using the SDK’s `ComputerTool`. Each story gets up to three fresh attempts and stops at its first pass. The command serves a snapshot of the supplied build and writes the report, action histories and screenshots under `logs/computer-shopper/`.
 
-Use `--story change` to run only the edit story. Use `--model` to select another model explicitly. The task records include the commands and evidence for both comparisons. [SDK and native edit pilot](docs/tasks/008-agents-sdk-edit-story.md) · [Five-story model comparison](docs/tasks/009-shopper-model-comparison.md)
+Add `--story change` to run just the cart edit. The grader checks for one tea, one rice and zero submissions, then saves the cart screenshot. Only then does it send the change request in the same conversation with the remaining turns. A pass requires one accepted order and a visible $9.00 receipt for two teas. [Task 010 verification](docs/tasks/010-split-shopper-testers.md#verification)
+
+Use `--model` to select another model. The original two-runner pilot is available at revision `912adcb`. [Edit pilot](docs/tasks/008-agents-sdk-edit-story.md) · [Five-story model comparison](docs/tasks/009-shopper-model-comparison.md)
 
 ## Development
 

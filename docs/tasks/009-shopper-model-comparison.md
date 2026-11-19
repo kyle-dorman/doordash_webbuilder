@@ -51,7 +51,7 @@ From the repository root, supply the existing Thai Peacock build, its source fee
 make shopper-browser
 for model in gpt-5.4-2026-03-05 gpt-6.1-terra; do
   uv run --locked --package webbuilder-shopper --env-file .env run-computer-shopper \
-    --runner sdk --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json \
+    --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json \
     --model "$model" --step-limit 32
 done
 make check
@@ -61,7 +61,7 @@ Both runs served the same eight-file snapshot of `build/thai-peacock` for store 
 
 The storefront loads remote images as the page opens. On the soup story, the restaurant logo had loaded in GPT-5.4’s first screenshot and was still loading in Terra’s. [GPT-5.4 opening frame](evidence/009/gpt-5.4-2026-03-05/soup-1-frames/06e9985979b388a109a6cc642e228455b1f209e73278c9fd1b103c9508fb861e.png) · [Terra opening frame](evidence/009/gpt-6.1-terra/soup-1-frames/5309a2d8af62d5012f0ea4c495bf08d1e8105b84e8158cec4854e1218d868d29.png)
 
-The comparison uses the SDK shopper and private grader verified at `912adcb`. Each attempt starts at the homepage in a fresh browser context with its own conversation and mock checkout. The SDK supplies the same shopper instructions, restricted GA `computer` tool, 1280 × 900 PNG viewport, low reasoning effort and 2,048 output-token limit to both models. One model response counts as one turn. Each story stops at its first pass or after three failed attempts. An infrastructure interruption stops that run and preserves the attempts already recorded. [Runner and exact requests](../../packages/shopper/src/webbuilder_shopper/computer_runner.py) · [SDK adapter](../../packages/shopper/src/webbuilder_shopper/sdk_model.py) · [Private grader](../../packages/shopper/src/webbuilder_shopper/grading.py)
+The comparison uses the SDK shopper and private grader verified at `912adcb`. Each attempt starts at the homepage in a fresh browser context with its own conversation and mock checkout. The SDK supplies the same shopper instructions, restricted GA `computer` tool, 1280 × 900 PNG viewport, low reasoning effort and 2,048 output-token limit to both models. One model response counts as one turn. Each story stops at its first pass or after three failed attempts. An infrastructure interruption stops that run and preserves the attempts already recorded. [Runner and exact requests](../../packages/shopper/src/webbuilder_shopper/computer_use/runner.py) · [SDK adapter](../../packages/shopper/src/webbuilder_shopper/computer_use/shopper.py) · [Private grader](../../packages/shopper/src/webbuilder_shopper/grading.py)
 
 The edit story begins with “Add one Thai Lime Tea and one 16 oz rice to the cart. Show me my cart.” The grader verifies one of each in the viewport and checks for zero submissions. The harness saves the cart PNG before sending “Change the quantity to two teas, remove the rice, and place the order.” The SDK continues from the same response ID with the turns remaining from the original 32. A pass requires exactly one accepted mock order and a visible receipt for two teas totaling $9.00.
 
@@ -74,7 +74,7 @@ Standard API rates verified on November 19, 2026, in USD per million tokens. [GP
 | GPT-5.4 | $2.50 | $0.25 | — | — | $15.00 |
 | GPT-6.1 Terra | $1.00 | $0.05 | $1.25 | $2.50 | $5.00 |
 
-For GPT-5.4, ordinary input equals total input less cached reads. For Terra, subtract both cached reads and writes from total input, then price the reads and each write duration separately. The API includes reasoning tokens in output. Terra requests above 272,000 input tokens use twice the input and cache rates and 1.5 times the output rate. Each attempt is priced from its individual responses. Spend per passing story divides spend across **all attempts** by the number of distinct stories that passed. [Estimator](../../packages/shopper/src/webbuilder_shopper/shopper_usage.py)
+For GPT-5.4, ordinary input equals total input less cached reads. For Terra, subtract both cached reads and writes from total input, then price the reads and each write duration separately. The API includes reasoning tokens in output. Terra requests above 272,000 input tokens use twice the input and cache rates and 1.5 times the output rate. Each attempt is priced from its individual responses. Spend per passing story divides spend across **all attempts** by the number of distinct stories that passed. [Estimator](../../packages/shopper/src/webbuilder_shopper/computer_use/usage.py)
 
 All requests in these runs were below the long-context threshold. Terra reported 78 ordinary input tokens, 114,728 cached reads, 40,343 writes and 826 output tokens. GPT-5.4 reported 92,409 ordinary input tokens, 210,176 cached reads and 1,570 output tokens.
 

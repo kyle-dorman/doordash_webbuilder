@@ -1,6 +1,7 @@
 from dataclasses import replace
 
 import pytest
+from webbuilder_shopper.computer_use.answers import grade_lookup_answer
 from webbuilder_shopper.grading import (
     RICE,
     ROLLS,
@@ -11,7 +12,6 @@ from webbuilder_shopper.grading import (
     grade_contact,
     grade_hours,
     grade_initial_cart,
-    grade_lookup_answer,
     grade_soup,
     grade_submissions,
 )
@@ -44,6 +44,7 @@ def test_lookup_grading_accepts_equivalent_formats() -> None:
         ("soup", "Tom-Yum Soup is 24 oz and costs $14.50."),
         ("soup", "The Tom Yum Soup is served in a 24 oz bowl. Its price is 14.50 USD."),
         ("soup", "Size: 24 oz\nPrice: $14.50"),
+        ("soup", "It’s a 24 oz serving and costs about $14.50."),
         (
             "soup",
             "According to the menu, the Tom-Yum Soup (GF) comes in a 24 oz portion "
@@ -112,10 +113,12 @@ def test_menu_grading_checks_complete_size_and_price(size: str, price: str) -> N
 
 
 def test_edit_checkpoint_needs_exactly_one_of_each_visible_item() -> None:
-    grade_initial_cart([(RICE, 1), (TEA, 1)])
+    grade_initial_cart([(RICE, 1), (TEA, 1)], 0)
+    with pytest.raises(GradeError, match="before the cart change"):
+        grade_initial_cart([(RICE, 1), (TEA, 1)], 1)
     for wrong in ([(TEA, 2)], [(TEA, 2), (RICE, 1)], [(TEA, 1), (RICE, 1), (RICE, 1)]):
         with pytest.raises(GradeError, match="in the cart"):
-            grade_initial_cart(wrong)
+            grade_initial_cart(wrong, 0)
 
 
 def test_confirmation_and_mock_must_independently_match_the_order() -> None:

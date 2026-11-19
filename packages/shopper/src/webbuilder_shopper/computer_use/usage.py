@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from agents.usage import Usage
-    from openai.types.responses.response_usage import ResponseUsage
 
 MODEL = "gpt-5.4-2026-03-05"
 TERRA = "gpt-6.1-terra"
@@ -28,7 +27,7 @@ class UsageSummary(TypedDict):
     estimated_cost_usd: float | None
 
 
-def token_counts(usage: "ResponseUsage | Usage | None") -> dict[str, int] | None:
+def token_counts(usage: "Usage | None") -> dict[str, int] | None:
     if usage is None or not usage.total_tokens:
         return None
     counts = {

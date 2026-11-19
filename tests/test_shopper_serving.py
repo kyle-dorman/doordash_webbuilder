@@ -1,5 +1,6 @@
 import json
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 from threading import Event
@@ -44,15 +45,16 @@ def test_attempt_observes_real_mock_and_isolates_submissions(tmp_path: Path) -> 
     second.check_mock()
 
 
+def _unavailable_checkout(handler: OrderHandler) -> None:
+    handler.reply(503, {"error": "Unavailable"})
+
+
 def test_failed_checkout_service_marks_run_unavailable(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     (tmp_path / "index.html").touch()
 
-    def unavailable(handler: OrderHandler) -> None:
-        handler.reply(503, {"error": "Unavailable"})
-
-    monkeypatch.setattr(OrderHandler, "do_POST", unavailable)
+    monkeypatch.setattr(OrderHandler, "do_POST", _unavailable_checkout)
     with pytest.raises(OSError, match="mock checkout was unavailable"):
         with serve_attempt(tmp_path, {}) as attempt:
             request = Request(attempt.url + "orders", b"{}", {"Content-Type": "application/json"})
@@ -66,8 +68,9 @@ def test_failed_checkout_service_marks_run_unavailable(
         attempt.check_mock()
 
 
+@pytest.mark.parametrize("mock_fails", [False, True], ids=["accepted", "unavailable"])
 def test_teardown_finishes_in_flight_checkout_before_stopping_mock(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mock_fails: bool
 ) -> None:
     (tmp_path / "index.html").touch()
     catalog = {"thai": {"tea": MenuItem("Tea", 450)}}
@@ -84,6 +87,9 @@ def test_teardown_finishes_in_flight_checkout_before_stopping_mock(
         closing.set()
         close_server(server)
 
+    if mock_fails:
+        monkeypatch.setattr(OrderHandler, "do_POST", _unavailable_checkout)
+
     monkeypatch.setattr(StorefrontHandler, "do_POST", delayed_checkout)
     monkeypatch.setattr(ThreadingHTTPServer, "server_close", signal_close)
 
@@ -96,9 +102,24 @@ def test_teardown_finishes_in_flight_checkout_before_stopping_mock(
             confirmation: dict[str, object] = json.load(response)
             return confirmation
 
+    expected_exit = (
+        pytest.raises(OSError, match="mock checkout was unavailable")
+        if mock_fails
+        else nullcontext()
+    )
     with ThreadPoolExecutor(max_workers=1) as client:
-        with serve_attempt(tmp_path, catalog) as attempt:
+        with expected_exit, serve_attempt(tmp_path, catalog) as attempt:
             order = client.submit(post, attempt.url)
             assert received.wait(timeout=5)
+            at_checkpoint = attempt.submissions
+            assert at_checkpoint == ()
+            assert attempt.checkpoint_submission_count == 1
         submissions_at_exit = attempt.submissions
-        assert submissions_at_exit == (order.result(),)
+        if mock_fails:
+            assert submissions_at_exit == (None,)
+            with pytest.raises(HTTPError) as response:
+                order.result()
+            with response.value as error_response:
+                assert error_response.status == 503
+        else:
+            assert submissions_at_exit == (order.result(),)

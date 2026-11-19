@@ -1,0 +1,106 @@
+{
+  "status": "passed",
+  "reason": "",
+  "directory": "/Users/kyledorman/Documents/doordash_webbuilder/build/thai-peacock",
+  "build_sha256": "fa7738a6d3846517f324576391d6187b8795a8355e490926d1ccc2442eefefd9",
+  "feed": "/Users/kyledorman/data/webbuilder/restaurants_feed.json",
+  "feed_sha256": "45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d",
+  "model": "gpt-6.1-terra",
+  "runner": "sdk",
+  "versions": {
+    "webbuilder-shopper": "0.1.0",
+    "openai-agents": "0.25.0",
+    "openai": "3.55.1",
+    "playwright": "1.65.2",
+    "chromium": "159.0.8154.6"
+  },
+  "stories": [
+    "change"
+  ],
+  "model_settings": {
+    "tool": "computer",
+    "reasoning_effort": "low",
+    "max_output_tokens": 2048,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot_format": "png",
+    "step_unit": "one model response, including the final answer and any batched actions"
+  },
+  "attempt_limit": 3,
+  "step_limit": 32,
+  "first_attempt_passes": 1,
+  "within_three_passes": 1,
+  "reported_total_tokens": 68800,
+  "estimated_total_cost_usd": 0.0199844,
+  "estimated_cost_per_passing_story_usd": 0.0199844,
+  "attempts": [
+    {
+      "story": "change",
+      "attempt": 1,
+      "status": "passed",
+      "reason": "",
+      "steps": 9,
+      "answers": [
+        "Your cart is displayed with one Thai Lime Tea and one 16 oz rice. The subtotal is $7.00.",
+        "Simulated order confirmed: two Thai Lime Teas for $9.00."
+      ],
+      "action_history": "change-1.json",
+      "trace_id": "trace_c27146c9e3eb4babaaeb0f5238e15728",
+      "usage": {
+        "input_tokens": 68483,
+        "cached_input_tokens": 55998,
+        "cache_write_input_tokens": 12458,
+        "ttl_30m_tokens": 12458,
+        "ttl_12h_tokens": 0,
+        "output_tokens": 317,
+        "reasoning_tokens": 0,
+        "total_tokens": 68800,
+        "responses_with_usage": 9,
+        "priced_responses": 9,
+        "reported_cost_usd": 0.0199844,
+        "estimated_cost_usd": 0.0199844
+      },
+      "screenshot": "change-1.png",
+      "checkpoint_screenshot": "change-1-cart.png",
+      "checkpoint_submission_count": 0,
+      "initial_cart": [
+        [
+          "Thai Lime Tea",
+          1
+        ],
+        [
+          "Rice (16oz.)",
+          1
+        ]
+      ],
+      "confirmation": {
+        "items": [
+          {
+            "name": "Thai Lime Tea",
+            "quantity": 2,
+            "unit_price": "$4.50",
+            "line_total": "$9.00"
+          }
+        ],
+        "total": "$9.00"
+      },
+      "submissions": [
+        {
+          "store_id": "265151",
+          "items": [
+            {
+              "item_id": "548484849",
+              "name": "Thai Lime Tea",
+              "quantity": 2,
+              "unit_price_cents": 450,
+              "line_total_cents": 900
+            }
+          ],
+          "subtotal_cents": 900
+        }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,7 @@ members = ["packages/*"]
 
 [dependency-groups]
 dev = [
+    "anyio>=4",
     "mypy>=1.18,<2",
     "pytest",
     "ruff>=0.14,<1",

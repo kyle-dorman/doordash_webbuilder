@@ -1,33 +1,34 @@
-"""Exercise the retry policy against real browser contexts, carts and HTTP mock orders."""
+"""Drive the actual SDK and Chromium against a generated store, with offline model replies."""
 
+import base64
+import hashlib
 import json
-import struct
-from collections import Counter
-from collections.abc import Iterator
+from collections.abc import AsyncIterator
+from decimal import Decimal
 from pathlib import Path
-from typing import Literal
-from urllib.parse import urljoin, urlsplit
+from typing import Any, Literal
+from unittest.mock import AsyncMock
+from urllib.parse import urlsplit
 
 import pytest
-from playwright.sync_api import Browser, Page, expect, sync_playwright
+from openai import omit
+from openai.types.responses import Response, ResponseComputerToolCall
+from openai.types.responses.computer_action import Click
+from playwright.async_api import Browser, BrowserContext, Page, async_playwright
+from sdk_responses import computer_call, response
 from webbuilder_agent.storefront import generate
 from webbuilder_mock_backend.server import Catalog, OrderHandler, load_catalog
-from webbuilder_shopper.browser import checkout
-from webbuilder_shopper.computer_model import ModelUnavailable, ShopperFailure
-from webbuilder_shopper.computer_runner import (
-    CHANGE_REQUEST,
-    REQUESTS,
-    History,
-    new_report,
-    run_suite,
-)
+from webbuilder_shopper.computer_use.report import new_report
+from webbuilder_shopper.computer_use.runner import CHANGE_REQUEST, REQUESTS, run_suite
+from webbuilder_shopper.computer_use.usage import MODEL
 from webbuilder_shopper.grading import RICE, ROLLS, STORE_ID, TEA
-from webbuilder_shopper.shopper_usage import MODEL
+
+pytestmark = [pytest.mark.anyio, pytest.mark.usefixtures("traces")]
 
 
-@pytest.fixture(scope="module")
-def browser() -> Iterator[Browser]:
-    with sync_playwright() as playwright, playwright.chromium.launch() as chromium:
+@pytest.fixture
+async def browser() -> AsyncIterator[Browser]:
+    async with async_playwright() as playwright, await playwright.chromium.launch() as chromium:
         yield chromium
 
 
@@ -78,119 +79,83 @@ CONTACT = "219 Southwest 9th Avenue, Portland, OR 97205 · (503) 719-7273"
 HOURS = "Tuesday 11:30 AM–9:15 PM. Friday 11:00 AM–9:45 PM."
 
 
-type Outage = Literal["model", "browser", "mock"]
+def click(x: int, y: int) -> Click:
+    return Click(type="click", button="left", x=x, y=y)
 
 
-class DeterministicSession:
-    def __init__(
-        self,
-        runs: Counter[str],
-        history: History,
-        outage: Outage | None = None,
-    ) -> None:
-        assert history == []
-        self.history = history
-        self.steps = 0
-        self.runs = runs
-        self.outage = outage
-
-    def run(self, page: Page, request: str) -> str:
-        self.steps += 1
-        self.history.append({"event": "request", "text": request})
-        if request == CHANGE_REQUEST:
-            assert self.steps == 2 and self.history[0]["text"] == REQUESTS["change"]
-            page.get_by_role("button", name=f"Increase quantity of {TEA}", exact=True).click()
-            page.get_by_role("button", name=f"Remove {RICE}", exact=True).click()
-            page.get_by_role("button", name="Place order", exact=True).click()
-            return "Order placed."
-
-        assert self.steps == 1
-        documents = [urlsplit(r.url).path for r in page.requests() if r.is_navigation_request()]
-        assert documents in (["/"], ["/index.html"])
-        assert urlsplit(page.url).path == documents[0]
-        assert page.evaluate("sessionStorage.length") == 0
-        # Cookies span the mock's changing localhost ports, unlike sessionStorage.
-        assert "previous_attempt" not in page.evaluate("document.cookie")
-        page.evaluate("document.cookie = 'previous_attempt=yes;path=/'")
-        self.runs[request] += 1
-        if request == REQUESTS["contact"]:
-            return CONTACT
-        if request == REQUESTS["hours"]:
-            if self.outage == "model":
-                raise ModelUnavailable("Service interrupted on the second story")
-            if self.outage == "browser":
-                page.close()
-                return HOURS
-            if self.outage == "mock":
-                # Drive a real POST through the storefront and its failing HTTP mock.
-                response = page.request.post(
-                    urljoin(page.url, "/orders"),
-                    data={"store_id": STORE_ID, "items": [{"item_id": "548484849", "quantity": 1}]},
-                )
-                assert response.status == 503
-                return HOURS
-            if self.runs[request] == 1:
-                page.get_by_role("link", name="Menu", exact=True).click()
-                checkout("place", page)
-                page.get_by_role("link", name="Menu", exact=True).click()
-                page.get_by_role("button", name=f"Add {TEA} to cart", exact=True).click()
-                assert "548484849" in page.evaluate("JSON.stringify(sessionStorage)")
-                self.history.append(
-                    {"event": "action", "text": "Ordered rolls and rice; added tea"}
-                )
-            return HOURS
-        if request == REQUESTS["soup"]:
-            self.history.append({"event": "answer", "text": "32 oz, $14.50"})
-            return "32 oz, $14.50"
-
-        page.get_by_role("link", name="Menu", exact=True).click()
-        if request == REQUESTS["place"]:
-            return checkout("place", page)
-        assert request == REQUESTS["change"] and request.endswith("Show me my cart.")
-        page.get_by_role("button", name=f"Add {TEA} to cart", exact=True).click()
-        if self.runs[request] == 2:
-            page.get_by_role("button", name=f"Add {RICE} to cart", exact=True).click()
-        page.get_by_role("link", name="Cart", exact=True).click()
-        expect(page.get_by_role("list", name="Cart items")).to_be_visible()
-        return "Here is your cart."
+# Recorded button centers for the generated three-item fixture at 1280 × 900.
+MENU = computer_call(click(1001, 34))
+CART = click(1195, 34)
+ADD_RICE, ADD_ROLLS, ADD_TEA = click(382, 348), click(837, 348), click(382, 453)
+TEA_AND_RICE = computer_call(ADD_TEA, ADD_RICE, CART)
+PLACE_BOTH = computer_call(click(1029, 564))
+EDIT_AND_PLACE = computer_call(click(939, 319), click(1066, 433), click(1029, 465))
+CART_REPLY = "Here is your cart with one tea and one rice."
+ORDER_REPLY = "Your order was placed."
 
 
-def test_pass_at_three_isolates_retries_and_keeps_all_failures(
-    browser: Browser, site: tuple[Path, Catalog], tmp_path: Path
+async def test_stories_retry_independently_and_grade_cart_before_follow_up(
+    browser: Browser, site: tuple[Path, Catalog], responses: AsyncMock, tmp_path: Path
 ) -> None:
     directory, catalog = site
-    review = directory / "review.html"
-    review.write_text(review.read_text().replace("Your cart is empty.", "No items added yet."))
-    counts: Counter[str] = Counter()
-
-    class MeteredSession(DeterministicSession):
-        def run(self, page: Page, request: str) -> str:
-            answer = super().run(page, request)
-            self.history.append(
-                {
-                    "event": "response",
-                    "usage": {
-                        "input_tokens": 1000,
-                        "cached_input_tokens": 0,
-                        "output_tokens": 100,
-                        "reasoning_tokens": 0,
-                        "total_tokens": 1100,
-                    },
-                }
-            )
-            return answer
-
-    def fresh(model: str, limit: int, history: History) -> DeterministicSession:
-        assert (model, limit) == (MODEL, 32)
-        return MeteredSession(counts, history)
-
     evidence = tmp_path / "evidence"
-    report = run_suite(browser, directory, catalog, MODEL, 32, evidence, fresh)
+    index = directory / "index.html"
+    index_hash = hashlib.sha256(index.read_bytes()).hexdigest()
+    # The first hours attempt checks out before answering. Its retry must get a fresh mock.
+    # For change, try an incomplete cart, then a correct cart after a premature checkout.
+    place_rolls_and_rice = computer_call(ADD_ROLLS, ADD_ROLLS, ADD_RICE, CART)
+    incomplete_cart = computer_call(ADD_TEA, CART)
+    attempt_replies: list[list[str | ResponseComputerToolCall]] = [
+        [CONTACT],
+        [MENU, TEA_AND_RICE, PLACE_BOTH, HOURS],  # Checked out during lookup
+        [HOURS],
+        ["32 oz, $14.50"],
+        ["32 oz, $14.50"],
+        ["32 oz, $14.50"],
+        [MENU, place_rolls_and_rice, PLACE_BOTH, ORDER_REPLY],
+        [MENU, incomplete_cart, CART_REPLY],  # Grader sees only tea
+        [MENU, TEA_AND_RICE, PLACE_BOTH, MENU, TEA_AND_RICE, CART_REPLY],  # Early order
+        [MENU, TEA_AND_RICE, CART_REPLY, EDIT_AND_PLACE, ORDER_REPLY],
+    ]
+    replies = [item for attempt in attempt_replies for item in attempt]
+    previous_cart_frame: bytes | None = None
+    contexts: set[BrowserContext] = set()
+    opening_page: Page | None = None
+
+    def next_reply(**options: Any) -> Response:
+        nonlocal previous_cart_frame, opening_page
+        turn = responses.await_count
+        if turn == 1:
+            # Later attempts must continue to serve the snapshot captured before this edit.
+            index.write_text("<html><title>source build was replaced</title></html>")
+        inputs = options["input"]
+        if isinstance(inputs[0].get("content"), list):
+            (context,) = browser.contexts
+            assert context not in contexts
+            contexts.add(context)
+            (opening_page,) = context.pages
+            assert urlsplit(opening_page.url).path == "/"
+        if turn == len(replies) - 1:
+            assert browser.contexts[0].pages == [opening_page]
+            assert inputs == [{"role": "user", "content": CHANGE_REQUEST}]
+            assert options["previous_response_id"] == f"resp_{turn - 1}"
+            assert (evidence / "change-3-cart.png").read_bytes() == previous_cart_frame
+        if inputs[0].get("type") == "computer_call_output":
+            image_url = inputs[0]["output"]["image_url"]
+            previous_cart_frame = base64.b64decode(image_url.split(",", 1)[1], validate=True)
+        return response(turn, replies[turn - 1])
+
+    responses.side_effect = next_reply
+    report = new_report(directory, MODEL, 32)
+    await run_suite(browser, catalog, evidence, report)
     assert report["status"] == "failed"
+    assert report["runner"] == "sdk" and report["model"] == MODEL
+    assert "openai-agents" in report["versions"] and report["step_limit"] == 32
+    assert (
+        report["build_sha256"]
+        and json.loads((evidence / "build-files.json").read_text())["index.html"] == index_hash
+    )
     assert report["first_attempt_passes"] == 2 and report["within_three_passes"] == 4
-    # Ten priced turns, including five failed attempts, across four passing stories.
-    assert report["estimated_total_cost_usd"] == 0.04
-    assert report["estimated_cost_per_passing_story_usd"] == 0.01
     attempts = report["attempts"]
     assert [(a["story"], a["attempt"], a["status"]) for a in attempts] == [
         ("contact", 1, "passed"),
@@ -201,95 +166,120 @@ def test_pass_at_three_isolates_retries_and_keeps_all_failures(
         ("soup", 3, "failed"),
         ("place", 1, "passed"),
         ("change", 1, "failed"),
-        ("change", 2, "passed"),
+        ("change", 2, "failed"),
+        ("change", 3, "passed"),
     ]
-    assert len(attempts[1]["submissions"]) == 1
-    assert attempts[2]["submissions"] == ()
-    assert attempts[1]["answers"] == attempts[2]["answers"] == [HOURS]
-    assert "zero" in attempts[1]["reason"].lower()
-    assert [a["answers"] for a in attempts[3:6]] == [["32 oz, $14.50"]] * 3
-    assert attempts[-2]["submissions"] == ()
-    assert attempts[-2]["steps"] == 1
-    assert attempts[-2]["checkpoint_screenshot"] is None
-    assert attempts[-1]["steps"] == 2
-    assert sorted(attempts[-1]["initial_cart"] or []) == sorted([(TEA, 1), (RICE, 1)])
+    first_hours, retry_hours = (a for a in attempts if a["story"] == "hours")
+    assert len(first_hours["submissions"]) == 1 and "zero" in first_hours["reason"].lower()
+    assert retry_hours["submissions"] == () and first_hours["answers"] == retry_hours["answers"]
+    (placed,) = (a for a in attempts if a["story"] == "place")
+    assert len(placed["submissions"]) == 1
 
+    missing_rice, ordered_early, passed = (a for a in attempts if a["story"] == "change")
+    assert missing_rice["initial_cart"] == [(TEA, 1)] and missing_rice["submissions"] == ()
+    assert missing_rice["checkpoint_submission_count"] == 0
+    assert ordered_early["initial_cart"] == [(TEA, 1), (RICE, 1)]
+    assert ordered_early["checkpoint_submission_count"] == 1
+    assert len(ordered_early["submissions"]) == 1 and "before" in ordered_early["reason"]
+    for failed in (missing_rice, ordered_early):
+        assert failed["answers"] == [CART_REPLY] and failed["checkpoint_screenshot"] is None
+    assert passed["checkpoint_submission_count"] == 0
+    assert passed["initial_cart"] == [(TEA, 1), (RICE, 1)]
+    assert passed["answers"] == [CART_REPLY, ORDER_REPLY] and passed["steps"] == 5
+    assert passed["confirmation"] == {
+        "items": [{"name": TEA, "quantity": 2, "unit_price": "$4.50", "line_total": "$9.00"}],
+        "total": "$9.00",
+    }
+    assert passed["submissions"] == (
+        {
+            "store_id": STORE_ID,
+            "items": [
+                {
+                    "item_id": "548484849",
+                    "name": TEA,
+                    "quantity": 2,
+                    "unit_price_cents": 450,
+                    "line_total_cents": 900,
+                }
+            ],
+            "subtotal_cents": 900,
+        },
+    )
+    assert passed["screenshot"] and passed["checkpoint_screenshot"]
+    assert (evidence / passed["screenshot"]).read_bytes() != (
+        evidence / passed["checkpoint_screenshot"]
+    ).read_bytes()
+
+    calls = responses.await_args_list
+    assert len(calls) == sum(a["steps"] for a in attempts) == len(replies)
+    # Per reply: 30 ordinary and 10 cached input tokens, 8 output tokens, at GPT-5.4 rates.
+    assert report["reported_total_tokens"] == len(replies) * 48
+    all_cost = len(replies) * Decimal("0.0001975")
+    assert report["estimated_total_cost_usd"] == float(all_cost)
+    assert report["estimated_cost_per_passing_story_usd"] == float(all_cost / 4)
+    assert len({a["trace_id"] for a in attempts}) == len(attempts)
+    offset = 0
     for attempt in attempts:
+        assert attempt["trace_id"]
+        first = calls[offset].kwargs
+        offset += attempt["steps"]
+        assert first.get("previous_response_id", omit) is omit
+        assert first["input"][0]["content"][0]["text"] == REQUESTS[attempt["story"]]
         history = json.loads((evidence / attempt["action_history"]).read_text())
-        requests = [entry["text"] for entry in history if entry["event"] == "request"]
+        frames = [event["screenshot"] for event in history if event["event"] == "screenshot"]
+        assert frames
+        for frame in frames:
+            assert (evidence / frame).read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+        assert (evidence / frames[0]).read_bytes() == base64.b64decode(
+            first["input"][0]["content"][1]["image_url"].split(",", 1)[1], validate=True
+        )
         expected = [REQUESTS[attempt["story"]]]
-        if attempt["story"] == "change" and attempt["status"] == "passed":
+        if attempt is passed:
             expected.append(CHANGE_REQUEST)
-        assert requests == expected
-        if attempt["status"] == "failed":
-            assert attempt["reason"]
-        screenshot = attempt["screenshot"]
-        assert screenshot
-        assert (evidence / screenshot).read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+        assert [h["text"] for h in history if h["event"] == "request"] == expected
+        if attempt["steps"] > 1:
+            assert any(h["event"] == "action" for h in history)
+        assert attempt["screenshot"] and (evidence / attempt["screenshot"]).is_file()
+        assert attempt["usage"]["total_tokens"] == attempt["steps"] * 48
     assert json.loads((evidence / "report.json").read_text()) == json.loads(json.dumps(report))
 
 
-@pytest.mark.parametrize("finish", [True, False], ids=["checkout-passes", "checkout-fails"])
-def test_edit_checkpoint_persists_the_view_before_the_change_request(
-    finish: bool, browser: Browser, site: tuple[Path, Catalog], tmp_path: Path
+async def test_edit_keeps_checkpoint_when_follow_up_exhausts_remaining_turn(
+    responses: AsyncMock, browser: Browser, site: tuple[Path, Catalog], tmp_path: Path
 ) -> None:
     directory, catalog = site
     evidence = tmp_path / "evidence"
-    evidence.mkdir()
-    saved_carts: dict[Path, bytes] = {}
-
-    class EditSession(DeterministicSession):
-        def run(self, page: Page, request: str) -> str:
-            if request == CHANGE_REQUEST:
-                # Compare against the live cart before the shopper takes its first edit action.
-                cart_image = page.screenshot()
-                size = page.viewport_size
-                assert size is not None
-                assert struct.unpack(">II", cart_image[16:24]) == (size["width"], size["height"])
-                saved_carts.update(
-                    (png, cart_image)
-                    for png in evidence.glob("*-cart.png")
-                    if png.read_bytes() == cart_image
-                )
-                if not finish:
-                    page.get_by_role("link", name="Home", exact=True).click()
-                    raise ShopperFailure("Shopper left the cart without placing the order")
-            return super().run(page, request)
-
-    def fresh(model: str, limit: int, history: History) -> EditSession:
-        # Select the deterministic shopper's complete (tea and rice) first-stage script.
-        return EditSession(Counter({REQUESTS["change"]: 1}), history)
-
-    report = new_report(directory, "test-shopper", 32, story="change")
-    run_suite(browser, directory, catalog, "test-shopper", 32, evidence, fresh, report=report)
-    assert report["status"] == ("passed" if finish else "failed")
-    assert report["first_attempt_passes"] == report["within_three_passes"] == int(finish)
-    assert len(report["attempts"]) == (1 if finish else 3)
-    for result in report["attempts"]:
-        assert result["story"] == "change" and result["status"] == report["status"]
-        checkpoint = result["checkpoint_screenshot"]
-        assert (
-            checkpoint
-            and (evidence / checkpoint).read_bytes() == saved_carts[evidence / checkpoint]
-        )
-        final = result["screenshot"]
-        assert final and (evidence / final).read_bytes() != saved_carts[evidence / checkpoint]
+    # The cart reply uses turn 3. After the edit action on turn 4 the model cannot reply.
+    replies: list[str | ResponseComputerToolCall] = [
+        MENU,
+        TEA_AND_RICE,
+        CART_REPLY,
+        EDIT_AND_PLACE,
+    ] * 3
+    responses.side_effect = [response(i, item) for i, item in enumerate(replies, 1)]
+    report = new_report(directory, MODEL, 4, story="change")
+    await run_suite(browser, catalog, evidence, report)
+    assert report["status"] == "failed" and len(report["attempts"]) == 3
+    assert responses.await_count == 12
+    for attempt in report["attempts"]:
+        assert attempt["steps"] == 4 and "4-step limit" in attempt["reason"]
+        assert attempt["answers"] == [CART_REPLY]
+        assert attempt["checkpoint_screenshot"] and attempt["screenshot"]
+        assert (evidence / attempt["checkpoint_screenshot"]).read_bytes() != (
+            evidence / attempt["screenshot"]
+        ).read_bytes()
 
 
 @pytest.mark.parametrize("outage", ["model", "browser", "mock"])
-def test_service_loss_stops_suite_and_preserves_finished_attempt(
-    outage: Outage,
+async def test_service_loss_stops_suite_and_preserves_finished_attempt(
+    outage: Literal["model", "browser", "mock"],
     monkeypatch: pytest.MonkeyPatch,
     browser: Browser,
+    responses: AsyncMock,
     site: tuple[Path, Catalog],
     tmp_path: Path,
 ) -> None:
     directory, catalog = site
-    counts: Counter[str] = Counter()
-
-    def fresh(model: str, limit: int, history: History) -> DeterministicSession:
-        return DeterministicSession(counts, history, outage)
-
     if outage == "mock":
 
         def unavailable(handler: OrderHandler) -> None:
@@ -297,14 +287,37 @@ def test_service_loss_stops_suite_and_preserves_finished_attempt(
 
         monkeypatch.setattr(OrderHandler, "do_POST", unavailable)
 
+    async def next_reply(**options: Any) -> Response:
+        turn = responses.await_count
+        if turn == 1:
+            return response(turn, CONTACT)
+        if outage == "browser":
+            await browser.close()
+            return response(turn, HOURS)
+        if outage == "model":
+            terminal = response(turn, HOURS)
+            terminal.status = "failed"
+            terminal.usage = None
+            return terminal
+        # Prompt the shopper to cause a real POST while the mock service is unavailable.
+        return response(turn, [MENU, TEA_AND_RICE, PLACE_BOTH][turn - 2])
+
+    responses.side_effect = next_reply
     evidence = tmp_path / "evidence"
-    report = run_suite(browser, directory, catalog, "test-shopper", 32, evidence, fresh)
-    assert report["status"] == "incomplete"
-    assert report["estimated_total_cost_usd"] is None
-    assert report["estimated_cost_per_passing_story_usd"] is None
+    report = new_report(directory, MODEL, 32)
+    await run_suite(browser, catalog, evidence, report)
+    assert report["status"] == "incomplete" and report["reason"]
     assert report["first_attempt_passes"] == report["within_three_passes"] == 1
     assert [(a["story"], a["attempt"], a["status"]) for a in report["attempts"]] == [
         ("contact", 1, "passed"),
         ("hours", 1, "incomplete"),
     ]
-    assert json.loads((evidence / "report.json").read_text())["status"] == "incomplete"
+    assert report["attempts"][0]["answers"] == [CONTACT]
+    if outage == "model":
+        assert report["reported_total_tokens"] == 48
+        assert report["estimated_total_cost_usd"] is None
+        assert report["estimated_cost_per_passing_story_usd"] is None
+    interrupted = report["attempts"][1]
+    assert interrupted["trace_id"] and (evidence / interrupted["action_history"]).is_file()
+    assert interrupted["screenshot"] and (evidence / interrupted["screenshot"]).is_file()
+    assert json.loads((evidence / "report.json").read_text()) == json.loads(json.dumps(report))

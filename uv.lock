@@ -17,6 +17,7 @@ members = [
 
 [manifest.dependency-groups]
 dev = [
+    { name = "anyio", specifier = ">=4" },
     { name = "mypy", specifier = ">=1.18,<2" },
     { name = "pytest" },
     { name = "ruff", specifier = ">=0.14,<1" },
@@ -3044,7 +3045,6 @@ name = "webbuilder-shopper"
 version = "0.1.0"
 source = { editable = "packages/shopper" }
 dependencies = [
-    { name = "anyio" },
     { name = "openai" },
     { name = "openai-agents" },
     { name = "playwright" },
@@ -3055,7 +3055,6 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anyio", specifier = ">=4" },
     { name = "openai", specifier = ">=3.55.1" },
     { name = "openai-agents", specifier = ">=0.25.0" },
     { name = "playwright" },

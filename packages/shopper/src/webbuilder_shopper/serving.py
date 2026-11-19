@@ -2,7 +2,6 @@
 
 from collections.abc import Iterator
 from contextlib import closing, contextmanager
-from dataclasses import dataclass
 from functools import partial
 from http.client import HTTPConnection, HTTPException
 from http.server import ThreadingHTTPServer
@@ -15,14 +14,20 @@ from webbuilder_site_server.server import StorefrontHandler
 type Submission = dict[str, object] | None
 
 
-@dataclass(frozen=True)
 class Attempt:
-    url: str
-    _submissions: list[Submission]
-    _lock: Lock
-    _mock_port: int
-    _mock_failed: Event
-    _closed: Event
+    def __init__(self, url: str, mock_port: int) -> None:
+        self.url = url
+        self._mock_port: int | None = mock_port
+        self._submissions: list[Submission] = []
+        self._lock = Lock()
+        self._mock_failed = Event()
+        self._checkout_requests = 0
+
+    @property
+    def checkpoint_submission_count(self) -> int:
+        """Include checkouts received by the site, even while forwarding to the mock."""
+        with self._lock:
+            return max(self._checkout_requests, len(self._submissions))
 
     @property
     def submissions(self) -> tuple[Submission, ...]:
@@ -32,7 +37,7 @@ class Attempt:
 
     def check_mock(self) -> None:
         """Check the private mock during an attempt or its recorded status after teardown."""
-        if not self._closed.is_set() and not self._mock_failed.is_set():
+        if self._mock_port is not None and not self._mock_failed.is_set():
             try:
                 with closing(HTTPConnection("127.0.0.1", self._mock_port, timeout=2)) as mock:
                     mock.request("HEAD", "/health")
@@ -44,22 +49,15 @@ class Attempt:
             raise OSError("The mock checkout was unavailable during this attempt.")
 
 
-class _QuietStorefrontHandler(StorefrontHandler):
-    timeout = 5  # Bound idle browser connections while the server drains.
-
-    def log_message(self, format: str, *args: object) -> None:
-        pass
-
-
 @contextmanager
-def _running(server: ThreadingHTTPServer) -> Iterator[ThreadingHTTPServer]:
+def _running(server: ThreadingHTTPServer) -> Iterator[None]:
+    # Wait for request handlers, including forwarded checkouts, before returning.
+    server.daemon_threads = False
     with server:
-        # server_close waits for outstanding request handlers, including forwarded POSTs.
-        server.daemon_threads = False
         thread = Thread(target=partial(server.serve_forever, poll_interval=0.05))
         thread.start()
         try:
-            yield server
+            yield
         finally:
             server.shutdown()
             thread.join()
@@ -70,11 +68,6 @@ def serve_attempt(directory: Path, catalog: Catalog) -> Iterator[Attempt]:
     directory = directory.expanduser().resolve()
     if not (directory / "index.html").is_file():
         raise FileNotFoundError(f"No storefront index.html in {directory}")
-
-    submissions: list[Submission] = []
-    lock = Lock()
-    mock_failed = Event()
-    closed = Event()
 
     class ObservedOrderHandler(OrderHandler):
         timeout = 5
@@ -88,41 +81,48 @@ def serve_attempt(directory: Path, catalog: Catalog) -> Iterator[Attempt]:
 
         def do_POST(self) -> None:
             if self.path == "/orders":
-                with lock:
-                    self.submission_index = len(submissions)
-                    submissions.append(None)
+                with attempt._lock:
+                    self.submission_index = len(attempt._submissions)
+                    attempt._submissions.append(None)
             super().do_POST()
 
         def reply(self, status: int, data: dict[str, object]) -> None:
             if self.path == "/orders" and status == 200:
-                with lock:
-                    submissions[self.submission_index] = data
+                with attempt._lock:
+                    attempt._submissions[self.submission_index] = data
             super().reply(status, data)
 
-    class ObservedStorefrontHandler(_QuietStorefrontHandler):
+    class ObservedStorefrontHandler(StorefrontHandler):
+        timeout = 5  # Bound idle browser connections while the site drains.
+
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+        def do_POST(self) -> None:
+            if self.path == "/orders":
+                with attempt._lock:
+                    attempt._checkout_requests += 1
+            super().do_POST()
+
         def send_json(self, status: int, body: bytes) -> None:
             if self.path == "/orders" and status >= 500:
-                mock_failed.set()
+                attempt._mock_failed.set()
             super().send_json(status, body)
 
     address = ("127.0.0.1", 0)
-    with _running(OrderServer(address, catalog, ObservedOrderHandler)) as mock:
+    mock = OrderServer(address, catalog, ObservedOrderHandler)
+    with _running(mock):
         handler = partial(
             ObservedStorefrontHandler, directory=directory, mock_port=mock.server_port
         )
-        with _running(ThreadingHTTPServer(address, handler)) as site:
-            attempt = Attempt(
-                f"http://127.0.0.1:{site.server_port}/",
-                submissions,
-                lock,
-                mock.server_port,
-                mock_failed,
-                closed,
-            )
-            try:
+        site = ThreadingHTTPServer(address, handler)
+        attempt = Attempt(f"http://127.0.0.1:{site.server_port}/", mock.server_port)
+        try:
+            with _running(site):
                 yield attempt
+        finally:
+            # The site has finished forwarding all orders. The mock is still live.
+            try:
+                attempt.check_mock()
             finally:
-                try:
-                    attempt.check_mock()
-                finally:
-                    closed.set()
+                attempt._mock_port = None

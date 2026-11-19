@@ -1,13 +1,11 @@
 """Grade Thai Peacock shopper evidence against the agreed roadmap outcomes."""
 
 import re
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Literal
 
 type Submissions = Sequence[dict[str, object] | None]
-type CheckoutStory = Literal["place", "change"]
 
 STORE_ID = "265151"
 STORIES = {
@@ -53,11 +51,7 @@ _ORDERS: dict[str, tuple[_OrderLine, ...]] = {
     "change": (_OrderLine("548484849", TEA, 2, 450),),
 }
 
-_SIZE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)[\s-]*(?:fl\.?\s*)?(?:oz|ounces?)\b", re.I)
-_IMPLIED_SUBJECT_WORDS = frozenset(
-    "size price cost costs priced listed serving portion bowl it its s the this soup a an "
-    "is comes served in at for of and each per".split()
-)
+SIZE_PATTERN = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)[\s-]*(?:fl\.?\s*)?(?:oz|ounces?)\b", re.I)
 
 
 def grade_contact(address: str, phone: str) -> None:
@@ -106,117 +100,25 @@ def _check_price(label: str, text: str, cents: int) -> None:
 
 
 def grade_soup(size: str, price: str) -> None:
-    sizes = _SIZE.findall(size)
+    sizes = SIZE_PATTERN.findall(size)
     if not sizes or any(Decimal(value) != 24 for value in sizes):
         raise GradeError(f"Incorrect Tom-Yum Soup size: {size!r}")
     _check_price("Tom-Yum Soup price", price, 1450)
-
-
-def _single(label: str, values: list[str]) -> str:
-    if len(values) != 1:
-        raise GradeError(f"Expected one {label} in the shopper's final answer, saw {values!r}")
-    return values[0]
-
-
-def _answer_interval(day: str, text: str) -> str | None:
-    times = re.findall(
-        r"(?:\b(open(?:s|ing)?|clos(?:es?|ing))\s*(?:(?:time|is|at|from)\s+)*[:|]?\s*)?"
-        r"(?<![\w:])(\d{1,2}(?::\d{2})?(?:\s*[ap]\.?\s*m\.?)?)(?![\w:])",
-        text,
-        re.I,
-    )
-    if not times:
-        return None
-    if len(times) != 2:
-        raise GradeError(f"Expected opening and closing times for {day}, saw {text!r}")
-    (first_role, first), (second_role, second) = times
-    roles = (first_role.lower()[:1], second_role.lower()[:1])
-    if roles[0] and roles[0] == roles[1]:
-        raise GradeError(f"Ambiguous opening and closing times for {day}: {text!r}")
-    if roles[0] == "c" or roles[1] == "o":
-        first, second = second, first
-    return f"{first}–{second}"
-
-
-def _check_soup_subject(answer: str, price: str, menu_names: Iterable[str]) -> None:
-    """Keep facts for another menu entry from satisfying the Tom-Yum lookup."""
-    words = " " + " ".join(re.findall(r"\w+", answer.casefold())) + " "
-    for name in menu_names:
-        # Match names as shoppers write them, omitting menu numbers and parenthesized labels.
-        base = re.sub(r"^\s*(?:\d+\.\s*)+|\([^)]*\)", "", name).casefold()
-        # Compound entries such as "Pad Thai & Salmon" may be called simply "Pad Thai".
-        base = base.partition(" & ")[0]
-        dish = " ".join(re.findall(r"\w+", base))
-        if dish and dish != "tom yum soup" and f" {dish} " in words:
-            raise GradeError(f"Tom-Yum Soup answer names another menu item {name!r}: {answer!r}")
-
-    # A bare answer ("24 oz, $14.50") inherits the question's subject. Longer prose
-    # should name the dish in the sentence that supplies the facts.
-    facts = _SIZE.sub(" § ", answer).replace(price, " § ")
-    for clause in re.split(r"[;!?\n]+|\.(?:\s+|$)", facts):
-        if "§" not in clause or re.search(r"\btom[\s‐‑‒–—-]*yum\b", clause, re.I):
-            continue
-        if set(re.findall(r"[^\W\d_]+", clause.casefold())) - _IMPLIED_SUBJECT_WORDS:
-            raise GradeError(f"Cannot attribute this size or price to Tom-Yum Soup: {answer!r}")
-
-
-def grade_lookup_answer(story: str, answer: str, *, menu_names: Iterable[str] = ()) -> None:
-    """Extract facts from the shopper's final text and apply the scripted runner's graders."""
-    plain = re.sub(r"[*_`]", "", answer)
-    if story == "contact":
-        # A numbered street, city and state followed by a ZIP (also accepts multiline addresses).
-        addresses = re.findall(
-            r"\b\d+\s+(?:[\w.-]+\s+){1,7}(?:ave(?:nue)?|st(?:reet)?|rd|road|blvd)\b"
-            r"[.,\s]+[a-z]+(?:\s+[a-z]+)*?[,\s]+[a-z]+\s+\d{5}(?:-\d{4})?\b",
-            plain,
-            re.I,
-        )
-        phones = re.findall(
-            r"(?<!\w)(?:\+?\d{1,3}[\s.-]*)?\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4}(?!\w)", plain
-        )
-        grade_contact(_single("address", addresses), _single("phone number", phones))
-    elif story == "hours":
-        # Keep day associations, including reordered answers, bullet lists and Markdown tables.
-        sections = re.split(r"\b(tue(?:s(?:day)?)?|fri(?:day)?)\b", plain, flags=re.I)
-        intervals: dict[str, list[str]] = {"tue": [], "fri": []}
-        for day, segment in zip(sections[1::2], sections[2::2], strict=True):
-            interval = _answer_interval(day, segment)
-            if interval:
-                intervals[day.lower()[:3]].append(interval)
-        grade_hours(
-            _single("Tuesday interval", intervals["tue"]),
-            _single("Friday interval", intervals["fri"]),
-        )
-    elif story == "soup":
-        # A prefixed/suffixed price is unambiguous even if the dish also has a menu number.
-        remaining = _SIZE.sub("", plain)
-        number = r"\d+(?:[.,]\d+)*"
-        prices = re.findall(
-            rf"(?:\$|\bUSD\s*\$?)\s*{number}(?:\s*(?:USD|dollars?)\b)?"
-            rf"|(?<![\w.,]){number}\s*(?:USD|dollars?)\b",
-            remaining,
-            re.I,
-        )
-        if not prices:
-            prices = re.findall(rf"(?<![\w.,]){number}(?!\w)", remaining)
-        price = _single("Tom-Yum Soup price", prices)
-        grade_soup(plain, price)
-        _check_soup_subject(plain, price, menu_names)
-    else:
-        raise GradeError(f"Unknown lookup story {story!r}")
 
 
 def _name(text: str) -> str:
     return " ".join(text.casefold().split())
 
 
-def grade_initial_cart(lines: Sequence[tuple[str, int]]) -> None:
+def grade_initial_cart(lines: Sequence[tuple[str, int]], submission_count: int) -> None:
     """Check every visible cart line before the edit story may proceed."""
     actual = sorted((_name(name), quantity) for name, quantity in lines)
     if actual != sorted([(_name(TEA), 1), (_name(RICE), 1)]):
         raise GradeError(
             f"Expected one Thai Lime Tea and one 16 oz rice in the cart, saw {lines!r}"
         )
+    if submission_count:
+        raise GradeError("Order submitted before the cart change request.")
 
 
 def grade_submissions(story: str, submissions: Submissions) -> None:
@@ -251,7 +153,7 @@ def grade_submissions(story: str, submissions: Submissions) -> None:
             raise GradeError(f"Expected {confirmed!r} in the mock order, saw {items!r}")
 
 
-def grade_checkout(story: CheckoutStory, lines: Sequence[ReceiptLine], total: str) -> None:
+def grade_checkout(story: str, lines: Sequence[ReceiptLine], total: str) -> None:
     """Grade the names, quantities and amounts actually shown in the confirmation."""
     expected = _ORDERS[story]
     by_name = {_name(line.name): line for line in expected}

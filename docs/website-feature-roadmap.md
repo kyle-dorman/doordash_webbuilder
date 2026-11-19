@@ -26,6 +26,7 @@ The first build should let a customer find a dish, see what it costs, and comple
 | [007 · Computer-use shopper](tasks/007-computer-use-shopper.md) | Run the same five stories on the same generated site. Each story must pass within three attempts. |
 | [008 · Agents SDK edit-story pilot](tasks/008-agents-sdk-edit-story.md) | Compare native and SDK runners on the two-request edit with GPT-5.4 held fixed. |
 | [009 · Shopper model comparison](tasks/009-shopper-model-comparison.md) | Compare GPT-5.4 and GPT-6.1 Terra on all five stories using the verified SDK runner. |
+| [010 · Split the shopper testers](tasks/010-split-shopper-testers.md) | Separate scripted Playwright checks from the SDK computer-use shopper and retire the native runner. |
 
 ### Agreed Thai Peacock shopper stories
 

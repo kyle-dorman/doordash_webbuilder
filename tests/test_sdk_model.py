@@ -1,87 +1,33 @@
 """Exercise the real SDK conversation and computer tool with a local Responses fixture."""
 
-from collections.abc import Iterator
+from collections.abc import AsyncIterator
 from typing import Literal
 from unittest.mock import AsyncMock, MagicMock
 
+import httpx2
 import pytest
-from agents.testing import assistant_message
-from agents.tracing import TracingProcessor, get_trace_provider, set_trace_provider
-from agents.tracing.provider import DefaultTraceProvider
-from openai import omit
-from openai.resources.responses import AsyncResponses
-from openai.types.responses import Response, ResponseComputerToolCall
+from agents import trace
+from openai import BadRequestError, omit
 from openai.types.responses.computer_action import Click, ComputerAction, Keypress, Type
-from playwright.sync_api import Page, sync_playwright
-from webbuilder_shopper.computer_model import VIEWPORT, ModelUnavailable, ShopperFailure
-from webbuilder_shopper.sdk_model import SdkShopperSession
-from webbuilder_shopper.shopper_usage import TERRA, summarize_usage
+from playwright.async_api import Page, async_playwright
+from sdk_responses import computer_call, response
+from webbuilder_shopper.computer_use.browser import VIEWPORT, ShopperFailure
+from webbuilder_shopper.computer_use.shopper import ModelUnavailable, SdkShopperSession
+from webbuilder_shopper.computer_use.usage import MODEL, TERRA, summarize_usage
 
-MODEL = "gpt-5.4-2026-03-05"
+pytestmark = pytest.mark.anyio
 BUTTON = Click(type="click", button="left", x=20, y=20)
 
 
 @pytest.fixture
-def traces() -> Iterator[MagicMock]:
-    # Exercise the real trace scope while keeping all test spans in process.
-    previous = get_trace_provider()
-    provider = DefaultTraceProvider()
-    processor = MagicMock(spec=TracingProcessor)
-    provider.register_processor(processor)
-    set_trace_provider(provider)
-    try:
-        yield processor
-    finally:
-        set_trace_provider(previous)
+async def page() -> AsyncIterator[Page]:
+    async with async_playwright() as playwright:
+        async with await playwright.chromium.launch() as browser:
+            yield await browser.new_page(viewport=VIEWPORT)
 
 
-@pytest.fixture
-def responses(monkeypatch: pytest.MonkeyPatch) -> AsyncMock:
-    create = AsyncMock()
-    monkeypatch.setenv("OPENAI_API_KEY", "offline-test")
-    monkeypatch.setattr(AsyncResponses, "create", create)
-    return create
-
-
-def computer_call(*actions: ComputerAction, flagged: bool = False) -> ResponseComputerToolCall:
-    return ResponseComputerToolCall.model_validate(
-        {
-            "type": "computer_call",
-            "id": "cu_1",
-            "call_id": "call_1",
-            "status": "completed",
-            "actions": [action.model_dump(exclude_none=True) for action in actions],
-            "pending_safety_checks": [{"id": "check_1", "code": "test"}] if flagged else [],
-        }
-    )
-
-
-def response(turn: int, item: ResponseComputerToolCall | str) -> Response:
-    output = assistant_message(item) if isinstance(item, str) else item
-    return Response.model_validate(
-        {
-            "id": f"resp_{turn}",
-            "model": MODEL,
-            "object": "response",
-            "created_at": 1,
-            "status": "completed",
-            "output": [output],
-            "tools": [{"type": "computer"}],
-            "tool_choice": "auto",
-            "parallel_tool_calls": True,
-            "usage": {
-                "input_tokens": 40,
-                "input_tokens_details": {"cached_tokens": 10, "cache_write_tokens": 0},
-                "output_tokens": 8,
-                "output_tokens_details": {"reasoning_tokens": 3},
-                "total_tokens": 48,
-            },
-        }
-    )
-
-
-def test_sdk_drives_page_and_continues_under_one_trace_and_budget(
-    responses: AsyncMock, traces: MagicMock
+async def test_sdk_drives_page_and_continues_under_one_trace_and_budget(
+    page: Page, responses: AsyncMock, traces: MagicMock
 ) -> None:
     # Finish the checkpoint on turn 2, then exhaust the shared budget on an edit action.
     responses.side_effect = [
@@ -90,16 +36,16 @@ def test_sdk_drives_page_and_continues_under_one_trace_and_budget(
         response(3, computer_call(Type(type="type", text=" and rice"))),
     ]
     history: list[dict[str, object]] = []
-    session = SdkShopperSession(MODEL, 3, history)
-    with sync_playwright() as playwright, playwright.chromium.launch() as browser:
-        page = browser.new_page(viewport=VIEWPORT)
-        page.set_content('<input aria-label="Items" style="position:absolute;inset:0;height:50px">')
-        with session.attempt_trace:
-            assert session.run(page, "Add tea.") == "Ready."
-            assert page.get_by_role("textbox").input_value() == "tea"
-            with pytest.raises(ShopperFailure, match="3-step limit"):
-                session.run(page, "Add rice.")
-            assert page.get_by_role("textbox").input_value() == "tea and rice"
+    session = SdkShopperSession(page, MODEL, 3, history)
+    await page.set_content(
+        '<input aria-label="Items" style="position:absolute;inset:0;height:50px">'
+    )
+    with trace("offline shopper"):
+        assert await session.run("Add tea.") == "Ready."
+        assert await page.get_by_role("textbox").input_value() == "tea"
+        with pytest.raises(ShopperFailure, match="3-step limit"):
+            await session.run("Add rice.")
+        assert await page.get_by_role("textbox").input_value() == "tea and rice"
 
     assert session.steps == responses.await_count == 3
     traces.on_trace_start.assert_called_once()
@@ -143,11 +89,9 @@ def test_sdk_drives_page_and_continues_under_one_trace_and_budget(
     )
 
 
-def test_sdk_prices_terra_cache_reads_and_both_write_lifetimes_per_response(
-    responses: AsyncMock, traces: MagicMock
+async def test_sdk_prices_terra_cache_reads_and_both_write_lifetimes_per_response(
+    page: Page, responses: AsyncMock, traces: MagicMock
 ) -> None:
-    page = MagicMock(spec=Page)
-    page.screenshot.return_value = b"pixels"
     short = response(1, computer_call(BUTTON))
     long = response(2, "Ready.")
     for reply, inputs in ((short, 272_000), (long, 272_001)):
@@ -164,9 +108,9 @@ def test_sdk_prices_terra_cache_reads_and_both_write_lifetimes_per_response(
         )
     responses.side_effect = [short, long]
     history: list[dict[str, object]] = []
-    session = SdkShopperSession(TERRA, 32, history)
-    with session.attempt_trace:
-        assert session.run(page, "Show my cart.") == "Ready."
+    session = SdkShopperSession(page, TERRA, 32, history)
+    with trace("offline shopper"):
+        assert await session.run("Show my cart.") == "Ready."
     first = next(event for event in history if event["event"] == "response")
     assert short.usage and first["raw_usage"] == short.usage.model_dump(exclude_unset=True)
     summary = summarize_usage(history, TERRA, turns=2)
@@ -203,58 +147,116 @@ def test_terra_requires_cache_write_counts_to_price_a_historical_response() -> N
     ],
     ids=["safety-check", "modified-click", "outside-viewport", "browser-shortcut"],
 )
-def test_sdk_rejects_actions_before_dispatch_and_stops_batch(
-    responses: AsyncMock, traces: MagicMock, action: ComputerAction, flagged: bool
+async def test_sdk_rejects_actions_before_dispatch_and_stops_batch(
+    page: Page, responses: AsyncMock, traces: MagicMock, action: ComputerAction, flagged: bool
 ) -> None:
+    await page.set_content(
+        "<title>untouched</title><body style='height:100vh' onclick='document.title=1' "
+        "onkeydown='document.title=2'></body>"
+    )
     responses.side_effect = [response(1, computer_call(action, BUTTON, flagged=flagged))]
-    page = MagicMock(spec=Page)
-    page.screenshot.return_value = b"pixels"
     history: list[dict[str, object]] = []
-    session = SdkShopperSession(MODEL, 3, history)
-    with session.attempt_trace, pytest.raises(ShopperFailure):
-        session.run(page, "Add tea.")
-    page.mouse.click.assert_not_called()
-    page.keyboard.press.assert_not_called()
+    session = SdkShopperSession(page, MODEL, 3, history)
+    with trace("offline shopper"), pytest.raises(ShopperFailure):
+        await session.run("Add tea.")
+    assert await page.title() == "untouched"
     assert session.steps == responses.await_count == 1
     blocked = [event for event in history if event.get("outcome") == "blocked"]
     assert len(blocked) == 1 and blocked[0]["call_id"] == "call_1"
     traces.on_trace_end.assert_called_once()
 
 
-def test_no_edit_turn_is_released_after_final_answer_spends_last_turn(
-    responses: AsyncMock, traces: MagicMock
+@pytest.mark.parametrize("flag_last_call", [False, True], ids=["execute-both", "block-whole-turn"])
+async def test_two_computer_calls_in_one_response(
+    flag_last_call: bool, page: Page, responses: AsyncMock, traces: MagicMock
 ) -> None:
-    page = MagicMock(spec=Page)
-    page.screenshot.return_value = b"pixels"
+    await page.set_content('<input style="position:absolute;inset:0;height:50px">')
+    turn = response(1, computer_call(BUTTON, Type(type="type", text="tea")))
+    second = computer_call(Type(type="type", text=" and rice"), flagged=flag_last_call)
+    turn.output.append(second.model_copy(update={"id": "cu_2", "call_id": "call_2"}))
+    responses.side_effect = [turn, response(2, "Ready.")]
+    history: list[dict[str, object]] = []
+    session = SdkShopperSession(page, MODEL, 2, history)
+    with trace("offline shopper"):
+        if flag_last_call:
+            with pytest.raises(ShopperFailure, match="human review"):
+                await session.run("Add both items.")
+            assert await page.get_by_role("textbox").input_value() == ""
+            assert not any(event["event"] == "action" for event in history)
+        else:
+            assert await session.run("Add both items.") == "Ready."
+            assert await page.get_by_role("textbox").input_value() == "tea and rice"
+            assert [
+                (event["step"], event["call_id"]) for event in history if event["event"] == "action"
+            ] == [(1, "call_1"), (1, "call_1"), (1, "call_2")]
+            assert [
+                (event["step"], event["call_id"])
+                for event in history
+                if event["event"] == "screenshot"
+            ] == [(0, None), (1, "call_1"), (1, "call_2")]
+
+
+async def test_no_edit_turn_is_released_after_final_answer_spends_last_turn(
+    page: Page, responses: AsyncMock, traces: MagicMock
+) -> None:
     responses.side_effect = [response(1, "Ready.")]
-    session = SdkShopperSession(MODEL, 1, [])
-    with session.attempt_trace:
-        assert session.run(page, "Show my cart.") == "Ready."
+    session = SdkShopperSession(page, MODEL, 1, [])
+    with trace("offline shopper"):
+        assert await session.run("Show my cart.") == "Ready."
         with pytest.raises(ShopperFailure, match="1-step limit"):
-            session.run(page, "Change my order.")
+            await session.run("Change my order.")
     assert responses.await_count == session.steps == 1
+    assert [event["text"] for event in session.history if event["event"] == "request"] == [
+        "Show my cart."
+    ]
 
 
 @pytest.mark.parametrize(
     ("status", "failure"), [("incomplete", ShopperFailure), ("failed", ModelUnavailable)]
 )
-def test_sdk_terminal_response_retains_usage_and_stops_before_actions(
+async def test_sdk_terminal_response_retains_usage_and_stops_before_actions(
+    page: Page,
     responses: AsyncMock,
     traces: MagicMock,
     status: Literal["incomplete", "failed"],
     failure: type[Exception],
 ) -> None:
-    page = MagicMock(spec=Page)
-    page.screenshot.return_value = b"pixels"
+    await page.set_content(
+        "<title>untouched</title><body style='height:100vh' onclick='document.title=1'></body>"
+    )
     terminal = response(1, computer_call(BUTTON))
     terminal.status = status
     responses.side_effect = [terminal]
     history: list[dict[str, object]] = []
-    session = SdkShopperSession(MODEL, 3, history)
-    with session.attempt_trace, pytest.raises(failure):
-        session.run(page, "Add tea.")
-    page.mouse.click.assert_not_called()
+    session = SdkShopperSession(page, MODEL, 3, history)
+    with trace("offline shopper"), pytest.raises(failure):
+        await session.run("Add tea.")
+    assert await page.title() == "untouched"
     assert session.steps == responses.await_count == 1
     last = history[-1]
     assert last["event"] == "response" and last["status"] == status
     assert isinstance(last["usage"], dict) and last["usage"]["total_tokens"] == 48
+
+
+async def test_api_error_reports_reason_without_echoing_images_or_keys(
+    page: Page, responses: AsyncMock, traces: MagicMock, caplog: pytest.LogCaptureFixture
+) -> None:
+    message = "Invalid image data:image/png;base64,sensitivepixels or key sk-sensitive."
+    responses.side_effect = BadRequestError(
+        message,
+        response=httpx2.Response(
+            400,
+            request=httpx2.Request("POST", "https://example.test"),
+            headers={"x-request-id": "req_1"},
+        ),
+        body={"message": message},
+    )
+    session = SdkShopperSession(page, MODEL, 3, [])
+    with trace("offline shopper"), pytest.raises(ModelUnavailable) as error:
+        await session.run("Find hours.")
+    assert "Invalid image [redacted] or key [redacted]" in str(error.value)
+    assert "request req_1" in str(error.value)
+    spans = [call.args[0].export() for call in traces.on_span_end.call_args_list]
+    assert spans
+    for text in (str(error.value), str(session.history), str(spans), caplog.text):
+        assert "sensitivepixels" not in text and "sk-sensitive" not in text

@@ -6,6 +6,10 @@
   <title>{% block title %}{{ store.name }}{% endblock %}</title>
   <link rel="stylesheet" href="assets/storefront.css">
   {% if page == 'menu.html' %}<script src="assets/menu.js" defer></script>{% endif %}
+  {% if page in ('menu.html', 'review.html') %}
+  <script type="application/json" id="cart-catalog">{{ cart_catalog | tojson }}</script>
+  <script src="assets/cart.js" defer></script>
+  {% endif %}
 </head>
 {% set peacock = store.store_id == '265151' %}
 <body data-store-id="{{ store.store_id }}"{% if peacock %} class="peacock"{% endif %}>
@@ -18,7 +22,7 @@
         <span>{{ store.name }}</span>
       </a>
       <nav class="main-nav" aria-label="Restaurant">
-        {% for url, label in [('index.html', 'Home'), ('menu.html', 'Menu'), ('visit.html', 'Hours & location')] %}
+        {% for url, label in [('index.html', 'Home'), ('menu.html', 'Menu'), ('visit.html', 'Hours & location'), ('review.html', 'Cart')] %}
         <a href="{{ url }}"{% if page == url %} aria-current="page"{% endif %}>{{ label }}</a>
         {% endfor %}
       </nav>

@@ -37,7 +37,7 @@ uv run --locked --package webbuilder-site-server serve-storefront --directory bu
 
 Open [Thai Peacock](http://127.0.0.1:8000/) in a desktop browser. Keep the server running while browsing. Press Ctrl+C in its terminal to stop it.
 
-If the generated files are missing, run the Task 002 generator first.
+To build or refresh the storefront, run the generator and reload the page.
 
 ```sh
 uv run --locked --package webbuilder-agent generate-storefront \
@@ -47,7 +47,9 @@ uv run --locked --package webbuilder-agent generate-storefront \
 
 The landing page features up to three photographed dishes, selected by matching restaurant tags to dish names, sections and descriptions. Feed order breaks ties and supplies pictured dishes when matches run out. The browser loads photos from the CDN URLs in the feed.
 
-**Menu** and **Order now** both open `menu.html`. **Hours & location** opens `visit.html` with the address, phone and weekly hours. To preview another restaurant, change the store ID and output directory.
+**Menu** and **Order now** open the menu. Add dishes and open the cart to review quantities, remove items, or return to the menu. Selections stay with that restaurant in the current browser tab. **Hours & location** shows the address, phone and weekly hours.
+
+To preview another restaurant, change the store ID and output directory. The generator includes the same cart script with each storefront and supplies that restaurant’s item IDs, names, and prices.
 
 ## Development
 

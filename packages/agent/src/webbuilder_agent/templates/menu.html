@@ -6,14 +6,17 @@
     </div>
     <div class="wrap menu-layout" id="menu">
       <aside class="menu-rail">
-        <nav class="section-nav" aria-label="Menu sections">
-          <h2 class="eyebrow">Menu sections</h2>
-          <div class="section-links">
-          {% for section in store.sections %}
-            <a href="#section-{{ loop.index }}">{{ section.name }}</a>
-          {% endfor %}
-          </div>
-        </nav>
+        <div class="menu-rail-inner">
+          <a class="review-link" href="review.html">Review cart <span data-cart-count>0</span></a>
+          <nav class="section-nav" aria-label="Menu sections">
+            <h2 class="eyebrow">Menu sections</h2>
+            <div class="section-links">
+            {% for section in store.sections %}
+              <a href="#section-{{ loop.index }}">{{ section.name }}</a>
+            {% endfor %}
+            </div>
+          </nav>
+        </div>
       </aside>
       <div class="menu-sections">
         {% for section in store.sections %}
@@ -37,6 +40,7 @@
                 {% if item.description %}
                 <p class="description">{{ item.description }}</p>
                 {% endif %}
+                <button class="add-item" type="button" data-add-item="{{ item.item_id }}" aria-label="Add {{ item.name }} to cart"><span aria-hidden="true">+</span> Add to cart</button>
               </div>
             </article>
             {% endfor %}
@@ -46,4 +50,5 @@
       </div>
     </div>
     <div class="wrap menu-end"><a class="text-link" href="#top">Back to top <span aria-hidden="true">↑</span></a></div>
+    <p class="visually-hidden" role="status" data-cart-status></p>
 {% endblock %}

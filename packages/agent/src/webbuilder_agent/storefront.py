@@ -35,16 +35,31 @@ def generate(feed: Path, store_id: str, output: Path) -> Path:
     )
     templates.filters.update(clock=_clock, phone=_phone)
     featured = featured_items(store)
-    pages = ("menu.html", "visit.html", "index.html")
+    cart_catalog = {
+        "store_id": store.store_id,
+        "items": [
+            {
+                "item_id": item.item_id,
+                "name": item.name,
+                "price_cents": item.price_cents,
+                "currency": item.currency,
+            }
+            for section in store.sections
+            for item in section.items
+        ],
+    }
+    pages = ("review.html", "menu.html", "visit.html", "index.html")
     assets = output / "assets"
     assets.mkdir(parents=True, exist_ok=True)
     resources = files("webbuilder_agent").joinpath("templates")
     with TemporaryDirectory(dir=output) as staging:
         stage = Path(staging)
         for page in pages:
-            html = templates.get_template(page).render(store=store, page=page, featured=featured)
+            html = templates.get_template(page).render(
+                store=store, page=page, featured=featured, cart_catalog=cart_catalog
+            )
             (stage / page).write_text(html, encoding="utf-8")
-        for filename in ("storefront.css", "menu.js"):
+        for filename in ("storefront.css", "menu.js", "cart.js"):
             (stage / filename).write_bytes(resources.joinpath(filename).read_bytes())
             (stage / filename).replace(assets / filename)
         # Publish the landing page after its linked pages and assets.

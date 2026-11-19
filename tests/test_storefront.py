@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from copy import deepcopy
 from dataclasses import replace
 from html.parser import HTMLParser
 from pathlib import Path
@@ -23,11 +24,15 @@ class Page(HTMLParser):
         self.open_href: str | None = None
         self.section_ids: list[str | None] = []
         self.menu_destinations: list[str | None] = []
+        self.catalog_json = ""
+        self.in_catalog = False
         self.feed(path.read_text(encoding="utf-8"))
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
         self.elements[tag].append(attributes)
+        if tag == "script":
+            self.in_catalog = attributes.get("id") == "cart-catalog"
         if tag == "a":
             self.open_href = attributes.get("href")
         if tag == "section":
@@ -36,12 +41,16 @@ class Page(HTMLParser):
             self.menu_destinations.append(self.section_ids[-1] if self.section_ids else None)
 
     def handle_endtag(self, tag: str) -> None:
+        if tag == "script":
+            self.in_catalog = False
         if tag == "section":
             self.section_ids.pop()
         if tag == "a":
             self.open_href = None
 
     def handle_data(self, data: str) -> None:
+        if self.in_catalog:
+            self.catalog_json += data
         self.text.append(data)
         if self.open_href:
             self.link_text[self.open_href].append(data.strip().casefold())
@@ -165,6 +174,56 @@ def test_storefront_keeps_menu_data_hours_and_photo_urls(tmp_path: Path, with_ph
             link.get("href") for link in page.elements["link"] if link.get("rel") == "stylesheet"
         ]
         assert styles and all(href and (output / href).is_file() for href in styles)
+
+
+def test_cart_pages_use_the_selected_menu_and_share_the_same_script(tmp_path: Path) -> None:
+    feed = write_sample_feed(tmp_path, with_photos=False)
+    payload = json.loads(feed.read_text(encoding="utf-8"))
+    second = deepcopy(payload["restaurants"][0])
+    second["store_id"] = second["business_profile"]["locations"][0]["store_id"] = "456"
+    second["menu_book"]["item_lists"] = second["menu_book"]["item_lists"][1:]
+    dish = second["menu_book"]["item_lists"][0]["items"][0]
+    dish.update(id="9007199254740993", name="Fish & chips </script>")
+    payload["restaurants"].append(second)
+    feed.write_text(json.dumps(payload), encoding="utf-8")
+
+    menus = {
+        "123": {"200": ("Rice <small>", 0), "100": ("Rice <small>", 250)},
+        "456": {"9007199254740993": ("Fish & chips </script>", 250)},
+    }
+    for store_id, items in menus.items():
+        output = tmp_path / store_id
+        generate(feed, store_id, output)
+        menu = Page(output / "menu.html")
+        review = Page(output / "review.html")
+        assert "review.html" in menu.link_text
+        assert "menu.html" in review.link_text
+        assert any("data-cart-count" in span for span in menu.elements["span"])
+        assert sorted(
+            item_id
+            for button in menu.elements["button"]
+            if (item_id := button.get("data-add-item")) is not None
+        ) == sorted(items)
+        hooks = {key for elements in review.elements.values() for tag in elements for key in tag}
+        assert {"data-cart-lines", "data-cart-empty", "data-cart-subtotal"} <= hooks
+
+        for page in (menu, review):
+            scripts = page.elements["script"]
+            assert any(script.get("src") == "assets/cart.js" for script in scripts)
+            assert any(
+                script.get("id") == "cart-catalog" and script.get("type") == "application/json"
+                for script in scripts
+            )
+            catalog = json.loads(page.catalog_json)
+            assert catalog["store_id"] == store_id
+            assert {
+                item["item_id"]: (item["name"], item["price_cents"], item["currency"])
+                for item in catalog["items"]
+            } == {item_id: (name, cents, "USD") for item_id, (name, cents) in items.items()}
+
+    assert (tmp_path / "123/assets/cart.js").read_bytes() == (
+        tmp_path / "456/assets/cart.js"
+    ).read_bytes()
 
 
 def test_featured_items_prioritize_tags_then_feed_order_among_photographed_dishes(

@@ -41,3 +41,4 @@ These features are outside the current build.
 - Item availability and scheduled orders.
 - Pickup and delivery flows with fulfillment details and simulated fees and taxes.
 - Order tracking and reordering a previous cart.
+- Update shared storefront features across published restaurant sites without republishing each site.

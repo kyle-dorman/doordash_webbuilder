@@ -25,7 +25,7 @@ The initial agent stack uses [Inspect AI's OpenAI provider](https://inspect.aisi
 
 The local sample lives at `~/data/webbuilder/restaurants_feed.json`. Each entry in `restaurants` has a `store_id`, `store_header`, `business_profile`, `menu_book`, and `reviews`. The full menu is under `menu_book.item_lists`. Cuisine tags and available imagery provide style cues. The feed's `order_url` values point to DoorDash, so generated sites should route checkout to the mock backend.
 
-Start with [Task 001 — Explore the restaurant feed and choose MVP test cases](docs/tasks/001-explore-restaurant-feed.md).
+The feed profile records the store comparisons and example orders. The feature roadmap sets the scope for the desktop MVP tasks. [Feed profile](docs/restaurant-feed-profile.md) · [Feature roadmap](docs/website-feature-roadmap.md)
 
 ## Development
 

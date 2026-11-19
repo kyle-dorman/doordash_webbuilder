@@ -22,9 +22,24 @@ The first build should let a customer find a dish, see what it costs, and comple
 | [003 · Serve the static storefront](tasks/003-serve-static-storefront.md) | Open the reviewed site at a local web address. |
 | [004 · Browser cart and order review](tasks/004-browser-cart.md) | Build and edit an order in the browser and review its subtotal. |
 | [005 · Mock checkout](tasks/005-mock-checkout.md) | Submit the order, verify the confirmation, and repeat with the text-only store. |
+| [006 · Scripted browser tests](tasks/006-scripted-browser-tests.md) | Generate and serve Thai Peacock, then run the five shopper stories below in a browser. |
+| [007 · Computer-use shopper](tasks/007-computer-use-shopper.md) | Run the same five stories on the same generated site. Each story must pass within three attempts. |
+
+### Agreed Thai Peacock shopper stories
+
+Both runners start each story on the homepage with an empty cart. The three lookups require a correct answer from the site and zero order submissions. Each order requires exactly one accepted mock order for Thai Peacock (`265151`) and a matching confirmation visible to the shopper.
+
+| Story | Shopper request | Expected outcome |
+| --- | --- | --- |
+| Contact details | What’s the full address and phone number? | 219 Southwest 9th Avenue, Portland, OR 97205 and (503) 719-7273. |
+| Posted hours | When does Thai Peacock open and close on Tuesday and Friday? | Tuesday 11:30 AM–9:15 PM and Friday 11:00 AM–9:45 PM, local time. |
+| Menu lookup | What size is the Tom-Yum Soup, and how much does it cost? | 24 oz and $14.50. |
+| Place an order | Order two servings of vegan crispy spring rolls and one 16 oz rice. | Two spring rolls orders (`140240246`, $17.00 together) and one rice (`140247117`, $2.50), totaling **$19.50**. |
+| Change an order | Add one Thai Lime Tea and one 16 oz rice to the cart. Once both appear, change to two teas, remove the rice, and place the order. | The cart initially shows one of each. The accepted order contains only two teas (`548484849`), totaling **$9.00**. |
 
 ## Tier 2 · Planned enhancements
 
+- **Dish-detail popups.** Let a shopper open a dish from the menu, read its details, and add it to the cart from the popup. Extend the scripted runner to cover this path with the same order expectations.
 - **Size, protein, and side selection.** Let a customer choose an option, see what it costs, and review the selection in the cart and confirmation. Different sizes of the same item should stay on separate cart lines.
 - **Menu search.** Find dishes across sections by name or description.
 - **Ratings and reviews.** Show the aggregate rating and review count, with written reviews when supplied.

@@ -8,6 +8,14 @@
   const template = document.getElementById("cart-line-template");
   const empty = document.querySelector("[data-cart-empty]");
   const subtotal = document.querySelector("[data-cart-subtotal]");
+  const review = document.querySelector("[data-cart-review]");
+  const checkout = document.querySelector("[data-checkout]");
+  const placeOrder = document.querySelector("[data-place-order]");
+  const checkoutError = document.querySelector("[data-checkout-error]");
+  const confirmation = document.querySelector("[data-confirmation]");
+  const heading = document.querySelector("[data-order-heading]");
+  const pageTitle = document.title;
+  const currency = catalog.items[0]?.currency ?? "USD";
 
   function loadCart() {
     const cart = new Map();
@@ -27,6 +35,10 @@
   }
 
   let cart = loadCart();
+
+  function selections(quantities) {
+    return Array.from(quantities, ([item_id, quantity]) => ({item_id, quantity}));
+  }
 
   function money(cents, currency) {
     return (cents / 100).toLocaleString("en-US", {style: "currency", currency});
@@ -65,7 +77,8 @@
     }
     for (const line of oldLines.values()) line.remove();
     empty.hidden = cart.size > 0;
-    subtotal.textContent = money(subtotalCents, catalog.items[0]?.currency ?? "USD");
+    checkout.hidden = cart.size === 0;
+    subtotal.textContent = money(subtotalCents, currency);
   }
 
   function setQuantity(id, quantity) {
@@ -75,8 +88,7 @@
     else next.set(id, quantity);
 
     try {
-      const saved = Array.from(next, ([item_id, quantity]) => ({item_id, quantity}));
-      sessionStorage.setItem(storageKey, JSON.stringify(saved));
+      sessionStorage.setItem(storageKey, JSON.stringify(selections(next)));
     } catch {
       status.className = "cart-notice";
       status.textContent = "Your browser couldn’t save the cart. Allow site storage and try again.";
@@ -84,10 +96,76 @@
     }
     cart = next;
     render();
+    if (checkoutError) checkoutError.textContent = "";
     status.className = "visually-hidden";
     const name = items.get(id).name;
     status.textContent = quantity ? `${name}, quantity ${quantity}.` : `${name} removed.`;
   }
+
+  function showConfirmation(order) {
+    const confirmedTemplate = document.getElementById("confirmed-line-template");
+    const receipt = document.createDocumentFragment();
+    if (order.store_id !== catalog.store_id || !order.items?.length || !Number.isSafeInteger(order.subtotal_cents)) {
+      throw new Error("Incomplete confirmation");
+    }
+    for (const item of order.items) {
+      if (typeof item.name !== "string" || !Number.isSafeInteger(item.quantity) ||
+          !Number.isSafeInteger(item.unit_price_cents) || !Number.isSafeInteger(item.line_total_cents)) {
+        throw new Error("Incomplete confirmation line");
+      }
+      const line = confirmedTemplate.content.firstElementChild.cloneNode(true);
+      line.querySelector("[data-confirmed-name]").textContent = item.name;
+      line.querySelector("[data-confirmed-quantity]").textContent = `${item.quantity} × ${money(item.unit_price_cents, currency)}`;
+      line.querySelector("[data-confirmed-line-total]").textContent = money(item.line_total_cents, currency);
+      receipt.append(line);
+    }
+    confirmation.querySelector("[data-confirmed-lines]").replaceChildren(receipt);
+    confirmation.querySelector("[data-confirmed-total]").textContent = money(order.subtotal_cents, currency);
+    heading.textContent = "Simulated order confirmed";
+    document.title = `${heading.textContent} | ${document.querySelector(".wordmark").textContent.trim()}`;
+    review.hidden = true;
+    confirmation.hidden = false;
+    heading.focus();
+  }
+
+  placeOrder?.addEventListener("click", async () => {
+    if (review.disabled || !cart.size) return;
+    review.disabled = true;
+    placeOrder.textContent = "Placing order…";
+    checkoutError.textContent = "";
+    status.className = "visually-hidden";
+    status.textContent = "Placing simulated order.";
+    try {
+      const response = await fetch("/orders", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({store_id: catalog.store_id, items: selections(cart)}),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        const reason = typeof result.error === "string" ? result.error : "The order could not be confirmed.";
+        checkoutError.textContent = `${reason} Review your cart and try again.`;
+        return;
+      }
+      showConfirmation(result);
+      cart.clear();
+      render();
+      // The accepted receipt still stands if the browser disallows a storage change.
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch {
+        status.className = "cart-notice";
+        status.textContent = "Your simulated order was confirmed, but your browser couldn’t clear the saved cart.";
+      }
+    } catch {
+      checkoutError.textContent = "Couldn’t confirm the order. Your cart is saved. Try again.";
+    } finally {
+      review.disabled = false;
+      placeOrder.textContent = "Place order";
+      if (!review.hidden && document.activeElement === document.body) placeOrder.focus();
+      if (status.className === "visually-hidden") status.textContent = "";
+    }
+  });
 
   document.addEventListener("click", event => {
     const add = event.target.closest("[data-add-item]");
@@ -117,6 +195,12 @@
   window.addEventListener("pageshow", event => {
     if (event.persisted) {
       cart = loadCart();
+      if (confirmation && !confirmation.hidden && cart.size) {
+        confirmation.hidden = true;
+        review.hidden = false;
+        heading.textContent = "Review your order";
+        document.title = pageTitle;
+      }
       render();
     }
   });

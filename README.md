@@ -27,29 +27,50 @@ The local sample lives at `~/data/webbuilder/restaurants_feed.json`. Each entry 
 
 The feed profile records the store comparisons and example orders. The feature roadmap sets the scope for the desktop MVP tasks. [Feed profile](docs/restaurant-feed-profile.md) · [Feature roadmap](docs/website-feature-roadmap.md)
 
-## Preview Thai Peacock
+## Run the storefronts and mock checkout locally
 
-From the repository root, serve the reviewed storefront for store `265151`.
+Generate both storefronts from the same feed. These commands run from the repository root and do not require an API key.
+
+```sh
+feed=~/data/webbuilder/restaurants_feed.json
+uv run --locked --package webbuilder-agent generate-storefront \
+  --feed "$feed" --store-id 265151 --output build/thai-peacock
+uv run --locked --package webbuilder-agent generate-storefront \
+  --feed "$feed" --store-id 26303866 --output build/one-stop-roti
+```
+
+Start the mock in its own terminal. It reads menu prices at startup and listens on `127.0.0.1:8001`. If you switch feeds, regenerate the storefronts and restart the mock with that file.
+
+```sh
+uv run --locked --package webbuilder-mock-backend serve-mock-backend \
+  --feed ~/data/webbuilder/restaurants_feed.json
+```
+
+Start Thai Peacock in a second terminal.
 
 ```sh
 uv run --locked --package webbuilder-site-server serve-storefront --directory build/thai-peacock
 ```
 
-Open [Thai Peacock](http://127.0.0.1:8000/) in a desktop browser. Keep the server running while browsing. Press Ctrl+C in its terminal to stop it.
-
-To build or refresh the storefront, run the generator and reload the page.
+Start One Stop Roti in a third terminal.
 
 ```sh
-uv run --locked --package webbuilder-agent generate-storefront \
-  --feed ~/data/webbuilder/restaurants_feed.json \
-  --store-id 265151 --output build/thai-peacock
+uv run --locked --package webbuilder-site-server serve-storefront \
+  --directory build/one-stop-roti --port 8002
 ```
 
-The landing page features up to three photographed dishes, selected by matching restaurant tags to dish names, sections and descriptions. Feed order breaks ties and supplies pictured dishes when matches run out. The browser loads photos from the CDN URLs in the feed.
+Keep the servers running while browsing. Each storefront forwards `POST /orders` to the same mock. To use a different mock port, set `--port` on the mock and `--mock-port` on each storefront. Press Ctrl+C in each terminal to stop its server.
 
-**Menu** and **Order now** open the menu. Add dishes and open the cart to review quantities, remove items, or return to the menu. Selections stay with that restaurant in the current browser tab. **Hours & location** shows the address, phone and weekly hours.
+### Try a simulated order
 
-To preview another restaurant, change the store ID and output directory. The generator includes the same cart script with each storefront and supplies that restaurant’s item IDs, names, and prices.
+Open **Menu**, add the items below, open **Review cart**, and select **Place order**.
+
+- At Thai Peacock, add **3. Vegan Crispy Spring Rolls (4) (VG)** twice from **Small Plates** and **Rice (16oz.)** once from **Sides**. The simulated confirmation shows **$17.00** and **$2.50**, totaling **$19.50**. [Open Thai Peacock](http://127.0.0.1:8000/)
+- At One Stop Roti, add one **Curry Chicken** from **Roti**. The same checkout on the text-only storefront confirms **$14.95**. [Open One Stop Roti](http://127.0.0.1:8002/)
+
+Cart edits stay in the current browser tab until submission. The mock prices each selection from the specified store’s menu. A successful confirmation clears that store’s cart. If checkout fails, edit the quantities or select **Place order** again. [Task 5 verification and rejection examples](docs/tasks/005-mock-checkout.md#verification)
+
+To preview another restaurant, change the store ID and output directory. The landing page features up to three photographed dishes, selected by matching restaurant tags to dish names, sections and descriptions. Feed order breaks ties and supplies pictured dishes when matches run out. The browser loads photos from the CDN URLs in the feed. **Hours & location** shows the address, phone and weekly hours.
 
 ## Development
 

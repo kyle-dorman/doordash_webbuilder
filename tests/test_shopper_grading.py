@@ -16,6 +16,15 @@ from webbuilder_shopper.grading import (
     grade_submissions,
 )
 
+# Representative source-feed names including section numbering and dietary/size labels.
+MENU_NAMES = [
+    "10. Tom-Yum Soup (GF)",
+    "11. Tom-Kha (GF)",
+    "17.1. Pad Thai & Salmon",
+    RICE,
+    TEA,
+]
+
 
 def test_lookup_grading_accepts_equivalent_formats() -> None:
     grade_contact("219 Southwest 9th Avenue\nPortland, OR 97205", "+1 503.719.7273")
@@ -32,12 +41,20 @@ def test_lookup_grading_accepts_equivalent_formats() -> None:
         ("hours", "| Tuesday | 11:30 AM | 9:15 PM |\n| Friday | 11 AM | 9:45 PM |"),
         ("hours", "Tuesday closes at 9:15 PM and opens at 11:30 AM. Friday 11–21:45."),
         ("soup", "The **Tom-Yum Soup** comes in a 24-ounce portion and costs **$14.50**."),
+        ("soup", "Tom-Yum Soup is 24 oz and costs $14.50."),
+        ("soup", "The Tom Yum Soup is served in a 24 oz bowl. Its price is 14.50 USD."),
+        ("soup", "Size: 24 oz\nPrice: $14.50"),
+        (
+            "soup",
+            "According to the menu, the Tom-Yum Soup (GF) comes in a 24 oz portion "
+            "and costs $14.50.",
+        ),
         ("soup", "14,50 USD for 24 fl. oz."),
         ("soup", "24 oz, 14.5"),
     ],
 )
 def test_shopper_final_answer_accepts_correct_prose(story: str, answer: str) -> None:
-    grade_lookup_answer(story, answer)
+    grade_lookup_answer(story, answer, menu_names=MENU_NAMES)
 
 
 @pytest.mark.parametrize(
@@ -53,11 +70,18 @@ def test_shopper_final_answer_accepts_correct_prose(story: str, answer: str) -> 
         ("soup", "24 oz, $14,500"),
         ("soup", "24 oz, $14.50 or $18.50."),
         ("soup", "24 oz, perhaps 12 oz, $14.50"),
+        ("soup", "Tom-Kha Soup is 24 oz and costs $14.50."),
+        ("soup", "The clam chowder is 24 oz and costs $14.50."),
+        ("soup", "Tom-Yum Soup is sold out. Clam chowder is 24 oz and costs $14.50."),
+        ("soup", "tom yum soup is unavailable. pad thai is 24 oz and costs $14.50."),
+        ("soup", "The Tom-Yum Soup is unavailable. The Tom Kha Soup is 24 oz and costs $14.50."),
+        ("soup", "Tom-Yum Soup is 24 oz. The price of the rice is $14.50."),
+        ("soup", "24 oz for $14.50 for Thai lime tea, not Tom-Yum."),
     ],
 )
 def test_shopper_final_answer_rejects_wrong_or_ambiguous_facts(story: str, answer: str) -> None:
     with pytest.raises(GradeError):
-        grade_lookup_answer(story, answer)
+        grade_lookup_answer(story, answer, menu_names=MENU_NAMES)
 
 
 @pytest.mark.parametrize("story", ["contact", "hours", "soup"])

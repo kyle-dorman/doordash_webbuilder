@@ -1,7 +1,7 @@
 """Grade Thai Peacock shopper evidence against the agreed roadmap outcomes."""
 
 import re
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
@@ -54,6 +54,10 @@ _ORDERS: dict[str, tuple[_OrderLine, ...]] = {
 }
 
 _SIZE = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)[\s-]*(?:fl\.?\s*)?(?:oz|ounces?)\b", re.I)
+_IMPLIED_SUBJECT_WORDS = frozenset(
+    "size price cost costs priced listed serving portion bowl it its s the this soup a an "
+    "is comes served in at for of and each per".split()
+)
 
 
 def grade_contact(address: str, phone: str) -> None:
@@ -134,7 +138,29 @@ def _answer_interval(day: str, text: str) -> str | None:
     return f"{first}–{second}"
 
 
-def grade_lookup_answer(story: str, answer: str) -> None:
+def _check_soup_subject(answer: str, price: str, menu_names: Iterable[str]) -> None:
+    """Keep facts for another menu entry from satisfying the Tom-Yum lookup."""
+    words = " " + " ".join(re.findall(r"\w+", answer.casefold())) + " "
+    for name in menu_names:
+        # Match names as shoppers write them, omitting menu numbers and parenthesized labels.
+        base = re.sub(r"^\s*(?:\d+\.\s*)+|\([^)]*\)", "", name).casefold()
+        # Compound entries such as "Pad Thai & Salmon" may be called simply "Pad Thai".
+        base = base.partition(" & ")[0]
+        dish = " ".join(re.findall(r"\w+", base))
+        if dish and dish != "tom yum soup" and f" {dish} " in words:
+            raise GradeError(f"Tom-Yum Soup answer names another menu item {name!r}: {answer!r}")
+
+    # A bare answer ("24 oz, $14.50") inherits the question's subject. Longer prose
+    # should name the dish in the sentence that supplies the facts.
+    facts = _SIZE.sub(" § ", answer).replace(price, " § ")
+    for clause in re.split(r"[;!?\n]+|\.(?:\s+|$)", facts):
+        if "§" not in clause or re.search(r"\btom[\s‐‑‒–—-]*yum\b", clause, re.I):
+            continue
+        if set(re.findall(r"[^\W\d_]+", clause.casefold())) - _IMPLIED_SUBJECT_WORDS:
+            raise GradeError(f"Cannot attribute this size or price to Tom-Yum Soup: {answer!r}")
+
+
+def grade_lookup_answer(story: str, answer: str, *, menu_names: Iterable[str] = ()) -> None:
     """Extract facts from the shopper's final text and apply the scripted runner's graders."""
     plain = re.sub(r"[*_`]", "", answer)
     if story == "contact":
@@ -173,7 +199,9 @@ def grade_lookup_answer(story: str, answer: str) -> None:
         )
         if not prices:
             prices = re.findall(rf"(?<![\w.,]){number}(?!\w)", remaining)
-        grade_soup(plain, _single("Tom-Yum Soup price", prices))
+        price = _single("Tom-Yum Soup price", prices)
+        grade_soup(plain, price)
+        _check_soup_subject(plain, price, menu_names)
     else:
         raise GradeError(f"Unknown lookup story {story!r}")
 

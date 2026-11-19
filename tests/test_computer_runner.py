@@ -1,6 +1,7 @@
 """Exercise the retry policy against real browser contexts, carts and HTTP mock orders."""
 
 import json
+import struct
 from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
@@ -12,8 +13,14 @@ from playwright.sync_api import Browser, Page, expect, sync_playwright
 from webbuilder_agent.storefront import generate
 from webbuilder_mock_backend.server import Catalog, OrderHandler, load_catalog
 from webbuilder_shopper.browser import checkout
-from webbuilder_shopper.computer_model import ModelUnavailable
-from webbuilder_shopper.computer_runner import CHANGE_REQUEST, REQUESTS, History, run_suite
+from webbuilder_shopper.computer_model import ModelUnavailable, ShopperFailure
+from webbuilder_shopper.computer_runner import (
+    CHANGE_REQUEST,
+    REQUESTS,
+    History,
+    run_attempt,
+    run_suite,
+)
 from webbuilder_shopper.grading import RICE, ROLLS, STORE_ID, TEA
 
 
@@ -97,7 +104,9 @@ class DeterministicSession:
             return "Order placed."
 
         assert self.steps == 1
-        assert urlsplit(page.url).path in {"/", "/index.html"}
+        documents = [urlsplit(r.url).path for r in page.requests() if r.is_navigation_request()]
+        assert documents in (["/"], ["/index.html"])
+        assert urlsplit(page.url).path == documents[0]
         assert page.evaluate("sessionStorage.length") == 0
         # Cookies span the mock's changing localhost ports, unlike sessionStorage.
         assert "previous_attempt" not in page.evaluate("document.cookie")
@@ -149,6 +158,8 @@ def test_pass_at_three_isolates_retries_and_keeps_all_failures(
     browser: Browser, site: tuple[Path, Catalog], tmp_path: Path
 ) -> None:
     directory, catalog = site
+    review = directory / "review.html"
+    review.write_text(review.read_text().replace("Your cart is empty.", "No items added yet."))
     counts: Counter[str] = Counter()
 
     def fresh(model: str, limit: int, history: History) -> DeterministicSession:
@@ -178,6 +189,7 @@ def test_pass_at_three_isolates_retries_and_keeps_all_failures(
     assert [a["answers"] for a in attempts[3:6]] == [["32 oz, $14.50"]] * 3
     assert attempts[-2]["submissions"] == ()
     assert attempts[-2]["steps"] == 1
+    assert attempts[-2]["checkpoint_screenshot"] is None
     assert attempts[-1]["steps"] == 2
     assert sorted(attempts[-1]["initial_cart"] or []) == sorted([(TEA, 1), (RICE, 1)])
 
@@ -194,6 +206,51 @@ def test_pass_at_three_isolates_retries_and_keeps_all_failures(
             assert screenshot
             assert (evidence / screenshot).read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
     assert json.loads((evidence / "report.json").read_text()) == json.loads(json.dumps(report))
+
+
+@pytest.mark.parametrize("finish", [True, False], ids=["checkout-passes", "checkout-fails"])
+def test_edit_checkpoint_persists_the_view_before_the_change_request(
+    finish: bool, browser: Browser, site: tuple[Path, Catalog], tmp_path: Path
+) -> None:
+    directory, catalog = site
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    saved_carts: dict[Path, bytes] = {}
+
+    class EditSession(DeterministicSession):
+        def run(self, page: Page, request: str) -> str:
+            if request == CHANGE_REQUEST:
+                # Compare against the live cart before the shopper takes its first edit action.
+                cart_image = page.screenshot()
+                size = page.viewport_size
+                assert size is not None
+                assert struct.unpack(">II", cart_image[16:24]) == (size["width"], size["height"])
+                saved_carts.update(
+                    (png, cart_image)
+                    for png in evidence.glob("*.png")
+                    if png.read_bytes() == cart_image
+                )
+                if not finish:
+                    page.get_by_role("link", name="Home", exact=True).click()
+                    raise ShopperFailure("Shopper left the cart without placing the order")
+            return super().run(page, request)
+
+    def fresh(model: str, limit: int, history: History) -> EditSession:
+        # Select the deterministic shopper's complete (tea and rice) first-stage script.
+        return EditSession(Counter({REQUESTS["change"]: 1}), history)
+
+    result = run_attempt(
+        browser, directory, catalog, "test-shopper", 32, evidence, "change", 1, fresh
+    )
+    assert result["status"] == ("passed" if finish else "failed")
+    checkpoint = result["checkpoint_screenshot"]
+    assert checkpoint and list(saved_carts) == [evidence / checkpoint]
+    assert (evidence / checkpoint).read_bytes() == saved_carts[evidence / checkpoint]
+    if not finish:
+        assert result["screenshot"] and result["screenshot"] != checkpoint
+        assert (evidence / result["screenshot"]).read_bytes() != (
+            evidence / checkpoint
+        ).read_bytes()
 
 
 @pytest.mark.parametrize("outage", ["model", "browser", "mock"])

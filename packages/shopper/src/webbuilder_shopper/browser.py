@@ -24,14 +24,21 @@ def visible_text(locator: Locator) -> str:
     return " ".join(locator.inner_text().split())
 
 
+def viewport_text(locator: Locator) -> str:
+    """Read a field only if it intersects the shopper's current viewport."""
+    text = visible_text(locator)
+    expect(locator).to_be_in_viewport(timeout=250)
+    return text
+
+
 def read_cart(page: Page) -> list[tuple[str, int]]:
     """Read every visible cart line at the edit story's first checkpoint."""
     cart = page.get_by_role("list", name="Cart items")
     expect(cart).to_be_visible()
     lines = []
     for row in cart.get_by_role("listitem").all():
-        name = visible_text(row.get_by_role("heading"))
-        count = visible_text(row.get_by_label("Quantity", exact=True))
+        name = viewport_text(row.get_by_role("heading"))
+        count = viewport_text(row.get_by_label("Quantity", exact=True))
         try:
             lines.append((name, int(count)))
         except ValueError as error:
@@ -41,21 +48,19 @@ def read_cart(page: Page) -> list[tuple[str, int]]:
 
 def read_confirmation(page: Page) -> tuple[list[ReceiptLine], str]:
     """Read the visible receipt independently of the checkout response."""
-    expect(
-        page.get_by_role("heading", name="Simulated order confirmed", exact=True)
-    ).to_be_visible()
-    expect(page.get_by_role("link", name="Thai Peacock", exact=True)).to_be_visible()
+    viewport_text(page.get_by_role("heading", name="Simulated order confirmed", exact=True))
+    viewport_text(page.get_by_role("link", name="Thai Peacock", exact=True))
     items = page.get_by_role("list", name="Confirmed items")
     expect(items).to_be_visible()
     lines = []
     for row in items.get_by_role("listitem").all():
-        name = visible_text(row.get_by_role("heading"))
-        unit = visible_text(row.get_by_text(re.compile(r"^\s*\d+\s*[×x]\s*", re.I)))
+        name = viewport_text(row.get_by_role("heading"))
+        unit = viewport_text(row.get_by_text(re.compile(r"^\s*\d+\s*[×x]\s*", re.I)))
         quantity, price = re.split(r"\s*[×x]\s*", unit, maxsplit=1, flags=re.I)
         lines.append(
-            ReceiptLine(name, int(quantity), price, visible_text(row.get_by_label("Line total")))
+            ReceiptLine(name, int(quantity), price, viewport_text(row.get_by_label("Line total")))
         )
-    return lines, visible_text(page.get_by_label("Total", exact=True))
+    return lines, viewport_text(page.get_by_label("Total", exact=True))
 
 
 def verify_start(page: Page) -> None:
@@ -63,8 +68,11 @@ def verify_start(page: Page) -> None:
     home = page.get_by_role("heading", name="Thai Peacock", exact=True)
     expect(home).to_be_visible()
     page.get_by_role("link", name="Cart", exact=True).click()
-    expect(page.get_by_text("Your cart is empty.", exact=True)).to_be_visible()
-    expect(page.get_by_role("list", name="Cart items").get_by_role("listitem")).to_have_count(0)
+    review = page.get_by_role("group", name="Order review", exact=True)
+    expect(review).to_be_visible()
+    items = review.get_by_role("list", name="Cart items")
+    expect(items).to_be_attached()
+    expect(items.get_by_role("listitem")).to_have_count(0)
     page.get_by_role("link", name="Home", exact=True).click()
     expect(home).to_be_visible()
 

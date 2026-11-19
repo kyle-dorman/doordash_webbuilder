@@ -15,7 +15,7 @@ from urllib.parse import urlsplit
 from playwright.sync_api import Browser, Error, Page, Route, sync_playwright
 from webbuilder_mock_backend.server import Catalog, load_catalog
 
-from .browser import read_cart, read_confirmation, verify_start
+from .browser import read_cart, read_confirmation
 from .computer_model import (
     MODEL_SETTINGS,
     VIEWPORT,
@@ -68,6 +68,7 @@ class AttemptResult(TypedDict):
     answers: list[str]
     action_history: str
     screenshot: str | None
+    checkpoint_screenshot: str | None
     initial_cart: list[tuple[str, int]] | None
     confirmation: dict[str, object] | None
     submissions: tuple[dict[str, object] | None, ...]
@@ -141,7 +142,14 @@ def restrict_to_storefront(route: Route, homepage: str) -> None:
         route.abort()
 
 
-def shop_and_grade(session: Session, page: Page, attempt: Attempt, result: AttemptResult) -> None:
+def shop_and_grade(
+    session: Session,
+    page: Page,
+    attempt: Attempt,
+    result: AttemptResult,
+    catalog: Catalog,
+    evidence: Path,
+) -> None:
     story = result["story"]
     answer = session.run(page, REQUESTS[story])
     result["answers"].append(answer)
@@ -152,6 +160,9 @@ def shop_and_grade(session: Session, page: Page, attempt: Attempt, result: Attem
         attempt.check_mock()
         if attempt.submissions:
             raise GradeError("Order submitted before the cart change request.")
+        checkpoint = evidence / f"change-{result['attempt']}-cart.png"
+        page.screenshot(path=checkpoint, scale="css")
+        result["checkpoint_screenshot"] = checkpoint.name
         answer = session.run(page, CHANGE_REQUEST)
         result["answers"].append(answer)
     if story in ("change", "place"):
@@ -159,7 +170,9 @@ def shop_and_grade(session: Session, page: Page, attempt: Attempt, result: Attem
         result["confirmation"] = {"items": [vars(line) for line in lines], "total": total}
         grade_checkout("change" if story == "change" else "place", lines, total)
     else:
-        grade_lookup_answer(story, answer)
+        grade_lookup_answer(
+            story, answer, menu_names=(item.name for item in catalog[STORE_ID].values())
+        )
 
 
 def run_attempt(
@@ -184,6 +197,7 @@ def run_attempt(
         answers=[],
         action_history=f"{stem}.json",
         screenshot=None,
+        checkpoint_screenshot=None,
         initial_cart=None,
         confirmation=None,
         submissions=(),
@@ -200,14 +214,14 @@ def run_attempt(
                 context.route("**/*", lambda route: restrict_to_storefront(route, attempt.url))
                 page = context.new_page()
                 try:
+                    # A fresh context has no cart in session storage. The shopper starts at home.
                     page.goto(attempt.url, wait_until="domcontentloaded")
-                    verify_start(page)
                     attempt.check_mock()
                     session = session_factory(model, step_limit, history)
                     if isinstance(session, ShopperSession):
                         session.on_step = attempt.check_mock
                     try:
-                        shop_and_grade(session, page, attempt, result)
+                        shop_and_grade(session, page, attempt, result, catalog, evidence)
                     except (GradeError, ShopperFailure, AssertionError) as error:
                         problems.append(str(error))
                 finally:

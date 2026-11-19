@@ -2,6 +2,8 @@ import base64
 import json
 import re
 import struct
+from collections.abc import Iterator
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -14,44 +16,91 @@ from inspect_ai.model import (
 )
 from inspect_ai.tool import ToolChoice, ToolInfo
 from test_storefront import write_sample_feed
-from webbuilder_agent.builder import IncompleteBuild, generate
+from webbuilder_agent.builder import (
+    DEFAULT_MODEL,
+    IncompleteBuild,
+    generate,
+)
 from webbuilder_agent.render import render
 from webbuilder_shared.feed import load_store
 
 MODEL = "mockllm/design"
+CONCEPT = "Use a bento tray layout and a button that unfolds the mild and hot rice options."
 HOME = """<main id="menu"><h1>{{ store.name }}</h1>
+<button type="button" id="unfold">Unfold the tray</button>
+<p id="rice-options" hidden>Mild or hot rice</p>
 {% for section in store.sections %}
-<h2>{{ section.name }}</h2>
+<section data-menu-section="{{ section.name }}"><h2>{{ section.name }}</h2>
 {% for item in section.items %}
-<article>{{ item.name }} {{ item.display_price }} {{ add_button(item) }}</article>
-{% endfor %}{% endfor %}</main><a href="review.html">Review order</a>"""
+<article data-menu-item="{{ item.item_id }}">
+<h3>{{ item.name }}</h3><span>{{ item.display_price }}</span>
+{% if item.description %}<p>{{ item.description }}</p>{% endif %}
+{% if item.image_url %}<img src="{{ item.image_url }}" alt="{{ item.name }}">{% endif %}
+{{ add_button(item) }}</article>
+{% endfor %}</section>{% endfor %}</main><a href="review.html">Review order</a>"""
 CHECKOUT = "<h1>{{ store.name }}</h1>{{ review_markup('index.html#menu') }}"
+
+
+SCRIPT = """document.querySelector('#unfold')?.addEventListener('click', () => {
+    document.querySelector('#rice-options').hidden = false;
+    document.body.style.backgroundColor = 'navy';
+});"""
 
 
 def snapshot(site: Path) -> dict[Path, bytes]:
     return {p.relative_to(site): p.read_bytes() for p in site.rglob("*") if p.is_file()}
 
 
-def test_preview_revision_and_submission(tmp_path: Path) -> None:
+def preview_images(message: ChatMessage) -> Iterator[bytes]:
+    if isinstance(message.content, str):
+        return
+    for part in message.content:
+        if isinstance(part, ContentImage):
+            png = base64.b64decode(part.image.split(",", 1)[1])
+            assert png.startswith(b"\x89PNG\r\n\x1a\n")
+            assert struct.unpack_from(">II", png, 16) == (1280, 900)
+            yield png
+
+
+def test_preview_revision_and_submission(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     feed = write_sample_feed(tmp_path, with_photos=False)
     store = load_store(feed, "123")
-    output, evidence = tmp_path / "site", tmp_path / "evidence"
-    css = "body { background: white; }"
-    steps = iter(
-        [
-            ("edit", {"filename": "index.html", "content": HOME + "{{ unknown_value }}"}),
-            ("edit", {"filename": "review.html", "content": CHECKOUT}),
-            ("edit", {"filename": "style.css", "content": css}),
-            ("preview", {}),
-            ("edit", {"filename": "index.html", "old_text": "{{ unknown_value }}", "content": ""}),
-            ("preview", {}),
-            ("edit", {"filename": "style.css", "old_text": "white", "content": "gold"}),
-            ("submit", {}),
-            ("preview", {}),
-            ("submit", {}),
-        ]
+    monkeypatch.setattr("webbuilder_agent.builder.RUNS", tmp_path)
+    previous = tmp_path / "agent" / "previous" / "999" / "agent"
+    previous.mkdir(parents=True)
+    other_concept = "A handwritten chalkboard of shuffleable courses"
+    (previous / "run.json").write_text(
+        json.dumps({"status": "submitted", "store_id": "999", "design_direction": other_concept})
     )
-    token = ""
+    css = "body { background: white; }"
+    calls = [
+        # The first draft needs a design direction and a valid template.
+        ("edit", {"filename": "index.html", "content": "Premature edit"}),
+        ("design_direction", {"concept": CONCEPT}),
+        ("edit", {"filename": "index.html", "content": HOME + "{{ unknown_value }}"}),
+        ("edit", {"filename": "review.html", "content": CHECKOUT}),
+        ("edit", {"filename": "style.css", "content": css}),
+        ("edit", {"filename": "storefront.js", "content": SCRIPT}),
+        ("preview", {}),
+        ("edit", {"filename": "index.html", "old_text": "{{ unknown_value }}", "content": ""}),
+        ("preview", {"click": "#unfold"}),
+        ("preview", {}),
+        # Removing a description makes this preview ineligible for submission.
+        ("edit", {"filename": "index.html", "old_text": "{{ item.description }}", "content": ""}),
+        ("preview", {"click": "#unfold"}),
+        ("submit", {}),
+        # The corrected draft needs a fresh preview and a successful interaction.
+        ("edit", {"filename": "index.html", "content": HOME}),
+        ("edit", {"filename": "style.css", "old_text": "white", "content": "gold"}),
+        ("submit", {}),  # Stale preview.
+        ("preview", {}),
+        ("submit", {}),  # Current revision has only been previewed at rest.
+        ("preview", {"click": "#missing-control"}),
+        ("preview", {"click": "#unfold"}),
+        ("submit", {}),
+    ]
+    steps = enumerate(calls)
+    preview_id = ""
     images: list[bytes] = []
     seen_errors: list[str] = []
 
@@ -61,49 +110,93 @@ def test_preview_revision_and_submission(tmp_path: Path) -> None:
         choice: ToolChoice,
         config: GenerateConfig,
     ) -> ModelOutput:
-        nonlocal token
-        # Providers without image-in-tool support receive the screenshot in a user message.
-        latest = messages[-1]
+        nonlocal preview_id
+        turn, (name, args) = next(steps)
+        if turn == 0:
+            assert config.reasoning_effort == "high"
+            assignment = next(message.text for message in messages if message.role == "user")
+            assert other_concept not in assignment
+            _, feed_json = assignment.split("Restaurant feed:\n", 1)
+            assert json.loads(feed_json) == json.loads(json.dumps(asdict(store)))
+
+        # Inspect can put the screenshot in a user message immediately after the tool reply.
         for message in messages[-2:]:
             if message.role == "tool" and message.error:
                 seen_errors.append(message.error.message)
             if match := re.search(r"Preview ID: ([0-9a-f]+)", message.text):
-                token = match[1]
-        if isinstance(latest.content, list):
-            for part in latest.content:
-                if isinstance(part, ContentImage):
-                    image = base64.b64decode(part.image.split(",", 1)[1])
-                    assert image[:8] == b"\x89PNG\r\n\x1a\n"
-                    assert struct.unpack(">II", image[16:24]) == (1280, 900)
-                    images.append(image)
-        name, args = next(steps)
+                preview_id = match[1]
+        images.extend(preview_images(messages[-1]))
         if name == "submit":
-            args = {"preview_id": token, "assessment": "Adjusted the background after preview."}
+            args = {
+                "preview_id": preview_id,
+                "assessment": "Adjusted the background after preview.",
+            }
         return ModelOutput.for_tool_call(MODEL, name, args)
 
     model = get_model(MODEL, custom_outputs=respond, memoize=False)
     # The final permitted assistant message submits. Its tool receipt hits Inspect's limit.
-    index = generate(feed, "123", output, evidence=evidence, model=model, message_limit=21)
+    index = generate(
+        feed,
+        "123",
+        model=model,
+        message_limit=2 * len(calls) + 1,
+    )
+    output = index.parent
+    evidence = output.parent / "agent"
     report = json.loads((evidence / "run.json").read_text())
-    assert report["status"] == "submitted" and (evidence / report["inspect_log"]).is_file()
+    assert report["status"] == "submitted"
+    assert (evidence / report["inspect_log"]).is_file()
     assert report["limit"]["type"] == "message"
-    assert len(report["previews"]) == 2
-    assert any("unknown_value" in message for message in seen_errors)
-    assert any("current draft" in message for message in seen_errors)
-    assert images == [(evidence / name).read_bytes() for name in ("first.png", "final.png")]
-    assert images[0] != images[1]
-    assert index == output / "index.html"
+    assert DEFAULT_MODEL == "openai/gpt-6.1-terra"
+    assert report["reasoning_effort"] == "high"
+    assert report["design_direction"] == CONCEPT
+
+    expected_errors = [
+        "design_direction",
+        "unknown_value",
+        "item 100 is missing its full description",
+        "current draft",
+        "custom interaction",
+        "#missing-control",
+    ]
+    for expected, actual in zip(expected_errors, seen_errors, strict=True):
+        assert expected in actual
+
+    previews = report["previews"]
+    assert [p["click"] for p in previews] == ["#unfold", None, "#unfold", None, "#unfold"]
+    assert report["submitted_preview"] == previews[-1]["image"]
+    assert images == [(evidence / p["image"]).read_bytes() for p in previews]
+    first_open, first_home, _, final_home, final_open = images
+    assert first_open == final_open  # JavaScript reveals the same navy tray in both revisions.
+    assert len({first_open, first_home, final_home}) == 3
+    assert (evidence / "first.png").read_bytes() == first_home
+    assert (evidence / "final.png").read_bytes() == final_home
+    assert index.name == "index.html" and output.name == "submitted"
     for source, site, color in [
         ("first-source", evidence / "first", "white"),
         ("submitted-source", output, "gold"),
     ]:
         files = {p.name: p.read_text() for p in (evidence / source).iterdir()}
         assert files["style.css"] == css.replace("white", color)
+        assert files["storefront.js"] == SCRIPT
         rebuilt = tmp_path / ("rebuilt-" + color)
         rebuilt.mkdir()
         render(store, files, rebuilt)
         assert snapshot(site) == snapshot(rebuilt)
-    assert report["submitted_preview"] == report["previews"][-1]["image"]
+
+
+def test_render_saved_design_without_custom_script(tmp_path: Path) -> None:
+    feed = write_sample_feed(tmp_path, with_photos=False)
+    site = tmp_path / "legacy-site"
+    render(
+        load_store(feed, "123"),
+        {"index.html": HOME, "review.html": CHECKOUT, "style.css": "body { color: black }"},
+        site,
+    )
+    for page in (site / "index.html", site / "review.html"):
+        html = page.read_text()
+        assert 'src="assets/cart.js"' in html
+        assert "storefront.js" not in html
 
 
 def test_message_budget_cannot_publish_an_unsubmitted_build(tmp_path: Path) -> None:

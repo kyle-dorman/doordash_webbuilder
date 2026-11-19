@@ -21,7 +21,7 @@ From the repository root, run the following with [uv](https://docs.astral.sh/uv/
 uv sync --locked --all-packages
 ```
 
-Generated storefronts, screenshots, Inspect logs, and shopper reports live under `~/data/webbuilder/runs/`. The saved Task 011 comparison opens from `~/data/webbuilder/runs/011/index.html`. [Pilot results](docs/tasks/011-agentic-storefront-builder.md#pilot-results)
+Generated storefronts, screenshots, Inspect logs, and shopper reports live under `~/data/webbuilder/runs/`. The task record links to the reference sites, first renders, submitted builds and shopper results. [Independent Terra pilot](docs/tasks/011-agentic-storefront-builder.md#independent-terra-pilot) · [Original Task 011 pilot](docs/tasks/011-agentic-storefront-builder.md#pilot-results)
 
 The computer-use shopper uses the OpenAI Agents SDK. Set `OPENAI_API_KEY` in your environment for live model calls.
 
@@ -86,7 +86,11 @@ uv run --locked --package webbuilder-agent --env-file .env generate-agent-storef
   --feed ~/data/webbuilder/restaurants_feed.json --store-id 265151
 ```
 
-Use store ID `26303866` for One Stop Roti. Each run gets a fresh folder at `~/data/webbuilder/runs/agent/<timestamp>/<restaurant>/`, containing the submitted site in `submitted/` and evidence in `agent/`. Use `--output` and `--evidence` to choose specific destinations. The default builder is `openai/gpt-5.4` with a 40-message budget. Change these with `--model` and `--message-limit`. The agent starts with empty templates and CSS, sees Chromium previews, and submits a specific preview. The output directory contains that site's files. The evidence directory keeps the first render, source templates, screenshots, submission record and Inspect log. An unsubmitted run is recorded as incomplete.
+Use store ID `26303866` for One Stop Roti. The builder uses `openai/gpt-6.1-terra` with high reasoning effort and can use up to 100 messages for edits and previews. Use `--model` to choose another model and `--message-limit` to change the budget.
+
+Each restaurant gets its own assignment from its feed. The builder draws a mood and palette from the food, tags and imagery, then designs the layout and a browsing interaction to suit. It can be selective on the landing page. The full menu includes every section, item, price, supplied description and dish image in feed order. The builder previews the site and tries its custom control in Chromium. The shared cart handles ordering and checkout.
+
+Each run gets a fresh folder at `~/data/webbuilder/runs/agent/<timestamp>/<restaurant>/`. The submitted site goes in `submitted/`. The `agent/` directory keeps the first render, source files, screenshots, run record and Inspect log. Use `--output` and `--evidence` to choose specific destinations. A run that ends before submission is recorded as incomplete.
 
 Serve the submitted output with `serve-storefront` and the same mock checkout as the reference. Pass the printed index file’s parent directory to `run-computer-shopper --site` to evaluate Thai Peacock after submission. [Task 011 pilot and comparisons](docs/tasks/011-agentic-storefront-builder.md#pilot-results)
 

@@ -37,7 +37,16 @@ async def read_cart(page: Page) -> list[tuple[str, int]]:
 async def read_confirmation(page: Page) -> tuple[list[ReceiptLine], str]:
     """Read the visible receipt independently of the checkout response."""
     await viewport_text(page.get_by_role("heading", name="Simulated order confirmed", exact=True))
-    await viewport_text(page.get_by_role("link", name="Thai Peacock", exact=True))
+    # A custom layout can link home from both the masthead and the footer.
+    brand_links = page.get_by_role("link", name="Thai Peacock", exact=True)
+    for link in await brand_links.all():
+        try:
+            await viewport_text(link)
+            break
+        except AssertionError:
+            continue
+    else:
+        raise AssertionError("The restaurant name is missing from the receipt viewport.")
     items = page.get_by_role("list", name="Confirmed items")
     await expect(items).to_be_visible()
     lines = []

@@ -37,3 +37,9 @@ With the mock checkout running on port 8001, serve the saved comparison from the
 uv run --locked --package webbuilder-site-server serve-storefront \
   --directory ~/data/webbuilder/runs/011 --port 8011 --mock-port 8001
 ```
+
+### Independent Terra pilot
+
+The [local comparison](http://127.0.0.1:8013/) is saved at `~/data/webbuilder/runs/agent/independent-20261119T233104Z/index.html`. Both restaurants used Terra with high reasoning effort and the same brief, with only their own feed as input. The earlier pair shared a split promotional opening. The revised brief gives the designer permission to skip that opening and start at a real ordering decision.
+
+Thai Peacock opens with a comparison of its two 24 oz. soups. One Stop Roti opens directly on its curry-gold menu and lets diners follow an ingredient across sections. Both complete menus retained all 18 listings with JavaScript off. All five Thai stories passed on the first attempt, and the Roti checkout confirmed one Curry Chicken at $14.95. The submitted pair and its verification reports are in `second-pass/`. Roti’s first attempt there used its 60-message allowance before submission. Its retry used a 100-message allowance.

@@ -4,38 +4,40 @@ import argparse
 import base64
 import hashlib
 import json
-import re
 import secrets
 import shutil
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, mkdtemp
+from typing import Final
 
 from inspect_ai import Task, eval
 from inspect_ai.agent import AgentSubmit, react
 from inspect_ai.dataset import Sample
 from inspect_ai.model import ContentImage, ContentText, GenerateConfig, Model
-from inspect_ai.tool import Tool, ToolError, ToolResult, tool
+from inspect_ai.tool import ToolDef, ToolError, ToolResult
 from jinja2 import TemplateError
 from webbuilder_shared.feed import Store, load_store
 from webbuilder_shared.paths import RUNS, store_directory_name
 
-from .render import assignment, render, screenshot
+from .menu import check_full_menu
+from .render import PAGE_NAME, assignment, render, screenshot
 
-DEFAULT_MODEL = "openai/gpt-5.4"
-DEFAULT_MESSAGE_LIMIT = 40
-PAGE_NAME = re.compile(r"[a-z][a-z0-9-]*\.html")
+DEFAULT_MODEL = "openai/gpt-6.1-terra"
+REASONING_EFFORT: Final = "high"
+DEFAULT_MESSAGE_LIMIT = 100
 
 
-@dataclass
+@dataclass(frozen=True)
 class Preview:
-    token: str
+    preview_id: str
     site: Path
     homepage: bytes
     page: str
     image_path: str
     revision: int
+    click: str | None
 
 
 @dataclass
@@ -48,64 +50,7 @@ class Workspace:
     previews: list[Preview] = field(default_factory=list)
     submitted: Preview | None = None
     assessment: str = ""
-
-    def edit(self, filename: str, content: str, old_text: str | None) -> str:
-        if self.submitted:
-            raise ToolError("The build has already been submitted.")
-        if filename != "style.css" and not PAGE_NAME.fullmatch(filename):
-            raise ToolError("Use style.css or a lowercase page name such as menu.html.")
-        if old_text is not None:
-            original = self.sources.get(filename, "")
-            if not old_text or original.count(old_text) != 1:
-                raise ToolError("The text to replace must occur exactly once in the file.")
-            content = original.replace(old_text, content, 1)
-        if content != self.sources.get(filename):
-            self.sources[filename] = content
-            self.revision += 1
-        return f"Saved {filename} (revision {self.revision})."
-
-    async def preview(self, page: str) -> ToolResult:
-        if self.submitted:
-            raise ToolError("The build has already been submitted.")
-        filename = page.partition("#")[0]
-        if not PAGE_NAME.fullmatch(filename) or filename not in self.sources:
-            raise ToolError("Choose an existing page by its filename, for example index.html.")
-        number = len(self.previews) + 1
-        site = self.working / f"preview-{number}"
-        # Start each render with an empty site, including a retry after a template error.
-        if site.exists():
-            shutil.rmtree(site)
-        site.mkdir()
-        try:
-            render(self.store, self.sources, site)
-        except (TemplateError, ValueError, TypeError, LookupError, ArithmeticError) as error:
-            raise ToolError(str(error)) from error
-        if not (site / filename).is_file():
-            raise ToolError(f"{filename} is a template fragment. Preview a rendered page instead.")
-        image = await screenshot(site, page)
-        home = image if page == "index.html" else await screenshot(site, "index.html")
-        image_path = f"previews/{number:02d}-{filename.removesuffix('.html')}.png"
-        destination = self.evidence / image_path
-        destination.parent.mkdir(exist_ok=True)
-        destination.write_bytes(image)
-        preview = Preview(secrets.token_hex(8), site, home, page, image_path, self.revision)
-        self.previews.append(preview)
-        if number == 1:
-            shutil.copytree(site, self.evidence / "first")
-            (self.evidence / "first.png").write_bytes(home)
-            self.save_sources("first-source")
-        return [
-            ContentText(text=f"Preview ID: {preview.token}\n{page}, revision {self.revision}."),
-            ContentImage(image="data:image/png;base64," + base64.b64encode(image).decode("ascii")),
-        ]
-
-    def submit(self, preview_id: str, assessment: str) -> str:
-        preview = self.previews[-1] if self.previews else None
-        if not preview or preview.token != preview_id or preview.revision != self.revision:
-            raise ToolError("Preview the current draft and submit the ID returned with its image.")
-        self.submitted = preview
-        self.assessment = assessment
-        return "Submitted " + preview_id
+    design_direction: str = ""
 
     def save_sources(self, name: str) -> None:
         directory = self.evidence / name
@@ -115,55 +60,157 @@ class Workspace:
 
 
 def build_task(workspace: Workspace, message_limit: int) -> Task:
-    @tool
-    def edit() -> Tool:
-        async def execute(filename: str, content: str, old_text: str | None = None) -> str:
-            """Write a storefront page template or stylesheet, or revise a passage in it.
+    async def design_direction(concept: str) -> str:
+        """Record a short creative brief for this restaurant before editing the site.
 
-            Args:
-                filename: style.css or a lowercase page filename such as index.html.
-                content: Complete new file, or replacement text when old_text is supplied.
-                old_text: Optional unique exact passage to replace in the existing file.
-            """
-            return workspace.edit(filename, content, old_text)
+        Args:
+            concept: Describe the atmosphere suggested by the food, the source of the colors,
+                and how the layout and interaction carry that feeling into the site.
+        """
+        if workspace.sources or not concept.strip():
+            raise ToolError("Record a design direction before writing the first file.")
+        workspace.design_direction = concept.strip()
+        return "Design direction saved. You can now edit the storefront."
 
-        return execute
+    async def edit(filename: str, content: str, old_text: str | None = None) -> str:
+        """Write a page template, stylesheet or storefront script, or revise a passage in it.
 
-    @tool(max_output=0)
-    def preview() -> Tool:
-        async def execute(page: str = "index.html") -> ToolResult:
-            """Render the current templates and see a 1280 by 900 browser screenshot.
+        Args:
+            filename: style.css, storefront.js or a lowercase page filename such as index.html.
+            content: Complete new file, or replacement text when old_text is supplied.
+            old_text: Optional unique exact passage to replace in the existing file.
+        """
+        if workspace.submitted:
+            raise ToolError("The build has already been submitted.")
+        if not workspace.design_direction:
+            raise ToolError("Call design_direction with your concept for this restaurant first.")
+        if filename not in {"style.css", "storefront.js"} and not PAGE_NAME.fullmatch(filename):
+            raise ToolError(
+                "Use style.css, storefront.js or a lowercase page name such as menu.html."
+            )
+        if old_text is not None:
+            original = workspace.sources.get(filename, "")
+            if not old_text or original.count(old_text) != 1:
+                raise ToolError("The text to replace must occur exactly once in the file.")
+            content = original.replace(old_text, content, 1)
+        if content != workspace.sources.get(filename):
+            workspace.sources[filename] = content
+            workspace.revision += 1
+        return f"Saved {filename} (revision {workspace.revision})."
 
-            Args:
-                page: Filename, optionally with an anchor (for example, index.html#menu).
-            """
-            return await workspace.preview(page)
+    async def preview(page: str = "index.html", click: str | None = None) -> ToolResult:
+        """Render the current templates and see a 1280 by 900 browser screenshot.
 
-        return execute
+        Args:
+            page: Filename, optionally with an anchor (for example, index.html#menu).
+            click: Optional CSS selector for one visible control to activate before capture.
+        """
+        if workspace.submitted:
+            raise ToolError("The build has already been submitted.")
+        filename = page.partition("#")[0]
+        if not PAGE_NAME.fullmatch(filename) or filename not in workspace.sources:
+            raise ToolError("Choose an existing page by its filename, for example index.html.")
 
-    @tool
-    def submit() -> Tool:
-        async def execute(preview_id: str, assessment: str) -> str:
-            """Publish the current previewed build and explain your visual decisions.
+        site = Path(mkdtemp(prefix="preview-", dir=workspace.working))
+        try:
+            render(workspace.store, workspace.sources, site)
+        except (TemplateError, ValueError, TypeError, LookupError, ArithmeticError) as error:
+            raise ToolError(str(error)) from error
+        if not (site / filename).is_file():
+            raise ToolError(f"{filename} is a template fragment. Preview a rendered page instead.")
+        try:
+            image = await screenshot(site, page, click)
+            # Keep a comparable homepage image even when the agent explores a different view.
+            homepage = image
+            if page != "index.html" or click is not None:
+                homepage = await screenshot(site, "index.html")
+        except ValueError as error:
+            raise ToolError(str(error)) from error
 
-            Args:
-                preview_id: Exact ID returned with the latest screenshot of this draft.
-                assessment: What you observed and changed after preview, or why you kept it.
-            """
-            return workspace.submit(preview_id, assessment)
+        number = len(workspace.previews) + 1
+        snapshot = Preview(
+            preview_id=secrets.token_hex(8),
+            site=site,
+            homepage=homepage,
+            page=page,
+            image_path=f"previews/{number:02d}-{filename.removesuffix('.html')}.png",
+            revision=workspace.revision,
+            click=click,
+        )
+        destination = workspace.evidence / snapshot.image_path
+        destination.parent.mkdir(exist_ok=True)
+        destination.write_bytes(image)
+        if number == 1:
+            shutil.copytree(site, workspace.evidence / "first")
+            (workspace.evidence / "first.png").write_bytes(homepage)
+            workspace.save_sources("first-source")
+        workspace.previews.append(snapshot)
+        return [
+            ContentText(
+                text=f"Preview ID: {snapshot.preview_id}\n{page}, revision {snapshot.revision}."
+            ),
+            ContentImage(image="data:image/png;base64," + base64.b64encode(image).decode("ascii")),
+        ]
 
-        return execute
+    async def submit(preview_id: str, assessment: str) -> str:
+        """Publish the current previewed build and explain your visual decisions.
+
+        Args:
+            preview_id: Exact ID returned with the latest screenshot of this draft.
+            assessment: What you observed and changed after preview, or why you kept it.
+        """
+        latest = workspace.previews[-1] if workspace.previews else None
+        if not latest or latest.preview_id != preview_id or latest.revision != workspace.revision:
+            raise ToolError("Preview the current draft and submit the ID returned with its image.")
+        if not workspace.sources.get("storefront.js", "").strip():
+            raise ToolError(
+                "Implement your restaurant-specific browsing interaction in storefront.js."
+            )
+        if not any(
+            preview.click and preview.revision == latest.revision for preview in workspace.previews
+        ):
+            raise ToolError("Preview the custom interaction using click on the current draft.")
+        try:
+            check_full_menu(workspace.store, latest.site)
+        except ValueError as error:
+            raise ToolError(str(error)) from error
+        workspace.submitted = latest
+        workspace.assessment = assessment
+        return "Submitted " + preview_id
 
     return Task(
         name="build_storefront",
         dataset=[Sample(id=workspace.store.store_id, input=assignment(workspace.store))],
         solver=react(
-            tools=[edit(), preview()],
-            submit=AgentSubmit(tool=submit(), keep_in_messages=True),
+            tools=[ToolDef(design_direction), ToolDef(edit), ToolDef(preview, max_output=0)],
+            submit=AgentSubmit(tool=ToolDef(submit), keep_in_messages=True),
         ),
-        config=GenerateConfig(parallel_tool_calls=False),
+        config=GenerateConfig(parallel_tool_calls=False, reasoning_effort=REASONING_EFFORT),
         message_limit=message_limit,
     )
+
+
+def _prepare_directories(
+    store_id: str, output: Path | None, evidence: Path | None
+) -> tuple[Path, Path]:
+    """Choose separate, empty destinations for the submitted site and its build record."""
+    if output is None:
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+        run = RUNS / "agent" / stamp / store_directory_name(store_id)
+        output = run / "submitted"
+        evidence = evidence or run / "agent"
+    output = output.expanduser().resolve()
+    evidence = (evidence or output.with_name(output.name + "-evidence")).expanduser().resolve()
+    if output.is_relative_to(evidence) or evidence.is_relative_to(output):
+        raise ValueError("Choose separate directories for the published site and its evidence.")
+    for directory in (output, evidence):
+        if directory.exists() and (not directory.is_dir() or any(directory.iterdir())):
+            raise ValueError(
+                f"Choose an empty destination to preserve the previous run: {directory}"
+            )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    evidence.mkdir(parents=True, exist_ok=True)
+    return output, evidence
 
 
 class IncompleteBuild(RuntimeError):
@@ -183,28 +230,13 @@ def generate(
     if message_limit < 1:
         raise ValueError("The message limit must be positive.")
     store = load_store(feed, store_id)
-    if output is None:
-        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
-        run = RUNS / "agent" / stamp / store_directory_name(store_id)
-        output = run / "submitted"
-        evidence = evidence or run / "agent"
-    output = output.expanduser().resolve()
-    evidence = (evidence or output.with_name(output.name + "-evidence")).expanduser().resolve()
-    if output.is_relative_to(evidence) or evidence.is_relative_to(output):
-        raise ValueError("Choose separate directories for the published site and its evidence.")
-    for directory in (output, evidence):
-        if directory.exists() and (not directory.is_dir() or any(directory.iterdir())):
-            raise ValueError(
-                f"Choose an empty destination to preserve the previous run: {directory}"
-            )
-    output.parent.mkdir(parents=True, exist_ok=True)
-    evidence.mkdir(parents=True, exist_ok=True)
-    model_name = model if isinstance(model, str) else str(model.name)
+    output, evidence = _prepare_directories(store_id, output, evidence)
     report: dict[str, object] = {
         "store_id": store_id,
         "restaurant": store.name,
         "feed_sha256": hashlib.sha256(feed.expanduser().read_bytes()).hexdigest(),
-        "model": model_name,
+        "model": model if isinstance(model, str) else str(model.name),
+        "reasoning_effort": REASONING_EFFORT,
         "message_limit": message_limit,
         "status": "incomplete",
     }
@@ -230,10 +262,10 @@ def generate(
             sample = log.samples[0] if log.samples else None
             if sample and sample.limit:
                 report["limit"] = sample.limit.model_dump()
-            if log.status != "success" or workspace.submitted is None:
+            selected = workspace.submitted
+            if log.status != "success" or selected is None:
                 error = log.error or (sample.error if sample else None)
                 raise IncompleteBuild(error.message if error else "No preview was submitted.")
-            selected = workspace.submitted
             workspace.save_sources("submitted-source")
             (evidence / "final.png").write_bytes(selected.homepage)
             report.update(
@@ -247,8 +279,9 @@ def generate(
             report["error"] = str(error)
             raise
         finally:
+            report["design_direction"] = workspace.design_direction
             report["previews"] = [
-                {"revision": p.revision, "page": p.page, "image": p.image_path}
+                {"revision": p.revision, "page": p.page, "click": p.click, "image": p.image_path}
                 for p in workspace.previews
             ]
             report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
@@ -273,18 +306,17 @@ def main() -> None:
     parser.add_argument("--message-limit", type=int, default=DEFAULT_MESSAGE_LIMIT)
     args = parser.parse_args()
     try:
-        print(
-            generate(
-                args.feed,
-                args.store_id,
-                args.output,
-                evidence=args.evidence,
-                model=args.model,
-                message_limit=args.message_limit,
-            )
+        index = generate(
+            args.feed,
+            args.store_id,
+            args.output,
+            evidence=args.evidence,
+            model=args.model,
+            message_limit=args.message_limit,
         )
     except (OSError, ValueError, KeyError, IncompleteBuild) as error:
         parser.exit(1, f"{parser.prog}: {error}\n")
+    print(index)
 
 
 if __name__ == "__main__":

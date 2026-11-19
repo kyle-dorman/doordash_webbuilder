@@ -42,6 +42,7 @@ async def test_receipt_requires_confirmation_details_in_view(page: Page, offscre
           </li></ul>
           <output id="total" aria-label="Total">$9.00</output>
         </div>
+        <footer style="position:absolute; top:200vh"><a href="/">Thai Peacock</a></footer>
     """)
     assert await read_confirmation(page) == ([ReceiptLine(TEA, 2, "$4.50", "$9.00")], "$9.00")
     await page.add_style_tag(content=f"#{offscreen} {{ position: absolute; top: 120vh }}")

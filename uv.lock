@@ -3018,6 +3018,7 @@ name = "webbuilder-agent"
 version = "0.1.0"
 source = { editable = "packages/agent" }
 dependencies = [
+    { name = "beautifulsoup4" },
     { name = "inspect-ai" },
     { name = "jinja2" },
     { name = "openai" },
@@ -3027,6 +3028,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "beautifulsoup4", specifier = ">=4.13" },
     { name = "inspect-ai", specifier = ">=0.3.291" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "openai" },

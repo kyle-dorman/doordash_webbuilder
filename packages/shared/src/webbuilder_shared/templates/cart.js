@@ -122,7 +122,7 @@
     confirmation.querySelector("[data-confirmed-lines]").replaceChildren(receipt);
     confirmation.querySelector("[data-confirmed-total]").textContent = money(order.subtotal_cents, currency);
     heading.textContent = "Simulated order confirmed";
-    document.title = `${heading.textContent} | ${document.querySelector(".wordmark").textContent.trim()}`;
+    document.title = `${heading.textContent} | {{ restaurant_title | safe }}`;
     review.hidden = true;
     confirmation.hidden = false;
     heading.focus();

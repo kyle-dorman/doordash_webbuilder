@@ -6,6 +6,8 @@ A Python workspace for building white-label restaurant websites from a restauran
 
 | Package | Intended responsibility |
 | --- | --- |
+| [`webbuilder-agent`](packages/agent/) | Design and preview a storefront with one Inspect AI assignment per restaurant. |
+| [`webbuilder-shared`](packages/shared/) | Read restaurant feeds and supply the catalog, cart and simulated checkout. |
 | [`webbuilder-static`](packages/static/) | Generate the deterministic reference storefront from a restaurant feed. |
 | [`webbuilder-mock-backend`](packages/mock-backend/) | Handle the simulated DoorDash ordering flow. |
 | [`webbuilder-site-server`](packages/site-server/) | Serve generated restaurant sites. |
@@ -71,6 +73,20 @@ Open **Menu**, add the items below, open **Review cart**, and select **Place ord
 Cart edits stay in the current browser tab until submission. The mock prices each selection from the specified store’s menu. A successful confirmation clears that store’s cart. If checkout fails, edit the quantities or select **Place order** again. [Task 5 verification and rejection examples](docs/tasks/005-mock-checkout.md#verification)
 
 To preview another restaurant, change the store ID and output directory. The landing page features up to three photographed dishes, selected by matching restaurant tags to dish names, sections and descriptions. Feed order breaks ties and supplies pictured dishes when matches run out. The browser loads photos from the CDN URLs in the feed. **Hours & location** shows the address, phone and weekly hours.
+
+## Generate an agent-designed storefront
+
+Install the preview browser with `make shopper-browser`. With `OPENAI_API_KEY` in `.env`, give the builder a single store and a fresh output directory.
+
+```sh
+uv run --locked --package webbuilder-agent --env-file .env generate-agent-storefront \
+  --feed ~/data/webbuilder/restaurants_feed.json --store-id 265151 \
+  --output build/agent-thai --evidence logs/agent-thai
+```
+
+Use the same command with store ID `26303866` and fresh paths for One Stop Roti. The default builder is `openai/gpt-5.4` with a 40-message budget. Change these with `--model` and `--message-limit`. The agent starts with empty templates and CSS, sees Chromium previews, and submits a specific preview. The output directory contains that site's files. The evidence directory keeps the first render, source templates, screenshots, submission record and Inspect log. An unsubmitted run is recorded as incomplete.
+
+Serve the submitted output with `serve-storefront` and the same mock checkout as the reference. Use `run-computer-shopper --site build/agent-thai --feed …` to evaluate Thai Peacock after submission. [Task 011 pilot and comparisons](docs/tasks/011-agentic-storefront-builder.md#pilot-results)
 
 ## Run all five Thai Peacock shopper stories
 

@@ -40,7 +40,7 @@
                 {% if item.description %}
                 <p class="description">{{ item.description }}</p>
                 {% endif %}
-                <button class="add-item" type="button" data-add-item="{{ item.item_id }}" aria-label="Add {{ item.name }} to cart"><span aria-hidden="true">+</span> Add to cart</button>
+                {{ add_button(item) }}
               </div>
             </article>
             {% endfor %}
@@ -50,5 +50,5 @@
       </div>
     </div>
     <div class="wrap menu-end"><a class="text-link" href="#top">Back to top <span aria-hidden="true">↑</span></a></div>
-    <p class="visually-hidden" role="status" data-cart-status></p>
+    {{ cart_status }}
 {% endblock %}

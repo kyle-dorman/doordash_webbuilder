@@ -1,1 +1,1 @@
-"""Restaurant website generation agents."""
+"""Generate deterministic reference restaurant storefronts."""

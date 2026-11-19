@@ -1,0 +1,22 @@
+[project]
+name = "webbuilder-agent"
+version = "0.1.0"
+description = "Design, preview and submit restaurant storefronts with Inspect AI"
+requires-python = ">=3.12"
+dependencies = [
+    "inspect-ai>=0.3.291",
+    "jinja2>=3.1.6",
+    "openai",
+    "playwright",
+    "webbuilder-shared",
+]
+
+[project.scripts]
+generate-agent-storefront = "webbuilder_agent.builder:main"
+
+[tool.uv.sources]
+webbuilder-shared = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.12,<0.13"]
+build-backend = "uv_build"

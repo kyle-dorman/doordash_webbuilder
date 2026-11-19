@@ -5,8 +5,8 @@ import asyncio
 from pathlib import Path
 
 from playwright.async_api import Browser, Error, async_playwright
-from webbuilder_static.storefront import generate
 from webbuilder_mock_backend.server import Catalog, load_catalog
+from webbuilder_static.storefront import generate
 
 from ..grading import STORE_ID, STORIES, grade_submissions
 from ..serving import serve_attempt

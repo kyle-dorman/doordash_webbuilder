@@ -16,12 +16,12 @@ from openai.types.responses import Response, ResponseComputerToolCall
 from openai.types.responses.computer_action import Click
 from playwright.async_api import Browser, BrowserContext, Page, async_playwright
 from sdk_responses import computer_call, response
-from webbuilder_static.storefront import generate
 from webbuilder_mock_backend.server import Catalog, OrderHandler, load_catalog
 from webbuilder_shopper.computer_use.report import new_report
 from webbuilder_shopper.computer_use.runner import CHANGE_REQUEST, REQUESTS, run_suite
 from webbuilder_shopper.computer_use.usage import MODEL
 from webbuilder_shopper.grading import RICE, ROLLS, STORE_ID, TEA
+from webbuilder_static.storefront import generate
 
 pytestmark = [pytest.mark.anyio, pytest.mark.usefixtures("traces")]
 

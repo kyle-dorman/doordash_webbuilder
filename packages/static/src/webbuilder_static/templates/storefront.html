@@ -7,8 +7,7 @@
   <link rel="stylesheet" href="assets/storefront.css">
   {% if page == 'menu.html' %}<script src="assets/menu.js" defer></script>{% endif %}
   {% if page in ('menu.html', 'review.html') %}
-  <script type="application/json" id="cart-catalog">{{ cart_catalog | tojson }}</script>
-  <script src="assets/cart.js" defer></script>
+  {{ cart_scripts }}
   {% endif %}
 </head>
 {% set peacock = store.store_id == '265151' %}

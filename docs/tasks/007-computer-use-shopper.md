@@ -33,7 +33,7 @@ From the repository root, use the existing Task 006 build, the feed that generat
 
 ```sh
 uv run --locked --package webbuilder-shopper --env-file .env run-computer-shopper \
-  --site build/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json \
+  --site ~/data/webbuilder/runs/reference/thai-peacock --feed ~/data/webbuilder/restaurants_feed.json \
   --model gpt-5.4-2026-03-05
 ```
 
@@ -41,28 +41,28 @@ The runner copies the supplied site once and serves that snapshot for every atte
 
 The default budget is **32 model turns per attempt**, shared across the two requests in the edit story. One response counts as one turn, including a batch of actions or a final answer. Each story gets **up to three attempts**, ending at the first pass. To set a different budget for a separate comparison, pass `--step-limit N`.
 
-The command prints every attempt and writes `report.json` under a fresh `logs/computer-shopper/<run>/` directory. Each row records the final answers, steps, grading reason, mock submissions, and the path to its action history. Every failed attempt also has a PNG of the final browser view. A verified edit checkpoint has a separate viewport PNG recorded in `checkpoint_screenshot` before the second request is released. That image stays with the attempt even if checkout fails. A service interruption stops the run and preserves completed attempts. Exit codes are `0` for five passing stories, `1` for a completed run with failures, and `2` for an incomplete run. To keep evidence elsewhere, pass a new or empty directory with `--evidence`.
+The command prints every attempt and writes `report.json` in the evidence directory printed at startup. Each row records the final answers, steps, grading reason, mock submissions, and the path to its action history. Every failed attempt also has a PNG of the final browser view. A verified edit checkpoint has a separate viewport PNG recorded in `checkpoint_screenshot` before the second request is released. That image stays with the attempt even if checkout fails. A service interruption stops the run and preserves completed attempts. Exit codes are `0` for five passing stories, `1` for a completed run with failures, and `2` for an incomplete run. To keep evidence elsewhere, pass a new or empty directory with `--evidence`.
 
 ## Live baseline · 2026-11-19
 
-- **Build** · Task 006 template-generated `build/thai-peacock`, store `265151`. SHA-256 `fa7738a6d3846517f324576391d6187b8795a8355e490926d1ccc2442eefefd9`. The digest covers the sorted relative paths and content hashes of all eight files, including the existing `preview.png`. [Build manifest](evidence/007-baseline/build-files.json)
+- **Build** · Task 006 template-generated `~/data/webbuilder/runs/reference/thai-peacock`, store `265151`. SHA-256 `fa7738a6d3846517f324576391d6187b8795a8355e490926d1ccc2442eefefd9`. The digest covers the sorted relative paths and content hashes of all eight files, including the existing `preview.png`. `build-files.json` in the baseline archive contains the file hashes.
 - **Source feed** · `~/data/webbuilder/restaurants_feed.json`, SHA-256 `45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d`.
 - **Shopper** · OpenAI Responses `gpt-5.4-2026-03-05`, native `computer` tool, low reasoning effort, 2,048 maximum output tokens per response. Playwright 1.65.2, headless Chromium, 1280 × 900 PNG screenshots. The build, shopper instructions, model settings, and 32-turn budget were held fixed across attempts.
-- **Evidence** · The baseline command used `--evidence docs/tasks/evidence/007-baseline`. The report links each attempt to its action history and any failure screenshot. [Baseline report](evidence/007-baseline/report.json)
+- **Evidence** · The baseline archive is `~/data/webbuilder/runs/007-baseline/`. The report links each attempt to its action history and any failure screenshot. The recorded grades are in `report.json`.
 
 **First attempt · 5/5. Within three attempts · 5/5.** The command exited with code 0 after five attempts.
 
 | Story | Attempt | Turns | Graded result |
 | --- | --- | ---: | --- |
-| [Contact details](evidence/007-baseline/contact-1.json) | 1 · pass | 3 | Full address and phone number correct. Zero submissions. |
-| [Posted hours](evidence/007-baseline/hours-1.json) | 1 · pass | 3 | Tuesday 11:30 AM–9:15 PM and Friday 11:00 AM–9:45 PM. Zero submissions. |
-| [Menu lookup](evidence/007-baseline/soup-1.json) | 1 · pass | 5 | Tom-Yum Soup, 24 oz, $14.50. Zero submissions. |
-| [Place an order](evidence/007-baseline/place-1.json) | 1 · pass | 14 | One accepted order and matching visible confirmation for two servings of spring rolls and one rice, $19.50. |
-| [Change an order](evidence/007-baseline/change-1.json) | 1 · pass | 14 | The cart showed one tea and one rice before the second request. One accepted order and matching visible confirmation for two teas, $9.00. |
+| Contact details (`contact-1.json`) | 1 · pass | 3 | Full address and phone number correct. Zero submissions. |
+| Posted hours (`hours-1.json`) | 1 · pass | 3 | Tuesday 11:30 AM–9:15 PM and Friday 11:00 AM–9:45 PM. Zero submissions. |
+| Menu lookup (`soup-1.json`) | 1 · pass | 5 | Tom-Yum Soup, 24 oz, $14.50. Zero submissions. |
+| Place an order (`place-1.json`) | 1 · pass | 14 | One accepted order and matching visible confirmation for two servings of spring rolls and one rice, $19.50. |
+| Change an order (`change-1.json`) | 1 · pass | 14 | The cart showed one tea and one rice before the second request. One accepted order and matching visible confirmation for two teas, $9.00. |
 
 ### Earlier incomplete run
 
-The first run passed contact details (3 turns), hours (3), menu lookup (4), and place an order (13), each on attempt 1. On the edit story’s first attempt, the grader verified one tea and one rice at $7.00. The API returned HTTP 400 on turn 11 because the follow-up user message included another input image. The runner exited with code 2, recording four first-attempt passes and four within-three passes out of five, with the edit story incomplete and zero submissions for that attempt. The corrected follow-up sends the new instruction in the same conversation and continues to use screenshots from the computer tool. The baseline above starts a fresh five-story run. [Incomplete run report](evidence/007-incomplete/report.json) · [Edit action history](evidence/007-incomplete/change-1.json) · [Cart screenshot](evidence/007-incomplete/change-1.png)
+The first run passed contact details (3 turns), hours (3), menu lookup (4), and place an order (13), each on attempt 1. On the edit story’s first attempt, the grader verified one tea and one rice at $7.00. The API returned HTTP 400 on turn 11 because the follow-up user message included another input image. The runner exited with code 2, recording four first-attempt passes and four within-three passes out of five, with the edit story incomplete and zero submissions for that attempt. The corrected follow-up sends the new instruction in the same conversation and continues to use screenshots from the computer tool. The baseline above starts a fresh five-story run. The report, edit history and cart screenshot are in `~/data/webbuilder/runs/007-incomplete/` as `report.json`, `change-1.json` and `change-1.png`.
 
 ## Repeatable verification
 

@@ -14,7 +14,7 @@ Use `webbuilder-site-server` to serve the generated Thai Peacock storefront (sto
 From the workspace root, run this command and open [Thai Peacock](http://127.0.0.1:8000/).
 
 ```sh
-uv run --locked --package webbuilder-site-server serve-storefront --directory build/thai-peacock
+uv run --locked --package webbuilder-site-server serve-storefront --directory ~/data/webbuilder/runs/reference/thai-peacock
 ```
 
 - The served landing page matched the reviewed desktop preview, including the Thai Peacock header, hero photo and three featured dishes. The existing files were used directly with their original CDN image URLs.

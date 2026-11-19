@@ -49,7 +49,9 @@ def main() -> None:
     parser.add_argument(
         "--feed", type=Path, default=Path("~/data/webbuilder/restaurants_feed.json")
     )
-    parser.add_argument("--output", type=Path, default=Path("build/thai-peacock"))
+    parser.add_argument(
+        "--output", type=Path, help="Default: ~/data/webbuilder/runs/reference/thai-peacock"
+    )
     args = parser.parse_args()
     try:
         index = generate(args.feed, STORE_ID, args.output)

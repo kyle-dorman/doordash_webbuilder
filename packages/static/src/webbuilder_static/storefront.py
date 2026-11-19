@@ -16,14 +16,15 @@ from webbuilder_shared.cart import (
     write_cart_assets,
 )
 from webbuilder_shared.feed import load_store
+from webbuilder_shared.paths import RUNS, store_directory_name
 
 from .feed import featured_items
 
 
-def generate(feed: Path, store_id: str, output: Path) -> Path:
+def generate(feed: Path, store_id: str, output: Path | None = None) -> Path:
     """Write the selected store's storefront and return its HTML path."""
     store = load_store(feed, store_id)
-    output = output.expanduser()
+    output = (output or RUNS / "reference" / store_directory_name(store_id)).expanduser()
 
     templates = Environment(
         loader=PackageLoader("webbuilder_static", "templates"),
@@ -64,7 +65,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--feed", type=Path, required=True, help="Path to the restaurant JSON feed")
     parser.add_argument("--store-id", required=True, help="Store ID in the feed")
-    parser.add_argument("--output", type=Path, required=True, help="Storefront output directory")
+    parser.add_argument(
+        "--output", type=Path, help="Default: ~/data/webbuilder/runs/reference/<restaurant>"
+    )
     args = parser.parse_args()
     try:
         index = generate(args.feed, args.store_id, args.output)

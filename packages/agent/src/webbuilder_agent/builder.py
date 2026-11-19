@@ -8,6 +8,7 @@ import re
 import secrets
 import shutil
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -18,6 +19,7 @@ from inspect_ai.model import ContentImage, ContentText, GenerateConfig, Model
 from inspect_ai.tool import Tool, ToolError, ToolResult, tool
 from jinja2 import TemplateError
 from webbuilder_shared.feed import Store, load_store
+from webbuilder_shared.paths import RUNS, store_directory_name
 
 from .render import assignment, render, screenshot
 
@@ -171,7 +173,7 @@ class IncompleteBuild(RuntimeError):
 def generate(
     feed: Path,
     store_id: str,
-    output: Path,
+    output: Path | None = None,
     *,
     evidence: Path | None = None,
     model: str | Model = DEFAULT_MODEL,
@@ -181,6 +183,11 @@ def generate(
     if message_limit < 1:
         raise ValueError("The message limit must be positive.")
     store = load_store(feed, store_id)
+    if output is None:
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+        run = RUNS / "agent" / stamp / store_directory_name(store_id)
+        output = run / "submitted"
+        evidence = evidence or run / "agent"
     output = output.expanduser().resolve()
     evidence = (evidence or output.with_name(output.name + "-evidence")).expanduser().resolve()
     if output.is_relative_to(evidence) or evidence.is_relative_to(output):
@@ -252,8 +259,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--feed", type=Path, required=True)
     parser.add_argument("--store-id", required=True)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--evidence", type=Path, help="Default: <output>-evidence")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Default: ~/data/webbuilder/runs/agent/<time>/<restaurant>/submitted",
+    )
+    parser.add_argument(
+        "--evidence",
+        type=Path,
+        help="Default: agent/ beside submitted/, or <explicit output>-evidence",
+    )
     parser.add_argument("--model", default=DEFAULT_MODEL, help="Vision-capable Inspect model")
     parser.add_argument("--message-limit", type=int, default=DEFAULT_MESSAGE_LIMIT)
     args = parser.parse_args()

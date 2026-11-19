@@ -19,29 +19,27 @@ Each runner passed **1/1 stories on the first attempt** and **1/1 within three a
 
 Both checkpoint images show one Thai Lime Tea and one Rice (16oz.) with a $7.00 subtotal. Each mock received exactly one submission and accepted two Thai Lime Teas at $4.50 each. Both final viewport images show those two teas and the $9.00 total.
 
-| Attempt | Private grade, mock and usage | Visible cart before edit | Visible receipt | Tool evidence |
-| --- | --- | --- | --- | --- |
-| Native 1 | [Report](evidence/008-native/report.json) | [Cart](evidence/008-native/change-1-cart.png) | [Receipt](evidence/008-native/change-1.png) | [Actions and per-turn usage](evidence/008-native/change-1.json) |
-| SDK 1 | [Report with trace ID](evidence/008-sdk/report.json) | [Cart](evidence/008-sdk/change-1-cart.png) | [Receipt](evidence/008-sdk/change-1.png) | [Actions, per-turn usage and frame paths](evidence/008-sdk/change-1.json) |
+The two attempt directories are `~/data/webbuilder/runs/008-native/` and `~/data/webbuilder/runs/008-sdk/`. Each contains the private grade and mock order in `report.json`, the cart checkpoint in `change-1-cart.png`, the receipt in `change-1.png`, the action history in `change-1.json`, and the build manifest in `build-files.json`. The SDK attempt also includes its viewport frames in `change-1-frames/`.
 
-The SDK exported one trace for the whole attempt, `trace_77fc7ae4e3d8458da09ddc59fce77206`. The trace covers both requests, the computer calls and the private grade. The grade span names the local evidence files. The action history associates each tool screenshot with its call ID and each model response with its token usage. [SDK trace](https://platform.openai.com/logs/trace?trace_id=trace_77fc7ae4e3d8458da09ddc59fce77206) · [Saved viewport frames](evidence/008-sdk/change-1-frames/)
+The SDK exported one trace for the whole attempt, `trace_77fc7ae4e3d8458da09ddc59fce77206`. The trace covers both requests, the computer calls and the private grade. The grade span names the local evidence files. The action history associates each tool screenshot with its call ID and each model response with its token usage. [SDK trace](https://platform.openai.com/logs/trace?trace_id=trace_77fc7ae4e3d8458da09ddc59fce77206)
 
 The estimates use the reported tokens from every turn and standard rates of $2.50 per million uncached input tokens, $0.25 per million cached input tokens and $15.00 per million output tokens. Output includes reasoning tokens. The per-attempt figures are also the total spend per passing story because neither runner needed a retry. [GPT-5.4 pricing](https://developers.openai.com/api/docs/models/gpt-5.4)
 
 ## Repeat the comparison
 
-At revision `912adcb`, use the existing build and its source feed, with `OPENAI_API_KEY` in `.env`. Install Chromium once with `make shopper-browser`. Each invocation prints its own fresh evidence directory under `logs/computer-shopper/`. To choose a destination, pass `--evidence` with a new or empty directory for that runner.
+At revision `912adcb`, use the existing build and its source feed, with `OPENAI_API_KEY` in `.env`. Install Chromium once with `make shopper-browser`. Give each invocation a fresh external evidence directory.
 
 ```sh
+run=~/data/webbuilder/runs/008-repeat-$(date +%Y%m%d-%H%M%S)
 for runner in native sdk; do
   uv run --locked --package webbuilder-shopper --env-file .env run-computer-shopper \
-    --runner "$runner" --story change --site build/thai-peacock \
+    --runner "$runner" --evidence "$run/$runner" --story change --site ~/data/webbuilder/runs/reference/thai-peacock \
     --feed ~/data/webbuilder/restaurants_feed.json \
     --model gpt-5.4-2026-03-05 --step-limit 32
 done
 ```
 
-- **Build and feed.** Both runners served byte-identical snapshots of the eight files in `build/thai-peacock`, store `265151`. Build SHA-256 is `fa7738a6d3846517f324576391d6187b8795a8355e490926d1ccc2442eefefd9`. The feed SHA-256 is `45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d`. [Native manifest](evidence/008-native/build-files.json) · [SDK manifest](evidence/008-sdk/build-files.json)
+- **Build and feed.** Both runners served byte-identical snapshots of the eight files in `~/data/webbuilder/runs/reference/thai-peacock`, store `265151`. Build SHA-256 is `fa7738a6d3846517f324576391d6187b8795a8355e490926d1ccc2442eefefd9`. The feed SHA-256 is `45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d`.
 - **Model and browser.** Both used `gpt-5.4-2026-03-05` with the GA `computer` tool, identical shopper instructions, low reasoning effort, and a maximum of 2,048 output tokens per response. Both used OpenAI Python 3.55.1, Playwright 1.65.2, and headless Chromium 159.0.8154.6 with a 1280 × 900 PNG viewport. The SDK runner used `openai-agents` 0.25.0. The reports include the package versions and settings.
 - **Requests and budget.** Each attempt starts at the homepage in a new browser context with an empty cart, a new mock, and a new conversation. The first request is “Add one Thai Lime Tea and one 16 oz rice to the cart. Show me my cart.” After the private grader verifies both quantities in the viewport, checks for zero submissions and saves the cart PNG, it releases “Change the quantity to two teas, remove the rice, and place the order.” Every model response counts as one turn, including final answers and batches of actions.
 - **SDK handoff.** The SDK Runner owns model turns and tool dispatch. At the checkpoint, the harness resumes the same conversation using the last response ID and the remaining turns. The ComputerTool operates on the same restricted page and uses the native action checks. A pending safety check stops the attempt before tool execution. The harness grades the visible receipt and the drained mock record independently of the shopper’s answer. [Current SDK adapter](../../packages/shopper/src/webbuilder_shopper/computer_use/shopper.py) · [Current harness](../../packages/shopper/src/webbuilder_shopper/computer_use/runner.py)

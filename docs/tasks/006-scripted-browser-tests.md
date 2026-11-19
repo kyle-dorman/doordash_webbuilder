@@ -23,7 +23,7 @@ With the sample feed at `~/data/webbuilder/restaurants_feed.json`, run this from
 make stories
 ```
 
-The command installs the locked Playwright browser on first use and generates `build/thai-peacock`. Each story opens that build’s homepage in a fresh Chromium session, checks the empty cart, and returns home to begin shopping. Each gets a separate local storefront and mock on automatically assigned ports. The servers finish pending submissions and shut down before the runner grades the mock record. A failed story prints its reason and the next story runs. The command exits successfully only on a five-story pass.
+The command installs the locked Playwright browser on first use and generates `~/data/webbuilder/runs/reference/thai-peacock`. Each story opens that build’s homepage in a fresh Chromium session, checks the empty cart, and returns home to begin shopping. Each gets a separate local storefront and mock on automatically assigned ports. The servers finish pending submissions and shut down before the runner grades the mock record. A failed story prints its reason and the next story runs. The command exits successfully only on a five-story pass.
 
 ## Verification
 

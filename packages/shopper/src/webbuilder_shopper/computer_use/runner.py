@@ -218,13 +218,16 @@ def main() -> None:
         "--story", choices=tuple(STORIES), help="Run just this story (default: all)"
     )
     parser.add_argument("--step-limit", type=int, default=DEFAULT_STEP_LIMIT)
-    parser.add_argument("--evidence", type=Path, help="New or empty run directory")
+    parser.add_argument(
+        "--evidence", type=Path, help="Default: ~/data/webbuilder/runs/computer-shopper/<time>"
+    )
     args = parser.parse_args()
     if args.step_limit < 1:
         parser.error("--step-limit must be positive")
     directory, feed = args.site.expanduser().resolve(), args.feed.expanduser().resolve()
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
-    evidence = (args.evidence or Path("logs/computer-shopper") / stamp).expanduser().resolve()
+    evidence = args.evidence or Path("~/data/webbuilder/runs/computer-shopper") / stamp
+    evidence = evidence.expanduser().resolve()
     if evidence.is_relative_to(directory):
         parser.error("--evidence must be outside the site directory")
     if evidence.exists() and (not evidence.is_dir() or any(evidence.iterdir())):

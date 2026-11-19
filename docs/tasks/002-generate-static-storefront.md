@@ -2,7 +2,7 @@
 
 **Status** · Closed on 2026-11-19 after owner review.
 
-**Outcome** · Verified the landing page, all 13 menu sections and 18 entries, and the hours and location page directly in Chrome. Open `build/thai-peacock/index.html` for the reviewed storefront. [Regeneration command](../../README.md#preview-thai-peacock)
+**Outcome** · Verified the landing page, all 13 menu sections and 18 entries, and the hours and location page directly in Chrome. Open `~/data/webbuilder/runs/reference/thai-peacock/index.html` for the reviewed storefront. [Regeneration command](../../README.md#run-the-storefronts-and-mock-checkout-locally)
 
 Build the first desktop storefront for Thai Peacock (`265151`). A reviewer should be able to open the generated HTML directly in a browser, browse the menu, and point out what to change.
 

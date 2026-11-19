@@ -12,4 +12,6 @@ dist/
 !.env.example
 /data/
 /logs/
+/docs/tasks/evidence/
+/runs/
 .DS_Store

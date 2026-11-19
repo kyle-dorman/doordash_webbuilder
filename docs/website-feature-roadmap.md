@@ -24,6 +24,8 @@ The first build should let a customer find a dish, see what it costs, and comple
 | [005 · Mock checkout](tasks/005-mock-checkout.md) | Submit the order, verify the confirmation, and repeat with the text-only store. |
 | [006 · Scripted browser tests](tasks/006-scripted-browser-tests.md) | Generate and serve Thai Peacock, then run the five shopper stories below in a browser. |
 | [007 · Computer-use shopper](tasks/007-computer-use-shopper.md) | Run the same five stories on the same generated site. Each story must pass within three attempts. |
+| [008 · Agents SDK edit-story pilot](tasks/008-agents-sdk-edit-story.md) | Compare native and SDK runners on the two-request edit with GPT-5.4 held fixed. |
+| [009 · Shopper model comparison](tasks/009-shopper-model-comparison.md) | Compare GPT-5.4 and GPT-6.1 Terra on all five stories using the verified SDK runner. |
 
 ### Agreed Thai Peacock shopper stories
 

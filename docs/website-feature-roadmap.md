@@ -27,6 +27,7 @@ The first build should let a customer find a dish, see what it costs, and comple
 | [008 · Agents SDK edit-story pilot](tasks/008-agents-sdk-edit-story.md) | Compare native and SDK runners on the two-request edit with GPT-5.4 held fixed. |
 | [009 · Shopper model comparison](tasks/009-shopper-model-comparison.md) | Compare GPT-5.4 and GPT-6.1 Terra on all five stories using the verified SDK runner. |
 | [010 · Split the shopper testers](tasks/010-split-shopper-testers.md) | Separate scripted Playwright checks from the SDK computer-use shopper and retire the native runner. |
+| [011 · Build storefronts with an Inspect AI agent](tasks/011-agentic-storefront-builder.md) | Preserve the static reference, let the agent design and preview two storefronts, then independently verify the finished builds. |
 
 ### Agreed Thai Peacock shopper stories
 

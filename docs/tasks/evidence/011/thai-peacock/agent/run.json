@@ -1,0 +1,34 @@
+{
+  "store_id": "265151",
+  "restaurant": "Thai Peacock",
+  "feed_sha256": "45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d",
+  "model": "openai/gpt-5.4",
+  "message_limit": 40,
+  "status": "submitted",
+  "inspect_log": "logs/2026-11-19T22-58-35-00-00_build-storefront_AxrCYorqWg77cFQ3eEVnx4.eval",
+  "submitted_preview": "previews/04-review.png",
+  "submitted_revision": 6,
+  "assessment": "Designed a warm, desktop-first storefront for Thai Peacock using the supplied imagery and facts only. I used a serif-forward brand presentation with earthy spice tones drawn from the restaurant photos. The homepage introduces diners through a large header image, concise ordering copy, quick phone/address details, featured dishes, and a clear path to the full menu. I added a dedicated menu page so the entire menu can appear in original order with every provided image, section anchors, visible prices, and convenient add-to-cart controls throughout. The visit details and weekly hours are easy to find from home and nav. I previewed the home, menu, and review flow, then revised button spacing and menu CTA width so cart links and checkout actions read more clearly at 1280 by 900. The review page styling keeps the banner, cart, subtotal, and receipt area legible within the brand system.",
+  "previews": [
+    {
+      "revision": 4,
+      "page": "index.html",
+      "image": "previews/01-index.png"
+    },
+    {
+      "revision": 4,
+      "page": "menu.html",
+      "image": "previews/02-menu.png"
+    },
+    {
+      "revision": 6,
+      "page": "menu.html",
+      "image": "previews/03-menu.png"
+    },
+    {
+      "revision": 6,
+      "page": "review.html",
+      "image": "previews/04-review.png"
+    }
+  ]
+}

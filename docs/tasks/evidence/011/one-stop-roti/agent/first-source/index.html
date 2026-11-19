@@ -1,0 +1,127 @@
+<header class="site-header">
+  <div class="topbar">
+    <a class="brand" href="index.html">{{ store.name }}</a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html#menu">Menu</a>
+      <a href="index.html#visit">Visit</a>
+      <a href="review.html">Order <span class="cart-pill">(<span data-cart-count>0</span>)</span></a>
+    </nav>
+  </div>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Indian kitchen · bakery favorites</p>
+      <h1>Roti, doubles, rice plates, sweets, and cold drinks.</h1>
+      <p class="lede">Stop in on Hollis Avenue or place your order now for curry chicken, curry goat, aloo pie, lo-mein, and bakery treats.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#menu">Browse menu</a>
+        <a class="button button-secondary" href="review.html">View order <span data-cart-count>0</span></a>
+      </div>
+    </div>
+    <aside class="hero-panel">
+      <div class="panel-card">
+        <h2>Order today</h2>
+        <p>{{ store.street }}, {{ store.city }}, {{ store.state }} {{ store.zip_code }}</p>
+        <p><a href="tel:{{ store.phone }}">{{ store.phone|phone }}</a></p>
+        <p>Mon–Fri 7:30 AM–6:00 PM<br>Sat 7:30 AM–5:30 PM</p>
+        <a class="button button-primary button-block" href="review.html">Go to cart</a>
+      </div>
+    </aside>
+  </section>
+</header>
+
+<main>
+  <section class="highlights" aria-label="Quick picks">
+    <article class="highlight-card">
+      <h2>Fast picks</h2>
+      <p>Doubles, aloo pie, and bakery snacks for an easy stop.</p>
+      <a href="#Doubles-and-Aloo-Pie">See quick bites</a>
+    </article>
+    <article class="highlight-card">
+      <h2>Hearty plates</h2>
+      <p>Roti, curry dishes, rice plates, and lo-mein for a full meal.</p>
+      <a href="#Rice">See plates</a>
+    </article>
+    <article class="highlight-card">
+      <h2>Order anytime</h2>
+      <p>Your cart stays one click away on every page.</p>
+      <a href="review.html">Review order <span data-cart-count>0</span></a>
+    </article>
+  </section>
+
+  <section id="menu" class="menu-intro">
+    <div>
+      <p class="section-kicker">Full menu</p>
+      <h2>Browse everything in order.</h2>
+    </div>
+    <a class="button button-secondary" href="review.html">Open cart <span data-cart-count>0</span></a>
+  </section>
+
+  <section class="menu-layout">
+    <aside class="menu-sidebar">
+      <div class="sidebar-card">
+        <h3>Jump to section</h3>
+        <ul>
+          {% for section in store.sections %}
+          <li><a href="#{{ section.name|replace(' / ','-')|replace(' ','-') }}">{{ section.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="sidebar-card" id="visit">
+        <h3>Visit</h3>
+        <p>{{ store.street }}<br>{{ store.city }}, {{ store.state }} {{ store.zip_code }}</p>
+        <p><a href="tel:{{ store.phone }}">{{ store.phone|phone }}</a></p>
+        <a class="button button-primary button-block" href="review.html">Checkout <span data-cart-count>0</span></a>
+      </div>
+    </aside>
+
+    <div class="menu-content text-menu">
+      {% for section in store.sections %}
+      <section class="menu-section" id="{{ section.name|replace(' / ','-')|replace(' ','-') }}" data-menu-section="{{ section.name }}">
+        <div class="section-head">
+          <h3>{{ section.name }}</h3>
+        </div>
+        <div class="menu-items">
+          {% for item in section.items %}
+          <article class="menu-item" data-menu-item="{{ item.item_id }}">
+            <div class="item-main">
+              <div class="item-copy">
+                <div class="item-topline">
+                  <h4>{{ item.name }}</h4>
+                  <p class="price">{{ item.display_price }}</p>
+                </div>
+                {% if item.description %}<p class="description">{{ item.description }}</p>{% endif %}
+              </div>
+              <div class="item-action">{{ add_button(item) }}</div>
+            </div>
+            {% if item.image_url %}<img class="dish-image" src="{{ item.image_url }}" alt="{{ item.name }}">{% endif %}
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="hours-section">
+    <div class="section-head">
+      <p class="section-kicker">Hours</p>
+      <h2>Plan your stop.</h2>
+    </div>
+    <div class="hours-grid">
+      {% for day in store.hours %}
+      <div class="hour-row">
+        <span class="day">{{ day.day }}</span>
+        <span class="time">
+          {% for interval in day.intervals %}
+            {{ interval[0]|clock }}–{{ interval[1]|clock }}{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="hours-actions">
+      <a class="button button-secondary" href="tel:{{ store.phone }}">Call {{ store.phone|phone }}</a>
+      <a class="button button-primary" href="review.html">Place order</a>
+    </div>
+  </section>
+</main>

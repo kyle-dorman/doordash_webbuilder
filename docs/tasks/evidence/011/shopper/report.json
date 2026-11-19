@@ -1,0 +1,275 @@
+{
+  "status": "passed",
+  "reason": "",
+  "directory": "/Users/kyledorman/Documents/doordash_webbuilder/docs/tasks/evidence/011/thai-peacock/submitted",
+  "build_sha256": "5563418f164b2dde1035f31efcead57483636217f7c35e912d3d404f12f785b8",
+  "feed": "/Users/kyledorman/data/webbuilder/restaurants_feed.json",
+  "feed_sha256": "45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d",
+  "model": "gpt-6.1-terra",
+  "runner": "sdk",
+  "versions": {
+    "webbuilder-shopper": "0.1.0",
+    "openai-agents": "0.25.0",
+    "openai": "3.55.1",
+    "playwright": "1.65.2",
+    "chromium": "159.0.8154.6"
+  },
+  "stories": [
+    "contact",
+    "hours",
+    "soup",
+    "place",
+    "change"
+  ],
+  "model_settings": {
+    "tool": "computer",
+    "reasoning_effort": "low",
+    "max_output_tokens": 2048,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "screenshot_format": "png",
+    "step_unit": "one model response, including the final answer and any batched actions"
+  },
+  "attempt_limit": 3,
+  "step_limit": 32,
+  "first_attempt_passes": 5,
+  "within_three_passes": 5,
+  "reported_total_tokens": 266334,
+  "estimated_total_cost_usd": 0.0787566,
+  "estimated_cost_per_passing_story_usd": 0.01575132,
+  "attempts": [
+    {
+      "story": "contact",
+      "attempt": 1,
+      "status": "passed",
+      "reason": "",
+      "steps": 1,
+      "answers": [
+        "**Address:** 219 Southwest 9th Avenue, Portland, OR 97205  \n**Phone:** (503) 719-7273"
+      ],
+      "action_history": "contact-1.json",
+      "trace_id": "trace_d2aeedcea10446888362a2889c7fa58f",
+      "usage": {
+        "input_tokens": 2317,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 2314,
+        "ttl_30m_tokens": 2314,
+        "ttl_12h_tokens": 0,
+        "output_tokens": 33,
+        "reasoning_tokens": 0,
+        "total_tokens": 2350,
+        "responses_with_usage": 1,
+        "priced_responses": 1,
+        "reported_cost_usd": 0.0030605,
+        "estimated_cost_usd": 0.0030605
+      },
+      "screenshot": "contact-1.png",
+      "checkpoint_screenshot": null,
+      "checkpoint_submission_count": null,
+      "initial_cart": null,
+      "confirmation": null,
+      "submissions": []
+    },
+    {
+      "story": "hours",
+      "attempt": 1,
+      "status": "passed",
+      "reason": "",
+      "steps": 4,
+      "answers": [
+        "- **Tuesday:** 11:30 AM–9:15 PM\n- **Friday:** 11:00 AM–9:45 PM"
+      ],
+      "action_history": "hours-1.json",
+      "trace_id": "trace_06855d5a02ed4d55826ee2888bf71880",
+      "usage": {
+        "input_tokens": 17838,
+        "cached_input_tokens": 11219,
+        "cache_write_input_tokens": 6607,
+        "ttl_30m_tokens": 6607,
+        "ttl_12h_tokens": 0,
+        "output_tokens": 117,
+        "reasoning_tokens": 0,
+        "total_tokens": 17955,
+        "responses_with_usage": 4,
+        "priced_responses": 4,
+        "reported_cost_usd": 0.0094167,
+        "estimated_cost_usd": 0.0094167
+      },
+      "screenshot": "hours-1.png",
+      "checkpoint_screenshot": null,
+      "checkpoint_submission_count": null,
+      "initial_cart": null,
+      "confirmation": null,
+      "submissions": []
+    },
+    {
+      "story": "soup",
+      "attempt": 1,
+      "status": "passed",
+      "reason": "",
+      "steps": 4,
+      "answers": [
+        "The Tom-Yum Soup is **24 oz.** and costs **$14.50**."
+      ],
+      "action_history": "soup-1.json",
+      "trace_id": "trace_dac0f0df56e147daaeee0512a366b380",
+      "usage": {
+        "input_tokens": 17848,
+        "cached_input_tokens": 11231,
+        "cache_write_input_tokens": 6605,
+        "ttl_30m_tokens": 6605,
+        "ttl_12h_tokens": 0,
+        "output_tokens": 102,
+        "reasoning_tokens": 0,
+        "total_tokens": 17950,
+        "responses_with_usage": 4,
+        "priced_responses": 4,
+        "reported_cost_usd": 0.0093398,
+        "estimated_cost_usd": 0.0093398
+      },
+      "screenshot": "soup-1.png",
+      "checkpoint_screenshot": null,
+      "checkpoint_submission_count": null,
+      "initial_cart": null,
+      "confirmation": null,
+      "submissions": []
+    },
+    {
+      "story": "place",
+      "attempt": 1,
+      "status": "passed",
+      "reason": "",
+      "steps": 13,
+      "answers": [
+        "Simulated order confirmed: two servings of vegan crispy spring rolls and one 16 oz rice. Total: **$19.50**."
+      ],
+      "action_history": "place-1.json",
+      "trace_id": "trace_db86f43dfb0b457f800dd50ab1dc83dd",
+      "usage": {
+        "input_tokens": 143414,
+        "cached_input_tokens": 123582,
+        "cache_write_input_tokens": 19793,
+        "ttl_30m_tokens": 19793,
+        "ttl_12h_tokens": 0,
+        "output_tokens": 681,
+        "reasoning_tokens": 70,
+        "total_tokens": 144095,
+        "responses_with_usage": 13,
+        "priced_responses": 13,
+        "reported_cost_usd": 0.03436435,
+        "estimated_cost_usd": 0.03436435
+      },
+      "screenshot": "place-1.png",
+      "checkpoint_screenshot": null,
+      "checkpoint_submission_count": null,
+      "initial_cart": null,
+      "confirmation": {
+        "items": [
+          {
+            "name": "Rice (16oz.)",
+            "quantity": 1,
+            "unit_price": "$2.50",
+            "line_total": "$2.50"
+          },
+          {
+            "name": "3. Vegan Crispy Spring Rolls (4) (VG)",
+            "quantity": 2,
+            "unit_price": "$8.50",
+            "line_total": "$17.00"
+          }
+        ],
+        "total": "$19.50"
+      },
+      "submissions": [
+        {
+          "store_id": "265151",
+          "items": [
+            {
+              "item_id": "140247117",
+              "name": "Rice (16oz.)",
+              "quantity": 1,
+              "unit_price_cents": 250,
+              "line_total_cents": 250
+            },
+            {
+              "item_id": "140240246",
+              "name": "3. Vegan Crispy Spring Rolls (4) (VG)",
+              "quantity": 2,
+              "unit_price_cents": 850,
+              "line_total_cents": 1700
+            }
+          ],
+          "subtotal_cents": 1950
+        }
+      ]
+    },
+    {
+      "story": "change",
+      "attempt": 1,
+      "status": "passed",
+      "reason": "",
+      "steps": 10,
+      "answers": [
+        "Your cart is displayed with one Thai Lime Tea and one 16 oz rice. The subtotal is $7.00.",
+        "Simulated order confirmed: two Thai Lime Teas, total $9.00."
+      ],
+      "action_history": "change-1.json",
+      "trace_id": "trace_ebbfb7f4abc7486a8554388b74dd162c",
+      "usage": {
+        "input_tokens": 83643,
+        "cached_input_tokens": 69730,
+        "cache_write_input_tokens": 13883,
+        "ttl_30m_tokens": 13883,
+        "ttl_12h_tokens": 0,
+        "output_tokens": 341,
+        "reasoning_tokens": 0,
+        "total_tokens": 83984,
+        "responses_with_usage": 10,
+        "priced_responses": 10,
+        "reported_cost_usd": 0.02257525,
+        "estimated_cost_usd": 0.02257525
+      },
+      "screenshot": "change-1.png",
+      "checkpoint_screenshot": "change-1-cart.png",
+      "checkpoint_submission_count": 0,
+      "initial_cart": [
+        [
+          "Thai Lime Tea",
+          1
+        ],
+        [
+          "Rice (16oz.)",
+          1
+        ]
+      ],
+      "confirmation": {
+        "items": [
+          {
+            "name": "Thai Lime Tea",
+            "quantity": 2,
+            "unit_price": "$4.50",
+            "line_total": "$9.00"
+          }
+        ],
+        "total": "$9.00"
+      },
+      "submissions": [
+        {
+          "store_id": "265151",
+          "items": [
+            {
+              "item_id": "548484849",
+              "name": "Thai Lime Tea",
+              "quantity": 2,
+              "unit_price_cents": 450,
+              "line_total_cents": 900
+            }
+          ],
+          "subtotal_cents": 900
+        }
+      ]
+    }
+  ]
+}

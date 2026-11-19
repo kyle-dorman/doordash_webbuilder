@@ -1,0 +1,123 @@
+<header class="site-header">
+  <div class="topbar">
+    <a class="brand" href="index.html" aria-label="Thai Peacock">Thai Peacock</a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="menu.html">Menu</a>
+      <a href="#visit">Visit</a>
+      <a href="review.html">Cart <span data-cart-count>0</span></a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-media">
+    <img src="{{ store.header_image }}" alt="Thai Peacock dining and food" />
+  </div>
+  <div class="hero-panel">
+    <p class="eyebrow">{{ store.cuisine }} in {{ store.city }}</p>
+    <h1>Thai Peacock</h1>
+    <p class="hero-copy">Bold noodles, curry, soups, salads, desserts, cocktails, and Thai tea for lunch or dinner.</p>
+    <div class="hero-actions">
+      <a class="button button-primary" href="menu.html">Order from the full menu</a>
+      <a class="button button-secondary" href="review.html">View cart <span data-cart-count>0</span></a>
+    </div>
+    <dl class="quick-facts">
+      <div>
+        <dt>Phone</dt>
+        <dd><a href="tel:{{ store.phone }}">{{ store.phone|phone }}</a></dd>
+      </div>
+      <div>
+        <dt>Address</dt>
+        <dd>{{ store.street }}, {{ store.city }}, {{ store.state }} {{ store.zip_code }}</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<main>
+  <section class="feature-strip">
+    <article class="feature-card">
+      <img src="{{ store.sections[4].items[1].image_url }}" alt="{{ store.sections[4].items[1].name }}" />
+      <div>
+        <p class="eyebrow">House Specialty</p>
+        <h2>{{ store.sections[4].items[1].name }}</h2>
+        <p>{{ store.sections[4].items[1].description }}</p>
+        <div class="feature-meta">
+          <span>{{ store.sections[4].items[1].display_price }}</span>
+          {{ add_button(store.sections[4].items[1]) }}
+        </div>
+      </div>
+    </article>
+    <article class="feature-card">
+      <img src="{{ store.sections[2].items[1].image_url }}" alt="{{ store.sections[2].items[1].name }}" />
+      <div>
+        <p class="eyebrow">Comforting Soup</p>
+        <h2>{{ store.sections[2].items[1].name }}</h2>
+        <p>{{ store.sections[2].items[1].description }}</p>
+        <div class="feature-meta">
+          <span>{{ store.sections[2].items[1].display_price }}</span>
+          {{ add_button(store.sections[2].items[1]) }}
+        </div>
+      </div>
+    </article>
+    <article class="feature-card">
+      <img src="{{ store.sections[12].items[0].image_url }}" alt="{{ store.sections[12].items[0].name }}" />
+      <div>
+        <p class="eyebrow">Refreshing Sip</p>
+        <h2>{{ store.sections[12].items[0].name }}</h2>
+        <p>{{ store.sections[12].items[0].description }}</p>
+        <div class="feature-meta">
+          <span>{{ store.sections[12].items[0].display_price }}</span>
+          {{ add_button(store.sections[12].items[0]) }}
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="cover-callout">
+    <div class="cover-text">
+      <p class="eyebrow">Browse everything</p>
+      <h2>See every section in order, then add dishes as you go.</h2>
+      <p>From small plates and soups to wok stir-fry, fried rice, dessert, and cocktails, the full menu is one easy scroll.</p>
+      <a class="button button-primary" href="menu.html">Open full menu</a>
+    </div>
+    <div class="cover-media">
+      <img src="{{ store.cover_image }}" alt="Thai Peacock signature dishes" />
+    </div>
+  </section>
+
+  <section class="visit-section" id="visit">
+    <div class="section-heading">
+      <p class="eyebrow">Visit</p>
+      <h2>Find Thai Peacock</h2>
+    </div>
+    <div class="visit-grid">
+      <div class="visit-card">
+        <h3>Location</h3>
+        <p>{{ store.street }}<br>{{ store.city }}, {{ store.state }} {{ store.zip_code }}</p>
+        <p><a href="tel:{{ store.phone }}">{{ store.phone|phone }}</a></p>
+      </div>
+      <div class="visit-card hours-card">
+        <h3>Hours</h3>
+        <ul class="hours-list">
+          {% for day in store.hours %}
+          <li>
+            <span>{{ day.day }}</span>
+            <span>
+              {% for interval in day.intervals %}
+                {{ interval[0]|clock }}–{{ interval[1]|clock }}{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="visit-card order-card">
+        <h3>Ready to order?</h3>
+        <p>Start with a favorite, then review your cart anytime.</p>
+        <a class="button button-primary" href="menu.html">Start order</a>
+        <a class="button button-secondary" href="review.html">Go to cart <span data-cart-count>0</span></a>
+      </div>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,67 @@
+<header class="site-header">
+  <div class="topbar">
+    <a class="brand" href="index.html" aria-label="Thai Peacock">Thai Peacock</a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="menu.html">Menu</a>
+      <a href="index.html#visit">Visit</a>
+      <a href="review.html">Cart <span data-cart-count>0</span></a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-banner menu-banner">
+    <div>
+      <p class="eyebrow">Full menu</p>
+      <h1>Order Thai Peacock</h1>
+      <p>Browse every section and add dishes without leaving the page.</p>
+    </div>
+    <a class="button button-secondary" href="review.html">Review cart <span data-cart-count>0</span></a>
+  </section>
+
+  <section class="menu-layout">
+    <aside class="menu-sidebar">
+      <h2>Sections</h2>
+      <ul>
+        {% for section in store.sections %}
+        <li><a href="#section-{{ loop.index }}">{{ section.name }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="sidebar-cta">
+        <a class="button button-primary" href="review.html">Checkout <span data-cart-count>0</span></a>
+      </div>
+    </aside>
+
+    <div class="menu-content" id="menu">
+      {% for section in store.sections %}
+      <section class="menu-section" id="section-{{ loop.index }}" data-menu-section="{{ section.name }}">
+        <div class="section-heading sticky-heading">
+          <p class="eyebrow">{{ store.cuisine }}</p>
+          <h2>{{ section.name }}</h2>
+        </div>
+        <div class="menu-items">
+          {% for item in section.items %}
+          <article class="menu-item" data-menu-item="{{ item.item_id }}">
+            <div class="menu-item-image">
+              <img src="{{ item.image_url }}" alt="{{ item.name }}" />
+            </div>
+            <div class="menu-item-copy">
+              <div class="menu-item-head">
+                <h3>{{ item.name }}</h3>
+                <span class="price">{{ item.display_price }}</span>
+              </div>
+              {% if item.description %}
+              <p>{{ item.description }}</p>
+              {% endif %}
+            </div>
+            <div class="menu-item-actions">
+              {{ add_button(item) }}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+  </section>
+</main>

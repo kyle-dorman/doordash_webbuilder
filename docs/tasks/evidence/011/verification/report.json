@@ -1,0 +1,735 @@
+{
+  "status": "passed",
+  "feed_sha256": "45a4250e335a3197505941fcccd2a1cd9a63b54f0afc550301f53bd82c63c02d",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "stores": {
+    "265151": {
+      "site": "/Users/kyledorman/Documents/doordash_webbuilder/docs/tasks/evidence/011/thai-peacock/submitted",
+      "build_sha256": "5563418f164b2dde1035f31efcead57483636217f7c35e912d3d404f12f785b8",
+      "menu": {
+        "page": "/menu.html",
+        "status": "passed",
+        "rendered_sections": [
+          "Popular Drinks",
+          "Small Plates",
+          "Soup",
+          "Salad",
+          "House Specialties",
+          "Curry",
+          "Wok Stir-fry",
+          "Noodle Stir-Fry",
+          "Fried Rice",
+          "Sides",
+          "Dessert",
+          "Beverages",
+          "House Signature Cocktails (Alcoholic)"
+        ],
+        "sections": [
+          {
+            "section": "Popular Drinks",
+            "rendered_ids": [
+              "913650617",
+              "913650618"
+            ],
+            "items": [
+              {
+                "id": "913650617",
+                "name": "Lychee Hibiscus Daiquiri (2 Servings)",
+                "price": "$16.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "913650618",
+                "name": "Tamarind Whiskey Sour (2 Servings)",
+                "price": "$16.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Small Plates",
+            "rendered_ids": [
+              "140240244",
+              "140240246"
+            ],
+            "items": [
+              {
+                "id": "140240244",
+                "name": "2. Chicken Teriyaki Meatballs (8) (GF)",
+                "price": "$8.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "140240246",
+                "name": "3. Vegan Crispy Spring Rolls (4) (VG)",
+                "price": "$8.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Soup",
+            "rendered_ids": [
+              "140247644",
+              "140247645"
+            ],
+            "items": [
+              {
+                "id": "140247644",
+                "name": "10. Tom-Yum Soup (GF)",
+                "price": "$14.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "140247645",
+                "name": "11. Tom-Kha (GF)",
+                "price": "$14.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Salad",
+            "rendered_ids": [
+              "140240839",
+              "140240840"
+            ],
+            "items": [
+              {
+                "id": "140240839",
+                "name": "12. Larb (GF, SF)",
+                "price": "$12.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "140240840",
+                "name": "13. Thai Yum Salad (GF, SF)",
+                "price": "$12.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "House Specialties",
+            "rendered_ids": [
+              "140241572",
+              "141092345"
+            ],
+            "items": [
+              {
+                "id": "140241572",
+                "name": "17.2. Pad Thai & Crispy Trout",
+                "price": "$20.00",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "141092345",
+                "name": "17.1. Pad Thai & Salmon",
+                "price": "$20.00",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Curry",
+            "rendered_ids": [
+              "140243024"
+            ],
+            "items": [
+              {
+                "id": "140243024",
+                "name": "31. Kaeng Matsaman (GF, VG)",
+                "price": "$16.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Wok Stir-fry",
+            "rendered_ids": [
+              "140245343"
+            ],
+            "items": [
+              {
+                "id": "140245343",
+                "name": "37. Pad Ruam-Mit (GF, VG)",
+                "price": "$16.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Noodle Stir-Fry",
+            "rendered_ids": [
+              "140245467"
+            ],
+            "items": [
+              {
+                "id": "140245467",
+                "name": "44. Golden Noodle",
+                "price": "$16.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Fried Rice",
+            "rendered_ids": [
+              "140245490"
+            ],
+            "items": [
+              {
+                "id": "140245490",
+                "name": "48. Khao Pad (GF)",
+                "price": "$16.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Sides",
+            "rendered_ids": [
+              "140247117"
+            ],
+            "items": [
+              {
+                "id": "140247117",
+                "name": "Rice (16oz.)",
+                "price": "$2.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Dessert",
+            "rendered_ids": [
+              "140246477"
+            ],
+            "items": [
+              {
+                "id": "140246477",
+                "name": "54. Roti (Flat Bread)",
+                "price": "$5.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Beverages",
+            "rendered_ids": [
+              "548484849"
+            ],
+            "items": [
+              {
+                "id": "548484849",
+                "name": "Thai Lime Tea",
+                "price": "$4.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "House Signature Cocktails (Alcoholic)",
+            "rendered_ids": [
+              "478625263"
+            ],
+            "items": [
+              {
+                "id": "478625263",
+                "name": "Lychee Hibiscus Daiquiri  (2 Servings)",
+                "price": "$16.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          }
+        ],
+        "errors": []
+      },
+      "submissions": [],
+      "status": "passed"
+    },
+    "26303866": {
+      "site": "/Users/kyledorman/Documents/doordash_webbuilder/docs/tasks/evidence/011/one-stop-roti/submitted",
+      "build_sha256": "61dd04edcd718b54913cbc54385ee8d5620f0245a200d704a68f282e1229c9b8",
+      "menu": {
+        "page": "/",
+        "status": "passed",
+        "rendered_sections": [
+          "Lo-Mein",
+          "Doubles and Aloo Pie",
+          "Rice",
+          "Appetizers",
+          "Roti",
+          "Daily / Weekend Specials",
+          "Desserts",
+          "Drinks"
+        ],
+        "sections": [
+          {
+            "section": "Lo-Mein",
+            "rendered_ids": [
+              "10757264725",
+              "10757348695",
+              "10757383130"
+            ],
+            "items": [
+              {
+                "id": "10757264725",
+                "name": "BBQ with Vegetable Lo-Mein",
+                "price": "$14.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10757348695",
+                "name": "Jerk Chicken with Vegetable Lo-Mein",
+                "price": "$14.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10757383130",
+                "name": "Boneless Curry Chicken with Vegetable Lo-Mein",
+                "price": "$17.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Doubles and Aloo Pie",
+            "rendered_ids": [
+              "10757348693",
+              "10756100007",
+              "10757424082"
+            ],
+            "items": [
+              {
+                "id": "10757348693",
+                "name": "Curry Goat Doubles.  Regular doubles with curry goat added.",
+                "price": "$4.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10756100007",
+                "name": "Shrimp Aloo Pie (Potato pie)",
+                "price": "$7.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10757424082",
+                "name": "Boneless Curry Chicken Aloo Pie (Potato Pie)",
+                "price": "$7.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Rice",
+            "rendered_ids": [
+              "10757302889",
+              "10757302890"
+            ],
+            "items": [
+              {
+                "id": "10757302889",
+                "name": "Curry chicken with Rice Served with white Rice",
+                "price": "$14.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10757302890",
+                "name": "Curry Goat with Rice Served with White Rice.",
+                "price": "$17.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Appetizers",
+            "rendered_ids": [
+              "10703144785",
+              "10703144789"
+            ],
+            "items": [
+              {
+                "id": "10703144785",
+                "name": "Aloo Pie with Channa",
+                "price": "$3.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10703144789",
+                "name": "Plain Roti Skin",
+                "price": "$2.25",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Roti",
+            "rendered_ids": [
+              "10703144790",
+              "10703144791"
+            ],
+            "items": [
+              {
+                "id": "10703144790",
+                "name": "Curry Chicken",
+                "price": "$14.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10703144791",
+                "name": "Stew Chicken",
+                "price": "$14.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Daily / Weekend Specials",
+            "rendered_ids": [
+              "10703144797",
+              "10703144798"
+            ],
+            "items": [
+              {
+                "id": "10703144797",
+                "name": "BBQ Chicken",
+                "price": "$7.00",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10703144798",
+                "name": "Jerk Chicken",
+                "price": "$7.00",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Desserts",
+            "rendered_ids": [
+              "10703144801",
+              "10703144802"
+            ],
+            "items": [
+              {
+                "id": "10703144801",
+                "name": "Currants Roll",
+                "price": "$3.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10703144802",
+                "name": "Coconut Roll",
+                "price": "$3.95",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          },
+          {
+            "section": "Drinks",
+            "rendered_ids": [
+              "10703144807",
+              "10703144808"
+            ],
+            "items": [
+              {
+                "id": "10703144807",
+                "name": "Kola Champagne Solo (Red)",
+                "price": "$3.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              },
+              {
+                "id": "10703144808",
+                "name": "Banana Solo",
+                "price": "$3.50",
+                "checks": {
+                  "visible": true,
+                  "name": true,
+                  "price": true,
+                  "description": true,
+                  "image": true,
+                  "add_button": true
+                }
+              }
+            ]
+          }
+        ],
+        "errors": []
+      },
+      "receipt": {
+        "heading": "Simulated order confirmed",
+        "item": "Curry Chicken",
+        "quantity_and_unit_price": "1 × $14.95",
+        "line_total": "$14.95",
+        "total": "$14.95",
+        "cart_screenshot": "roti-cart.png",
+        "receipt_screenshot": "roti-receipt.png"
+      },
+      "submissions": [
+        {
+          "store_id": "26303866",
+          "items": [
+            {
+              "item_id": "10703144790",
+              "name": "Curry Chicken",
+              "quantity": 1,
+              "unit_price_cents": 1495,
+              "line_total_cents": 1495
+            }
+          ],
+          "subtotal_cents": 1495
+        }
+      ],
+      "status": "passed"
+    }
+  }
+}

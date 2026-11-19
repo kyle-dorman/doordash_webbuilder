@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Run and grade shopper stories against a generated restaurant storefront"
 requires-python = ">=3.12"
 dependencies = [
+    "anyio>=4",
     "openai>=3.55.1",
+    "openai-agents>=0.25.0",
     "playwright",
     "webbuilder-agent",
     "webbuilder-mock-backend",

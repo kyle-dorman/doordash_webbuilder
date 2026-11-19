@@ -8,21 +8,24 @@ from typing import Final, Literal
 from openai import APIStatusError, OpenAI, OpenAIError
 from openai.types.responses import ResponseInputParam
 from openai.types.responses.computer_action import ComputerAction
-from playwright.sync_api import Page, ViewportSize
+from openai.types.responses.response_computer_tool_call import ResponseComputerToolCall
+from playwright.sync_api import Error, Page, ViewportSize
+
+from .shopper_usage import token_counts
 
 VIEWPORT: ViewportSize = {"width": 1280, "height": 900}
-_REASONING: Final[Literal["low"]] = "low"
-_MAX_OUTPUT_TOKENS = 2048
+REASONING: Final[Literal["low"]] = "low"
+MAX_OUTPUT_TOKENS = 2048
 MODEL_SETTINGS = {
     "tool": "computer",
-    "reasoning_effort": _REASONING,
-    "max_output_tokens": _MAX_OUTPUT_TOKENS,
+    "reasoning_effort": REASONING,
+    "max_output_tokens": MAX_OUTPUT_TOKENS,
     "viewport": VIEWPORT,
     "screenshot_format": "png",
     "step_unit": "one model response, including the final answer and any batched actions",
 }
 
-_INSTRUCTIONS = (
+INSTRUCTIONS = (
     "You are a shopper using the pictured restaurant website. Fulfill the user's current "
     "request using only the visible page and the computer tool. Click page controls, scroll "
     "and type in page fields. Browser shortcuts and browser chrome are unavailable. "
@@ -100,6 +103,43 @@ def _act(page: Page, action: ComputerAction) -> None:
         raise ShopperFailure(f"Unavailable shopper action: {action.model_dump(exclude_none=True)}")
 
 
+def check_safety(
+    call: ResponseComputerToolCall, history: list[dict[str, object]], step: int
+) -> None:
+    if call.pending_safety_checks:
+        history.append(
+            {
+                "event": "computer_call",
+                "step": step,
+                "call_id": call.call_id,
+                "outcome": "blocked",
+                "pending_safety_checks": [
+                    check.model_dump(exclude_none=True) for check in call.pending_safety_checks
+                ],
+            }
+        )
+        raise ShopperFailure("Shopper action requires human review")
+
+
+def execute_action(
+    page: Page, action: ComputerAction, history: list[dict[str, object]], step: int, call_id: str
+) -> None:
+    event: dict[str, object] = {
+        "event": "action",
+        "step": step,
+        "call_id": call_id,
+        "action": action.model_dump(exclude_none=True),
+    }
+    history.append(event)
+    try:
+        _act(page, action)
+    except (ShopperFailure, Error) as error:
+        event["outcome"] = "blocked" if isinstance(error, ShopperFailure) else "error"
+        event["reason"] = str(error)
+        raise
+    event["outcome"] = "executed"
+
+
 class ShopperSession:
     """One conversation and turn budget, including both requests of a multi-stage story."""
 
@@ -155,10 +195,10 @@ class ShopperSession:
             self.steps += 1
             response = client.responses.create(
                 model=self.model,
-                instructions=_INSTRUCTIONS,
+                instructions=INSTRUCTIONS,
                 tools=[{"type": "computer"}],
-                reasoning={"effort": _REASONING},
-                max_output_tokens=_MAX_OUTPUT_TOKENS,
+                reasoning={"effort": REASONING},
+                max_output_tokens=MAX_OUTPUT_TOKENS,
                 previous_response_id=self._response_id,
                 store=True,
                 input=inputs,
@@ -169,6 +209,8 @@ class ShopperSession:
                     "event": "response",
                     "step": self.steps,
                     "id": response.id,
+                    "request_id": response._request_id,
+                    "usage": token_counts(response.usage),
                     "model": response.model,
                     "status": response.status,
                 }
@@ -184,21 +226,13 @@ class ShopperSession:
             for call in response.output:
                 if call.type != "computer_call":
                     continue
-                if call.pending_safety_checks:
-                    raise ShopperFailure("Shopper action requires human review")
+                check_safety(call, self.history, self.steps)
                 if not call.actions:
                     raise ShopperFailure("Computer call contained no native computer actions")
                 for action in call.actions:
                     if self.on_step:
                         self.on_step()
-                    self.history.append(
-                        {
-                            "event": "action",
-                            "step": self.steps,
-                            "action": action.model_dump(exclude_none=True),
-                        }
-                    )
-                    _act(page, action)
+                    execute_action(page, action, self.history, self.steps, call.call_id)
                 # A wheel event can still be scrolling when Playwright returns.
                 page.wait_for_timeout(250)
                 inputs.append(

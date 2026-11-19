@@ -20,7 +20,7 @@ uv sync --locked --all-packages
 uv run --locked --package webbuilder-agent inspect --version
 ```
 
-The initial agent stack uses [Inspect AI's OpenAI provider](https://inspect.aisi.org.uk/providers.html#openai). Set `OPENAI_API_KEY` in your environment for live model calls. To work with the OpenAI Agents SDK as well, run `uv sync --locked --all-packages --extra agents-sdk`.
+The initial agent stack uses [Inspect AI's OpenAI provider](https://inspect.aisi.org.uk/providers.html#openai). Set `OPENAI_API_KEY` in your environment for live model calls. The shopper package includes the OpenAI Agents SDK.
 
 ## Example feed
 
@@ -94,6 +94,8 @@ uv run --locked --package webbuilder-shopper --env-file .env run-computer-shoppe
 ```
 
 Each story gets up to three attempts. The command prints the result of each attempt and the path to its run directory under `logs/computer-shopper/`. The Task 007 record includes the live baseline and explains the step budget, grading, and evidence. [Task 007](docs/tasks/007-computer-use-shopper.md)
+
+Use `--runner sdk --story change` to run the SDK edit pilot, or `--runner native --story change` for its native control. The Task 008 record links the graded carts, receipts, model costs, and SDK trace. [Task 008](docs/tasks/008-agents-sdk-edit-story.md)
 
 ## Development
 

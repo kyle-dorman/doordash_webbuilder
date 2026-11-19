@@ -3044,7 +3044,9 @@ name = "webbuilder-shopper"
 version = "0.1.0"
 source = { editable = "packages/shopper" }
 dependencies = [
+    { name = "anyio" },
     { name = "openai" },
+    { name = "openai-agents" },
     { name = "playwright" },
     { name = "webbuilder-agent" },
     { name = "webbuilder-mock-backend" },
@@ -3053,7 +3055,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4" },
     { name = "openai", specifier = ">=3.55.1" },
+    { name = "openai-agents", specifier = ">=0.25.0" },
     { name = "playwright" },
     { name = "webbuilder-agent", editable = "packages/agent" },
     { name = "webbuilder-mock-backend", editable = "packages/mock-backend" },

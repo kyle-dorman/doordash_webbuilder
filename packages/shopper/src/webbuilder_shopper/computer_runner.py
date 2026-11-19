@@ -1,4 +1,4 @@
-"""Run five screenshot-driven shopper stories against an existing Thai Peacock build."""
+"""Run screenshot-driven shopper stories against an existing Thai Peacock build."""
 
 import argparse
 import hashlib
@@ -6,12 +6,15 @@ import json
 import shutil
 import sys
 from collections.abc import Callable
+from contextlib import ExitStack
 from datetime import UTC, datetime
+from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Literal, Protocol, TypedDict
 from urllib.parse import urlsplit
 
+from agents import custom_span
 from playwright.sync_api import Browser, Error, Page, Route, sync_playwright
 from webbuilder_mock_backend.server import Catalog, load_catalog
 
@@ -32,7 +35,9 @@ from .grading import (
     grade_lookup_answer,
     grade_submissions,
 )
+from .sdk_model import SdkShopperSession
 from .serving import Attempt, serve_attempt
+from .shopper_usage import UsageSummary, summarize_usage
 
 ATTEMPT_LIMIT = 3
 DEFAULT_STEP_LIMIT = 32
@@ -67,6 +72,8 @@ class AttemptResult(TypedDict):
     steps: int
     answers: list[str]
     action_history: str
+    trace_id: str | None
+    usage: UsageSummary
     screenshot: str | None
     checkpoint_screenshot: str | None
     initial_cart: list[tuple[str, int]] | None
@@ -82,6 +89,9 @@ class Report(TypedDict):
     feed: str | None
     feed_sha256: str | None
     model: str
+    runner: str
+    versions: dict[str, str]
+    stories: list[str]
     model_settings: dict[str, object]
     attempt_limit: int
     step_limit: int
@@ -90,7 +100,18 @@ class Report(TypedDict):
     attempts: list[AttemptResult]
 
 
-def new_report(directory: Path, model: str, step_limit: int, feed: Path | None = None) -> Report:
+def new_report(
+    directory: Path,
+    model: str,
+    step_limit: int,
+    feed: Path | None = None,
+    *,
+    runner: str = "native",
+    story: str | None = None,
+) -> Report:
+    packages = ["webbuilder-shopper", "openai", "playwright"]
+    if runner == "sdk":
+        packages.append("openai-agents")
     return Report(
         status="running",
         reason="",
@@ -99,6 +120,9 @@ def new_report(directory: Path, model: str, step_limit: int, feed: Path | None =
         feed=str(feed.resolve()) if feed else None,
         feed_sha256=None,
         model=model,
+        runner=runner,
+        versions={name: version(name) for name in packages},
+        stories=[story] if story else list(STORIES),
         model_settings=dict(MODEL_SETTINGS),
         attempt_limit=ATTEMPT_LIMIT,
         step_limit=step_limit,
@@ -175,6 +199,16 @@ def shop_and_grade(
         )
 
 
+def save_observation(directory: Path, stem: str, png: bytes) -> str:
+    """Keep the exact frame supplied to the computer tool, sharing identical frames."""
+    path = Path(f"{stem}-frames") / f"{hashlib.sha256(png).hexdigest()}.png"
+    target = directory / path
+    target.parent.mkdir(exist_ok=True)
+    if not target.exists():
+        target.write_bytes(png)
+    return path.as_posix()
+
+
 def run_attempt(
     browser: Browser,
     directory: Path,
@@ -196,6 +230,8 @@ def run_attempt(
         steps=0,
         answers=[],
         action_history=f"{stem}.json",
+        trace_id=None,
+        usage=summarize_usage(history, model, 0),
         screenshot=None,
         checkpoint_screenshot=None,
         initial_cart=None,
@@ -204,50 +240,70 @@ def run_attempt(
     )
     screenshot: bytes | None = None
     problems: list[str] = []
-    session: Session | None = None
     served: Attempt | None = None
-    try:
-        with serve_attempt(directory, catalog) as attempt:
-            served = attempt
-            with browser.new_context(viewport=VIEWPORT, service_workers="block") as context:
-                context.set_default_timeout(5_000)
-                context.route("**/*", lambda route: restrict_to_storefront(route, attempt.url))
-                page = context.new_page()
-                try:
-                    # A fresh context has no cart in session storage. The shopper starts at home.
-                    page.goto(attempt.url, wait_until="domcontentloaded")
-                    attempt.check_mock()
-                    session = session_factory(model, step_limit, history)
-                    if isinstance(session, ShopperSession):
-                        session.on_step = attempt.check_mock
+    with ExitStack() as trace_scope:
+        try:
+            session = session_factory(model, step_limit, history)
+            if isinstance(session, SdkShopperSession):
+                trace_scope.enter_context(session.attempt_trace)
+                result["trace_id"] = session.trace_id
+                session.save_observation = lambda png: save_observation(evidence, stem, png)
+            with serve_attempt(directory, catalog) as attempt:
+                served = attempt
+                with browser.new_context(viewport=VIEWPORT, service_workers="block") as context:
+                    context.set_default_timeout(5_000)
+                    context.route("**/*", lambda route: restrict_to_storefront(route, attempt.url))
+                    page = context.new_page()
                     try:
-                        shop_and_grade(session, page, attempt, result, catalog, evidence)
-                    except (GradeError, ShopperFailure, AssertionError) as error:
-                        problems.append(str(error))
-                finally:
-                    if session is not None:
+                        # Every shopper starts on the homepage with empty session storage.
+                        page.goto(attempt.url, wait_until="domcontentloaded")
+                        attempt.check_mock()
+                        if isinstance(session, (ShopperSession, SdkShopperSession)):
+                            session.on_step = attempt.check_mock
+                        try:
+                            shop_and_grade(session, page, attempt, result, catalog, evidence)
+                        except (GradeError, ShopperFailure, AssertionError) as error:
+                            problems.append(str(error))
+                    finally:
                         result["steps"] = session.steps
                         screenshot = getattr(session, "last_screenshot", None)
-                    # Keep the last view until the drained mock record can be graded.
-                    # A browser loss here also makes an otherwise correct attempt incomplete.
-                    screenshot = page.screenshot(timeout=5_000)
-        attempt.check_mock()
-        try:
-            grade_submissions(story, attempt.submissions)
-        except GradeError as error:
-            problems.append(str(error))
-        result["reason"] = " ".join(problems)
-        result["status"] = "failed" if problems else "passed"
-    except (Error, OSError, ModelUnavailable, AssertionError, KeyboardInterrupt) as error:
-        result["reason"] = str(error) or "Run interrupted."
-        result["status"] = "incomplete"
-    finally:
-        if served is not None:
-            result["submissions"] = served.submissions
-        if result["status"] != "passed" and screenshot is not None:
-            result["screenshot"] = f"{stem}.png"
-            (evidence / f"{stem}.png").write_bytes(screenshot)
-        write_json(evidence / result["action_history"], history)
+                        # Keep the last view until the drained mock record can be graded.
+                        # A browser loss here also makes an otherwise correct attempt incomplete.
+                        screenshot = page.screenshot(timeout=5_000)
+            attempt.check_mock()
+            try:
+                grade_submissions(story, attempt.submissions)
+            except GradeError as error:
+                problems.append(str(error))
+            result["reason"] = " ".join(problems)
+            result["status"] = "failed" if problems else "passed"
+        except (Error, OSError, ModelUnavailable, AssertionError, KeyboardInterrupt) as error:
+            result["reason"] = str(error) or "Run interrupted."
+            result["status"] = "incomplete"
+        finally:
+            result["usage"] = summarize_usage(history, model, result["steps"])
+            if served is not None:
+                result["submissions"] = served.submissions
+            if screenshot is not None and (story == "change" or result["status"] != "passed"):
+                result["screenshot"] = f"{stem}.png"
+                (evidence / f"{stem}.png").write_bytes(screenshot)
+            write_json(evidence / result["action_history"], history)
+            if result["trace_id"]:
+                with custom_span(
+                    "Private shopper grade",
+                    data={
+                        "story": story,
+                        "attempt": number,
+                        "status": result["status"],
+                        "turns": result["steps"],
+                        "usage": result["usage"],
+                        "report": "report.json",
+                        "history": result["action_history"],
+                        "checkpoint": result["checkpoint_screenshot"],
+                        "final_view": result["screenshot"],
+                    },
+                ):
+                    pass
     return result
 
 
@@ -258,12 +314,15 @@ def run_suite(
     model: str,
     step_limit: int,
     evidence: Path,
-    session_factory: SessionFactory = ShopperSession,
+    session_factory: SessionFactory | None = None,
     *,
     report: Report | None = None,
 ) -> Report:
     if report is None:
-        report = new_report(directory, model, step_limit)
+        runner = "sdk" if session_factory is SdkShopperSession else "native"
+        report = new_report(directory, model, step_limit, runner=runner)
+    if session_factory is None:
+        session_factory = SdkShopperSession if report["runner"] == "sdk" else ShopperSession
     evidence.mkdir(parents=True, exist_ok=True)
     try:
         if not (directory / "index.html").is_file():
@@ -274,7 +333,8 @@ def run_suite(
             manifest, report["build_sha256"] = identify_build(snapshot)
             write_json(evidence / "build-files.json", manifest)
             write_json(evidence / "report.json", report)
-            for story, title in STORIES.items():
+            for story in report["stories"]:
+                title = STORIES[story]
                 for number in range(1, ATTEMPT_LIMIT + 1):
                     attempt = run_attempt(
                         browser,
@@ -306,7 +366,7 @@ def run_suite(
                     if status == "passed":
                         break
             report["status"] = (
-                "passed" if report["within_three_passes"] == len(STORIES) else "failed"
+                "passed" if report["within_three_passes"] == len(report["stories"]) else "failed"
             )
     except (Error, OSError, KeyboardInterrupt) as error:
         report["status"] = "incomplete"
@@ -322,6 +382,10 @@ def main() -> None:
     )
     parser.add_argument("--feed", type=Path, required=True, help="JSON feed used for this build")
     parser.add_argument("--model", required=True, help="OpenAI computer-capable model identifier")
+    parser.add_argument("--runner", choices=("native", "sdk"), default="native")
+    parser.add_argument(
+        "--story", choices=tuple(STORIES), help="Run just this story (default: all)"
+    )
     parser.add_argument("--step-limit", type=int, default=DEFAULT_STEP_LIMIT)
     parser.add_argument("--evidence", type=Path, help="New or empty run directory")
     args = parser.parse_args()
@@ -335,7 +399,9 @@ def main() -> None:
     if evidence.exists() and (not evidence.is_dir() or any(evidence.iterdir())):
         parser.error(f"Choose a new or empty evidence directory: {evidence}")
     evidence.mkdir(parents=True, exist_ok=True)
-    report = new_report(directory, args.model, args.step_limit, feed)
+    report = new_report(
+        directory, args.model, args.step_limit, feed, runner=args.runner, story=args.story
+    )
     try:
         # Claim the directory before starting services, even for simultaneous invocations.
         with (evidence / "report.json").open("x", encoding="utf-8") as initial:
@@ -350,14 +416,21 @@ def main() -> None:
         if STORE_ID not in catalog:
             raise ValueError(f"Source feed has no Thai Peacock store {STORE_ID}.")
         with sync_playwright() as playwright, playwright.chromium.launch() as browser:
+            report["versions"]["chromium"] = browser.version
             run_suite(
-                browser, directory, catalog, args.model, args.step_limit, evidence, report=report
+                browser,
+                directory,
+                catalog,
+                args.model,
+                args.step_limit,
+                evidence,
+                report=report,
             )
     except (Error, OSError, KeyError, TypeError, ValueError, KeyboardInterrupt) as error:
         report["status"] = "incomplete"
         report["reason"] = str(error) or "Run interrupted."
         write_json(evidence / "report.json", report)
-    total = len(STORIES)
+    total = len(report["stories"])
     print(
         f"{report['status'].upper()} · first attempt {report['first_attempt_passes']}/{total}"
         f" · within three {report['within_three_passes']}/{total}",

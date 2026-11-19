@@ -18,7 +18,7 @@ from webbuilder_shopper.computer_runner import (
     CHANGE_REQUEST,
     REQUESTS,
     History,
-    run_attempt,
+    new_report,
     run_suite,
 )
 from webbuilder_shopper.grading import RICE, ROLLS, STORE_ID, TEA
@@ -227,7 +227,7 @@ def test_edit_checkpoint_persists_the_view_before_the_change_request(
                 assert struct.unpack(">II", cart_image[16:24]) == (size["width"], size["height"])
                 saved_carts.update(
                     (png, cart_image)
-                    for png in evidence.glob("*.png")
+                    for png in evidence.glob("*-cart.png")
                     if png.read_bytes() == cart_image
                 )
                 if not finish:
@@ -239,18 +239,20 @@ def test_edit_checkpoint_persists_the_view_before_the_change_request(
         # Select the deterministic shopper's complete (tea and rice) first-stage script.
         return EditSession(Counter({REQUESTS["change"]: 1}), history)
 
-    result = run_attempt(
-        browser, directory, catalog, "test-shopper", 32, evidence, "change", 1, fresh
-    )
-    assert result["status"] == ("passed" if finish else "failed")
-    checkpoint = result["checkpoint_screenshot"]
-    assert checkpoint and list(saved_carts) == [evidence / checkpoint]
-    assert (evidence / checkpoint).read_bytes() == saved_carts[evidence / checkpoint]
-    if not finish:
-        assert result["screenshot"] and result["screenshot"] != checkpoint
-        assert (evidence / result["screenshot"]).read_bytes() != (
-            evidence / checkpoint
-        ).read_bytes()
+    report = new_report(directory, "test-shopper", 32, story="change")
+    run_suite(browser, directory, catalog, "test-shopper", 32, evidence, fresh, report=report)
+    assert report["status"] == ("passed" if finish else "failed")
+    assert report["first_attempt_passes"] == report["within_three_passes"] == int(finish)
+    assert len(report["attempts"]) == (1 if finish else 3)
+    for result in report["attempts"]:
+        assert result["story"] == "change" and result["status"] == report["status"]
+        checkpoint = result["checkpoint_screenshot"]
+        assert (
+            checkpoint
+            and (evidence / checkpoint).read_bytes() == saved_carts[evidence / checkpoint]
+        )
+        final = result["screenshot"]
+        assert final and (evidence / final).read_bytes() != saved_carts[evidence / checkpoint]
 
 
 @pytest.mark.parametrize("outage", ["model", "browser", "mock"])

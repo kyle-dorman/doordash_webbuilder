@@ -86,9 +86,9 @@ uv run --locked --package webbuilder-agent --env-file .env generate-agent-storef
   --feed ~/data/webbuilder/restaurants_feed.json --store-id 265151
 ```
 
-Use store ID `26303866` for One Stop Roti. The builder uses `openai/gpt-6.1-terra` with high reasoning effort and can use up to 100 messages for edits and previews. Use `--model` to choose another model and `--message-limit` to change the budget.
+Use store ID `26303866` for One Stop Roti. The builder uses `openai/gpt-6.1-terra` with high reasoning effort and a budget of 100 messages per restaurant. Use `--model` to choose another model and `--message-limit` to change the budget.
 
-Each restaurant gets its own assignment from its feed. The builder draws a mood and palette from the food, tags and imagery, then designs the layout and a browsing interaction to suit. It can be selective on the landing page. The full menu includes every section, item, price, supplied description and dish image in feed order. The builder previews the site and tries its custom control in Chromium. The shared cart handles ordering and checkout.
+The first assignment is to make a mood board from one restaurant’s feed. The builder chooses a place, object or ritual suggested by the menu and records its recognizable features, colors, materials and lettering. It saves the board in `agent/mood-board.json` before it receives the storefront brief or editing tools. It then uses that reference to design the layout and a browsing interaction. The landing page can be selective. The full menu includes every section, item, price, supplied description and dish image in feed order. The builder previews the site and tries its custom control in Chromium. The shared cart handles ordering and checkout.
 
 Each run gets a fresh folder at `~/data/webbuilder/runs/agent/<timestamp>/<restaurant>/`. The submitted site goes in `submitted/`. The `agent/` directory keeps the first render, source files, screenshots, run record and Inspect log. Use `--output` and `--evidence` to choose specific destinations. A run that ends before submission is recorded as incomplete.
 

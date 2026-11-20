@@ -4,9 +4,10 @@ import argparse
 import base64
 import hashlib
 import json
+import re
 import secrets
 import shutil
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
@@ -15,18 +16,25 @@ from typing import Final
 from inspect_ai import Task, eval
 from inspect_ai.agent import AgentSubmit, react
 from inspect_ai.dataset import Sample
-from inspect_ai.model import ContentImage, ContentText, GenerateConfig, Model
+from inspect_ai.model import ChatMessageUser, ContentImage, ContentText, GenerateConfig, Model
+from inspect_ai.solver import Generate, Solver, TaskState, chain, solver
 from inspect_ai.tool import ToolDef, ToolError, ToolResult
 from jinja2 import TemplateError
 from webbuilder_shared.feed import Store, load_store
 from webbuilder_shared.paths import RUNS, store_directory_name
 
 from .menu import check_full_menu
-from .render import PAGE_NAME, assignment, render, screenshot
+from .render import PAGE_NAME, mood_assignment, render, screenshot, storefront_assignment
 
 DEFAULT_MODEL = "openai/gpt-6.1-terra"
 REASONING_EFFORT: Final = "high"
 DEFAULT_MESSAGE_LIMIT = 100
+
+
+@dataclass(frozen=True)
+class Swatch:
+    name: str
+    hex: str
 
 
 @dataclass(frozen=True)
@@ -45,12 +53,20 @@ class Workspace:
     store: Store
     working: Path
     evidence: Path
+    report: dict[str, object]
+    mood_board: dict[str, object] | None = None
     sources: dict[str, str] = field(default_factory=dict)
     revision: int = 0
     previews: list[Preview] = field(default_factory=list)
     submitted: Preview | None = None
     assessment: str = ""
     design_direction: str = ""
+
+    def save_report(self) -> None:
+        self.report["mood_board"] = self.mood_board
+        temp = self.evidence / "run.json.tmp"
+        temp.write_text(json.dumps(self.report, indent=2) + "\n", encoding="utf-8")
+        temp.replace(self.evidence / "run.json")
 
     def save_sources(self, name: str) -> None:
         directory = self.evidence / name
@@ -60,12 +76,68 @@ class Workspace:
 
 
 def build_task(workspace: Workspace, message_limit: int) -> Task:
+    async def mood_board(
+        title: str,
+        scene: str,
+        feed_cues: list[str],
+        palette: list[Swatch],
+        materials: str,
+        lettering: str,
+    ) -> str:
+        """Deliver the creative mood board for this restaurant.
+
+        Args:
+            title: A short name for the physical reference at the heart of the board.
+            scene: How a person encounters that reference and which marks make it recognizable.
+            feed_cues: Specific details from the restaurant feed that inspired the scene.
+            palette: Named color swatches with six-digit hex values, dominant color first.
+            materials: Tactile surfaces, textures, or patterns.
+            lettering: The character and rhythm of the imagined letterforms.
+        """
+        if workspace.mood_board is not None:
+            raise ToolError("The mood board has already been recorded.")
+        if not all(s.strip() for s in (title, scene, materials, lettering)):
+            raise ToolError("Give the board a title, scene, materials and lettering.")
+        if not feed_cues or not all(cue.strip() for cue in feed_cues):
+            raise ToolError("Include concrete feed cues for the mood board.")
+        if not palette or any(
+            not swatch.name.strip() or not re.fullmatch(r"#[0-9A-Fa-f]{6}", swatch.hex)
+            for swatch in palette
+        ):
+            raise ToolError("Use a name and a six-digit #RRGGBB hex value for each palette swatch.")
+        board: dict[str, object] = {
+            "title": title,
+            "scene": scene,
+            "feed_cues": feed_cues,
+            "palette": [asdict(swatch) for swatch in palette],
+            "materials": materials,
+            "lettering": lettering,
+        }
+        (workspace.evidence / "mood-board.json").write_text(
+            json.dumps(board, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        workspace.mood_board = board
+        workspace.save_report()
+        return "Mood board recorded."
+
+    @solver
+    def assign_storefront() -> Solver:
+        async def solve(state: TaskState, generate: Generate) -> TaskState:
+            if workspace.mood_board is None:
+                raise IncompleteBuild("The mood board was not completed.")
+            state.messages.append(
+                ChatMessageUser(content=storefront_assignment(workspace.mood_board))
+            )
+            return state
+
+        return solve
+
     async def design_direction(concept: str) -> str:
         """Record a short creative brief for this restaurant before editing the site.
 
         Args:
-            concept: Describe the atmosphere suggested by the food, the source of the colors,
-                and how the layout and interaction carry that feeling into the site.
+            concept: Describe how the layout and browsing interaction translate your mood board
+                into the experience of ordering this restaurant's food.
         """
         if workspace.sources or not concept.strip():
             raise ToolError("Record a design direction before writing the first file.")
@@ -180,10 +252,14 @@ def build_task(workspace: Workspace, message_limit: int) -> Task:
 
     return Task(
         name="build_storefront",
-        dataset=[Sample(id=workspace.store.store_id, input=assignment(workspace.store))],
-        solver=react(
-            tools=[ToolDef(design_direction), ToolDef(edit), ToolDef(preview, max_output=0)],
-            submit=AgentSubmit(tool=ToolDef(submit), keep_in_messages=True),
+        dataset=[Sample(id=workspace.store.store_id, input=mood_assignment(workspace.store))],
+        solver=chain(
+            react(prompt=None, submit=AgentSubmit(tool=ToolDef(mood_board), keep_in_messages=True)),
+            assign_storefront(),
+            react(
+                tools=[ToolDef(design_direction), ToolDef(edit), ToolDef(preview, max_output=0)],
+                submit=AgentSubmit(tool=ToolDef(submit), keep_in_messages=True),
+            ),
         ),
         config=GenerateConfig(parallel_tool_calls=False, reasoning_effort=REASONING_EFFORT),
         message_limit=message_limit,
@@ -246,7 +322,7 @@ def generate(
     with report_path.open("x", encoding="utf-8") as initial:
         initial.write(json.dumps(report, indent=2) + "\n")
     with TemporaryDirectory(prefix=".storefront-", dir=output.parent) as working:
-        workspace = Workspace(store, Path(working), evidence)
+        workspace = Workspace(store, Path(working), evidence, report)
         try:
             (log,) = eval(
                 build_task(workspace, message_limit),
@@ -284,7 +360,7 @@ def generate(
                 {"revision": p.revision, "page": p.page, "click": p.click, "image": p.image_path}
                 for p in workspace.previews
             ]
-            report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+            workspace.save_report()
     return output / "index.html"
 
 

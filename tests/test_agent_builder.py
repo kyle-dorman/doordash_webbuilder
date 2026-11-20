@@ -25,6 +25,18 @@ from webbuilder_agent.render import render
 from webbuilder_shared.feed import load_store
 
 MODEL = "mockllm/design"
+MOOD_BOARD: dict[str, object] = {
+    "title": "Rice steam and chili lacquer",
+    "scene": "A red lacquer bento tray emerging through a cloud of warm rice steam.",
+    "feed_cues": ["Bento", "Rice <small>", "Choose mild & sweet or <hot>."],
+    "palette": [
+        {"name": "Rice steam", "hex": "#FFF5DF"},
+        {"name": "Chili lacquer", "hex": "#A62212"},
+        {"name": "Charcoal ink", "hex": "#29231E"},
+    ],
+    "materials": "Glossy lacquer beside the matte surface of grains of rice.",
+    "lettering": "Square, hand-painted strokes softened at the corners.",
+}
 CONCEPT = "Use a bento tray layout and a button that unfolds the mild and hot rice options."
 HOME = """<main id="menu"><h1>{{ store.name }}</h1>
 <button type="button" id="unfold">Unfold the tray</button>
@@ -73,7 +85,9 @@ def test_preview_revision_and_submission(tmp_path: Path, monkeypatch: pytest.Mon
         json.dumps({"status": "submitted", "store_id": "999", "design_direction": other_concept})
     )
     css = "body { background: white; }"
-    calls = [
+    calls: list[tuple[str, dict[str, object]]] = [
+        ("mood_board", {**MOOD_BOARD, "palette": [{"name": "Chili", "hex": "scarlet"}]}),
+        ("mood_board", MOOD_BOARD),
         # The first draft needs a design direction and a valid template.
         ("edit", {"filename": "index.html", "content": "Premature edit"}),
         ("design_direction", {"concept": CONCEPT}),
@@ -112,12 +126,31 @@ def test_preview_revision_and_submission(tmp_path: Path, monkeypatch: pytest.Mon
     ) -> ModelOutput:
         nonlocal preview_id
         turn, (name, args) = next(steps)
-        if turn == 0:
+        available = {tool.name for tool in tools}
+        if turn in (0, 1):
+            assert available == {"mood_board"}
             assert config.reasoning_effort == "high"
             assignment = next(message.text for message in messages if message.role == "user")
             assert other_concept not in assignment
-            _, feed_json = assignment.split("Restaurant feed:\n", 1)
+            mood_brief, feed_json = assignment.split("Restaurant feed:\n", 1)
             assert json.loads(feed_json) == json.loads(json.dumps(asdict(store)))
+            assert "mood board" in mood_brief.lower()
+            if turn == 0:
+                first_input = "\n".join(message.text for message in messages).lower()
+                for later_concept in ("storefront", "checkout", "layout", "javascript", "jinja"):
+                    assert later_concept not in first_input
+            assert not list(tmp_path.rglob("mood-board.json"))
+        elif turn == 2:
+            assert available == {"design_direction", "edit", "preview", "submit"}
+            handoff = next(message.text for message in reversed(messages) if message.role == "user")
+            site_brief, board_json = handoff.split("Your mood board:\n", 1)
+            assert "storefront.js" in site_brief and "review_markup" in site_brief
+            assert json.loads(board_json) == MOOD_BOARD
+            (board_path,) = tmp_path.rglob("mood-board.json")
+            assert json.loads(board_path.read_text()) == MOOD_BOARD
+            progress = json.loads(board_path.with_name("run.json").read_text())
+            assert progress["mood_board"] == MOOD_BOARD
+            assert progress["status"] == "incomplete"
 
         # Inspect can put the screenshot in a user message immediately after the tool reply.
         for message in messages[-2:]:
@@ -139,7 +172,7 @@ def test_preview_revision_and_submission(tmp_path: Path, monkeypatch: pytest.Mon
         feed,
         "123",
         model=model,
-        message_limit=2 * len(calls) + 1,
+        message_limit=2 * len(calls) + 2,
     )
     output = index.parent
     evidence = output.parent / "agent"
@@ -149,9 +182,12 @@ def test_preview_revision_and_submission(tmp_path: Path, monkeypatch: pytest.Mon
     assert report["limit"]["type"] == "message"
     assert DEFAULT_MODEL == "openai/gpt-6.1-terra"
     assert report["reasoning_effort"] == "high"
+    assert report["mood_board"] == MOOD_BOARD
+    assert json.loads((evidence / "mood-board.json").read_text()) == MOOD_BOARD
     assert report["design_direction"] == CONCEPT
 
     expected_errors = [
+        "#RRGGBB",
         "design_direction",
         "unknown_value",
         "item 100 is missing its full description",
@@ -206,4 +242,6 @@ def test_message_budget_cannot_publish_an_unsubmitted_build(tmp_path: Path) -> N
         generate(feed, "123", tmp_path / "site", model=model, message_limit=3)
     report = json.loads((tmp_path / "site-evidence" / "run.json").read_text())
     assert report["status"] == "incomplete" and report["limit"]["type"] == "message"
+    assert report["mood_board"] is None and not report["previews"]
+    assert not (tmp_path / "site-evidence" / "mood-board.json").exists()
     assert not (tmp_path / "site").exists()

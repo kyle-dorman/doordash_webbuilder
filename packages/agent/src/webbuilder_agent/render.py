@@ -44,9 +44,14 @@ border:0}}</style></head><body>{body}
 """
 
 
-def assignment(store: Store) -> str:
-    brief = files("webbuilder_agent").joinpath("brief.txt").read_text(encoding="utf-8")
+def mood_assignment(store: Store) -> str:
+    brief = files("webbuilder_agent").joinpath("mood-brief.txt").read_text(encoding="utf-8")
     return brief + "\nRestaurant feed:\n" + json.dumps(asdict(store), ensure_ascii=False, indent=2)
+
+
+def storefront_assignment(board: dict[str, object]) -> str:
+    brief = files("webbuilder_agent").joinpath("brief.txt").read_text(encoding="utf-8")
+    return brief + "\nYour mood board:\n" + json.dumps(board, ensure_ascii=False, indent=2)
 
 
 def _image_origins(store: Store) -> str:

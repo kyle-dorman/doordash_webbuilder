@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="diagram-title-access diagram-description">
+<title id="diagram-title-access">How a storefront gets built and checked</title>
+<desc id="diagram-description">A restaurant feed enters an AI builder or a static generator. Each produces a storefront with a shared cart and a feed-priced mock checkout. A scripted browser and an independent screenshot-driven shopper exercise the saved storefront, and a deterministic grader checks their evidence against expected answers and observed orders.</desc>
+<rect id="background" width="1280" height="720" fill="#F8F6EF"/>
+<text id="diagram-title" x="64" y="86.56" font-family="Arial, sans-serif" font-size="43" font-weight="700" fill="#172E26">How a storefront gets built and checked</text>
+<text id="generation-stage" x="64" y="145.08" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#156048">Storefront generation and mock checkout</text>
+<polyline id="feed-to-build-fork" points="277,274 304,274" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="feed-branches" points="304,217 304,331" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="feed-to-agent" points="304,217 332,217" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="feed-to-static" points="304,331 332,331" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="feed-to-agent-arrow" points="324,212 332,217 324,222" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="feed-to-static-arrow" points="324,326 332,331 324,336" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="agent-to-join" points="645,217 677,217 677,274" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="static-to-join" points="645,331 677,331 677,274" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="join-to-site" points="677,274 711,274" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="join-to-site-arrow" points="703,269 711,274 703,279" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="checkout-request" points="955,263 994,263" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="checkout-request-arrow" points="986,258 994,263 986,268" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="checkout-response" points="994,286 955,286" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="checkout-response-arrow" points="963,281 955,286 963,291" stroke="#156048" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<rect id="feed-box" x="64" y="217" width="211" height="114" fill="#F8F6EF" stroke="#B8C4B9" stroke-width="1.5"/>
+<text id="feed-title" x="80" y="251.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#172E26">Restaurant feed</text>
+<text id="feed-detail-0" x="80" y="280.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">One store’s identity,</text>
+<text id="feed-detail-1" x="80" y="304.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">menu and imagery.</text>
+<rect id="builder-box" x="337" y="165" width="306" height="104" fill="#E8F0E9" stroke="#156048" stroke-width="1.5"/>
+<text id="builder-title" x="353" y="199.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#156048">Inspect AI builder</text>
+<text id="builder-detail-0" x="353" y="228.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">Creates a mood board, edits</text>
+<text id="builder-detail-1" x="353" y="252.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">the site, previews and submits.</text>
+<rect id="reference-box" x="337" y="285" width="306" height="92" fill="#F8F6EF" stroke="#B8C4B9" stroke-width="1.5"/>
+<text id="reference-title" x="353" y="319.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#172E26">Static generator</text>
+<text id="reference-detail-0" x="353" y="348.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">Renders a fixed template.</text>
+<rect id="served-box" x="716" y="217" width="233" height="114" fill="#E8F0E9" stroke="#156048" stroke-width="1.5"/>
+<text id="served-title" x="732" y="251.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#156048">Served storefront</text>
+<text id="served-detail-0" x="732" y="280.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">Shared catalog, cart</text>
+<text id="served-detail-1" x="732" y="304.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">and receipt interface.</text>
+<rect id="mock-box" x="1000" y="217" width="216" height="114" fill="#F8F6EF" stroke="#B8C4B9" stroke-width="1.5"/>
+<text id="mock-title" x="1016" y="251.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#172E26">Mock checkout</text>
+<text id="mock-detail-0" x="1016" y="280.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">Prices the order from</text>
+<text id="mock-detail-1" x="1016" y="304.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">the store’s feed.</text>
+<polyline id="divider" points="64,409 1216,409" stroke="#B8C4B9" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<text id="evaluation-stage" x="64" y="462.84" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#A44729">Independent checks on the saved storefront</text>
+<rect id="scripted-box" x="64" y="498" width="430" height="76" fill="#F8F6EF" stroke="#B8C4B9" stroke-width="1.5"/>
+<text id="scripted-title" x="80" y="532.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#172E26">Scripted Playwright</text>
+<text id="scripted-detail-0" x="80" y="561.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">Runs fixed actions on the reference.</text>
+<rect id="computer-use-box" x="64" y="593" width="430" height="76" fill="#F8F6EF" stroke="#B8C4B9" stroke-width="1.5"/>
+<text id="computer-use-title" x="80" y="627.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#172E26">Computer-use shopper</text>
+<text id="computer-use-detail-0" x="80" y="656.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">Chooses browser actions from screenshots.</text>
+<polyline id="scripted-to-grade" points="496,536 541,536 541,583" stroke="#A44729" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="shopper-to-grade" points="496,631 541,631 541,583" stroke="#A44729" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="join-to-grade" points="541,583 579,583" stroke="#A44729" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline id="join-to-grade-arrow" points="571,578 579,583 571,588" stroke="#A44729" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+<rect id="grader-box" x="584" y="512" width="632" height="142" fill="#F8EDE4" stroke="#A44729" stroke-width="1.5"/>
+<text id="grader-title" x="600" y="546.16" font-family="Arial, sans-serif" font-size="23" font-weight="700" fill="#A44729">Rule-based grader</text>
+<text id="grader-detail-0" x="600" y="575.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">Checks answers and visible receipts against expected</text>
+<text id="grader-detail-1" x="600" y="599.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">outcomes and the mock’s order log. Lookups require</text>
+<text id="grader-detail-2" x="600" y="623.48" font-family="Arial, sans-serif" font-size="19" font-weight="400" fill="#435A50">zero submissions. Orders require exactly one acceptance.</text>
+</svg>
